@@ -142,10 +142,11 @@ class GDriveDownloader(PageLoader):
             os.remove(f"{self.download_folder}/{file}")
 
 class GDocsPageLoader(PageLoader):
-    def __init__(self, timeout=20, preferences=None, addons=None):
+    def __init__(self, url, timeout=20, preferences=None, addons=None, ):
         super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "gb_oe gb_Bc"), timeout, preferences, addons)
+        self.load(url)
         self.strings = []
-
+        
     def user(self, name, passwrd):
         self.name = name
         self.passwrd = passwrd
