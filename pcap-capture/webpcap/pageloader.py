@@ -21,13 +21,13 @@ class PageLoader():
         self.delay = timeout
         self.preferences = preferences # [(preference_name, preference_value]
         self.extension = addons # [addon_paths]
-        
+
     def start_driver(self):
         self.firefox_profile = FirefoxProfile()
         if self.preferences:
             for preference in self.preferences:
                 self.firefox_profile.set_preference(preference[0], preference[1])
-        
+
         if self.extension:
             self.firefox_profile.add_extension(self.extension)
 
@@ -47,10 +47,10 @@ class PageLoader():
             error(e)
             self.close_driver()
             raise e
-    
+
     def get_page_source(self):
         return self.driver.page_source
-    
+
     def close_driver(self, quit=False):
         if quit:
             self.driver.quit()
