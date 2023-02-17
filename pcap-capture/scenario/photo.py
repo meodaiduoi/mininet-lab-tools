@@ -8,7 +8,7 @@ import tomli
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
-        sys.path.insert(0, '/home/onos/Documents/Github/mininet-lab-tools/pcap-capture/webpcap' )
+        sys.path.insert(0, '../' )
 except FileNotFoundError:
     print('Config file not found')
     exit(1)
