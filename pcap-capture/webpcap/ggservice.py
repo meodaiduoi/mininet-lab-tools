@@ -2,7 +2,7 @@ from pageloader import PageLoader
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
@@ -144,7 +144,9 @@ class GDriveDownloader(PageLoader):
 class GDocsPageLoader(PageLoader):
     def __init__(self, url, timeout=20, preferences=None, addons=None, ):
         super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "gb_oe gb_Bc"), timeout, preferences, addons)
-        self.load(url)
+        self.start_driver()
+        if url:
+            self.load(url)
         self.strings = []
         
     def user(self, name, passwrd):
@@ -175,7 +177,9 @@ class GDocsPageLoader(PageLoader):
 class GPhotosPageLoader(PageLoader):
     def __init__(self, url=None, delay=3, extension=''):
         super().__init__((By.CLASS_NAME, 'BiCYpc'), delay, extension)
-        self.load(url)
+        self.start_driver()
+        if url:
+            self.load(url)
     
     def load(self, url):
         super().load(url)
