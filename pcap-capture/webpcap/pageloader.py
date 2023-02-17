@@ -6,7 +6,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
+import time
 from logging import warning, info, debug, error
+
 
 class PageLoader():
     '''
@@ -47,6 +49,17 @@ class PageLoader():
             error(e)
             self.close_driver()
             raise e
+
+    def scroll_to_bottom(self, speed=8, delay=0.5):
+        # Scroll slowly to bottom of page
+        last_height = self.driver.execute_script("return document.body.scrollHeight")
+        while True:
+            self.driver.execute_script(f"window.scrollTo(0, document.body.scrollHeight/{speed});")
+            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            time.sleep(delay)
+            if new_height == last_height:
+                break
+            last_height = new_height
 
     def get_page_source(self):
         return self.driver.page_source
