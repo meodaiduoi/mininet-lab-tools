@@ -10,3 +10,6 @@ webpcap_lib_path = '../webpcap'
 [gg-drive]
 
 [youtube]
+
+[test-capture]
+interface = 'ens33'

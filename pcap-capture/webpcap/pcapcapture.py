@@ -20,11 +20,11 @@ class PcapCapture:
         if decode_as:
             self.tshark_command += ['-d', decode_as]
         if filter:
-            self.tshark_command += ['-Y', filter]
+            self.tshark_command += ['-f', filter]
         if autostop:
             self.tshark_command += ['-a', autostop]
 
-        self.tshark_command = [
+        self.tshark_command += [
             '-i', interface,
             '-o', f'ssl.keylog_file:{tls_key_filename}',
             '-w', pcap_filename
@@ -58,7 +58,7 @@ class QUICTrafficCapture(PcapCapture):
                        autostop='duration:60'):
 
         super().__init__(interface, pcap_filename, tls_key_filename,
-                         'udp.port=443,quic', 'quic', autostop)
+                         'udp.port==443,quic', 'quic', autostop)
 
 class HTTPTrafficCapture(PcapCapture):
     def __init__(self, interface, pcap_filename=f'http_{time.time_ns()}.pcap',

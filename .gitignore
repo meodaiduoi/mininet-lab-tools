@@ -11,3 +11,4 @@
 **/temp/
 **/logs/
 **/*.log
+**/__pycache__/

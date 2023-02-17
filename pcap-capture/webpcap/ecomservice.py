@@ -26,5 +26,16 @@ class EcomServiceLoader(PageLoader):
     def load(self, url):
         pass
 
-    def auto_scrolldown(self):
+class AmazonLoader(EcomServiceLoader):
+    '''
+    AmazonLoader class is used to load a amazon service and wait for the page to load completely.
+    url: A amazon service url to load
+    delay: Time to wait for the page to load
+    preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
+    addons: A list of paths to the addons to be added to the firefox profile
+    '''
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super().__init__(url, delay, preferences, addons)
+
+    def load(self, url):
         pass
