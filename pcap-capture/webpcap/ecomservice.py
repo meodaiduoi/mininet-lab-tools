@@ -2,7 +2,7 @@ from pageloader import PageLoader
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -12,21 +12,8 @@ import os
 
 from logging import warning, info, debug, error
 
-class EcomServiceLoader(PageLoader):
-    '''
-    EcomServiceLoader class is used to load a ecom service and wait for the page to load completely.
-    url: A ecom service url to load
-    delay: Time to wait for the page to load
-    preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
-    addons: A list of paths to the addons to be added to the firefox profile
-    '''
-    def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        pass
 
-    def load(self, url):
-        pass
-
-class AmazonLoader(EcomServiceLoader):
+class AmazonLoader(PageLoader):
     '''
     AmazonLoader class is used to load a amazon service and wait for the page to load completely.
     url: A amazon service url to load
@@ -35,7 +22,34 @@ class AmazonLoader(EcomServiceLoader):
     addons: A list of paths to the addons to be added to the firefox profile
     '''
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super().__init__(url, delay, preferences, addons)
+        super().__init__((By.CSS_SELECTOR, "[aria-label='Amazon']"), delay, preferences, addons)
+        
+        self.start_driver()
+        if url:
+            self.load(url)
 
     def load(self, url):
-        pass
+        if 'amazon.com' in url:
+            super().load(url)
+        else:
+            error('Not a valid amazon url')
+
+class Shopee(PageLoader):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super(Shopee, self).__init__((By.CLASS_NAME, "Hyfopi"), delay, preferences, addons)
+    
+    def load(self, url):
+        if 'shopee.vn' in url:
+            super().load(url)
+        else:
+            error('Not a valid shopee url')
+
+class Tiktok(PageLoader):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super().__init__((By.CSS_SELECTOR, ""), delay, preferences, addons)
+
+    def load(self, url):
+        if 'tiktok.com' in url:
+            super().load(url)
+        else:
+            error('Not a valid tiktok url')
