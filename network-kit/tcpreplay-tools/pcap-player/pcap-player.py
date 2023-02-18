@@ -5,10 +5,10 @@ import subprocess
     This script is used to play pcap files on a mininet network
     Meant to be used in mininet hosts
 '''
-virtualenv = '../../venv10/bin/python3'
+
+os.putenv()
 
 def main():
-    cmd = f'{virtualenv} '
     pass
 
 if __name__ == main():

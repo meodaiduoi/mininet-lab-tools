@@ -1,5 +1,5 @@
 [enviroment]
-webpcap_lib_path = '../webpcap'
+webcapture_lib_path = '../webcapture'
 
 [meet-guest]
 

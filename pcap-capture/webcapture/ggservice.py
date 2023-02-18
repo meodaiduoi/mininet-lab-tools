@@ -1,4 +1,4 @@
-from pageloader import PageLoader
+from webcapture.pageloader import PageLoader
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By

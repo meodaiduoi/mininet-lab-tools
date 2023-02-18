@@ -6,17 +6,23 @@ from logging import info, debug, warning, error, critical
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
-        inteface = config['test-capture']['interface']
+        interface = config['test-capture']['interface']
         sys.path.insert(1, '../' )
 except FileNotFoundError:
     print('Config file not found')
     exit(1)
 
+os.putenv('SSLKEYLOGFILE', './output/ssl-key.log',)
+
 # Code start from here
-from webpcap.pcapcapture import QUICTrafficCapture
+from webcapture.pcapcapture import QUICTrafficCapture
+from webcapture.ggservice import YoutubePlayer
 
 if __name__ == '__main__':
-    print('a')
-    capture = QUICTrafficCapture(interface=inteface, pcap_filename='./test.pcap',autostop='duration:3')
-    result = capture.capture()
-    print(result)
+    youtube = YoutubePlayer('https://www.youtube.com/watch?v=9bZkp7q19f0')
+    capture = QUICTrafficCapture(interface, pcap_filename='./output/test.pcap',autostop='duration:15')
+    youtube.play_button()
+    print(capture.capture())
+    capture.apply_filter()
+    youtube.close_driver()
+

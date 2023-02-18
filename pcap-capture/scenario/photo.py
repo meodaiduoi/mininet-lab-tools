@@ -1,5 +1,5 @@
-from webpcap.pcapcapture import QUICTrafficCapture
-from webpcap.ggservice import GPhotosPageLoader
+from webcapture.pcapcapture import QUICTrafficCapture
+from webcapture.ggservice import GPhotosPageLoader
 from logging import warn, error, info, debug, critical
 import os, sys
 import pandas as pd
