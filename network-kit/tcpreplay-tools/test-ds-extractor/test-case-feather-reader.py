@@ -12,7 +12,7 @@ import concurrent.futures
 
 CONC_THREAD = 12
 SAVED_LOC = './output'
-PCAP_LOC = '/home/onos/Desktop/rawds/'
+PCAP_LOC = '/home/hoangnv46/Downloads/pcap/'
 OVERIDE = False
 
 def workder_pcap_extractor(file_loc, frame_no, saved_filename_loc):
@@ -21,17 +21,12 @@ def workder_pcap_extractor(file_loc, frame_no, saved_filename_loc):
     result, err = subprocess.Popen([f'tshark -r {file_loc} -Y "{display_filter}" -w {saved_filename_loc} -q'], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     return saved_filename_loc, result.decode('utf-8').splitlines(), err.decode('utf-8').splitlines()
 
-def pcap_ip_rewrite(filename):
-    output_filename = f'{filename}_rewrite.pcapng'
-    # subprocess.Popen(["tcprewrite", "--enet-dmac=00:00:00:00:00:01", "--enet-smac=00:00:00:00:00:02", "-i", filename, "-o", output_filename], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-
 def ls_subfolders(rootdir):
     sub_folders_n_files = []
     for path, _, files in os.walk(rootdir):
         for name in files:
             sub_folders_n_files.append(os.path.join(path, name))
     return sorted(sub_folders_n_files)
-
 
 if __name__ == "__main__":
     lable = './label/client_merged.feather'
@@ -64,8 +59,6 @@ if __name__ == "__main__":
             tasks.append(pool.submit(workder_pcap_extractor, file_loc, frames_no, saved_filename_loc))
             # print("waiting for tasks...", flush=True)
 
-
         for task in concurrent.futures.as_completed(tasks):
             finised_filename, result, err = task.result()
             print(finised_filename, result, err)
-            # pcap_ip_rewrite(finised_filename)
