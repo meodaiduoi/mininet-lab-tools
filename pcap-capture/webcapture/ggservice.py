@@ -9,6 +9,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
+from selenium.webdriver.common.keys import Keys
+
 import os
 
 from logging import warning, info, debug, error
@@ -34,10 +36,20 @@ class YoutubePlayer(PageLoader):
             super().load(url)
         else:
             error('Not a valid youtube url')
-
+    
     def play_button(self):
         try:
             self.driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
+        except AttributeError as e:
+            error('Required to load() first')
+
+    def fast_forward(self, times=1):
+        '''
+        Fast forward the video by pressing the right arrow key on the keyboard
+        times: Number of times to press the right arrow key (default: 1) with each time being 5 seconds
+        '''
+        try:
+            self.driver.find_element(By.CLASS_NAME,'html5-main-video').send_keys(Keys.RIGHT * times)
         except AttributeError as e:
             error('Required to load() first')
 
@@ -72,10 +84,10 @@ class GMeetHost(PageLoader):
     def get_invite_code(self):
         pass
 
-    def start_virtual_camera(self):
+    def btn_camera(self):
         pass
 
-    def stop_virtual_camera(self):
+    def btn_mic(self):
         pass
 
 class GMeetGuest(PageLoader):
@@ -88,10 +100,10 @@ class GMeetGuest(PageLoader):
     def join_meeting_by_url(self, url):
         pass
 
-    def start_virtual_camera(self):
+    def btn_camera(self):
         pass
 
-    def stop_virtual_camera(self):
+    def btn_mic(self):
         pass
 
     def leave_meeting(self):
