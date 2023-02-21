@@ -1,5 +1,5 @@
 import subprocess
-import os, sys
+import os, sys, signal
 import time
 
 import logging
@@ -54,25 +54,43 @@ class PcapCapture:
             logging.error('', 'File not found')
 
 class AsynCapCapture(PcapCapture):
-    def __init__(self, decode_as=None, 
-                 filter=None, autostop=None):
-        super().__init__(decode_as, filter, autostop)
+    def __init__(self, decode_as=None, filter=None):
+        '''
+            Allow asynchronous capture allow user interaction while capturing
+            There can be only one capture object at a time
+            Requires a call to terminate() to stop capturing
+        '''
+        super().__init__(decode_as, filter, None)
         self.process = None
     
     def capture(self, interface, pcap_filename):
+        if self.process:
+            logging.error('', 'Already capturing')
+            return
+
         self.pcap_filename = pcap_filename
         tshark_capture_cmd = f'tshark -i {interface} -w {self.pcap_filename}_temp'
-        if self.autostop:
-            tshark_capture_cmd += '-a', self.autostop
+
+        # disable autostop for manual termination
+        # if self.autostop:
+        #     tshark_capture_cmd += '-a', self.autostop
 
         logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
         self.process = subprocess.Popen(tshark_capture_cmd, shell=False,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     def terminate(self):
         if self.process:
-            self.process.send_signal(15) # 15 is SIGTERM
+            result = subprocess.Popen(f'pgrep -P {self.process.pid}', 
+                                      shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            parent_pid = int(result[0].decode('latin-1').split('\n')[0])
+            os.kill(parent_pid, signal.SIGTERM)
             return_code = self.process.wait()
             self.process = None
+
+            if return_code != 0:
+                logging.error('', 'Error in terminating process')
+                return 
+            
             self.__apply_filter()
             return return_code
         else:
@@ -82,39 +100,29 @@ class AsynCapCapture(PcapCapture):
 class QUICTrafficCapture(PcapCapture):
     '''
     Capture QUIC traffic on a given interface
-    interface: interface name
-    tls_key_filename: path to the file where the TLS key will be stored
     autostop: autostop condition
     '''
-    def __init__(self, interface, pcap_filename=f'quic_{time.time_ns()}.pcap', 
-                 autostop='duration:60'):
-
-        super().__init__(interface, pcap_filename,
-                         'udp.port==443,quic', 'quic', autostop)
+    def __init__(self, autostop='duration:10'):
+        super().__init__('udp.port==443,quic', 'quic', autostop)
 
 class HTTPTrafficCapture(PcapCapture):
-    def __init__(self, interface, pcap_filename=f'http_{time.time_ns()}.pcap',
-                       autostop='duration:60'):
-        super().__init__(interface, pcap_filename,
-                         'http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
-                         autostop)
+    def __init__(self, autostop='duration:60'):
+        super().__init__(filter='http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
+                         autostop=autostop)
 
 class AsycnQUICTrafficCapture(AsynCapCapture):
-    def __init__(self, interface, pcap_filename=f'quic_{time.time_ns()}.pcap',
-                       autostop=None):
-
-        super().__init__(interface, pcap_filename,
-                         'udp.port=443,quic', 'quic', autostop)
+    def __init__(self):
+        super().__init__('udp.port=443,quic', 'quic')
 
 class AsycnHTTPTrafficCapture(AsynCapCapture):
-    def __init__(self, interface, pcap_filename=f'http_{time.time_ns()}.pcap',
-                       autostop=None):
-        super().__init__(interface, pcap_filename,
-                         'http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
-                         autostop)
+    def __init__(self):
+        super().__init__(filter='http or http2 and tcp.payload and tcp.port==443 or tcp.port==80')
 
-# class QUICAndHTTPTrafficCapture(PcapCapture):
-#     def __init__(self, interface, pcap_filename=f'quic_http_{time.time_ns()}.pcap',
-#                        tls_key_filename=f'quic_http_tls_key_{time.time_ns()}.key', autostop='duration:60'):
-#         super().__init__(interface, pcap_filename, tls_key_filename,
-#                          'quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80', autostop)
+class QUICAndHTTPTrafficCapture(PcapCapture):
+    def __init__(self, autostop='duration:60'):
+        super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
+                         autostop=autostop)
+
+class AyyncQUICAndHTTPTrafficCapture(AsynCapCapture):
+    def __init__(self):
+        super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80')
