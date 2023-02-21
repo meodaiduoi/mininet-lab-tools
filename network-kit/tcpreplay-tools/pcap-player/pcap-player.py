@@ -67,19 +67,20 @@ async def play_pcap(service_pcap: ServicePcap):
             }
             # rq.post(f'http://{service_pcap.dst_ip}:8000/ping', 
             #         headers={'Content-Type': 'application/json'}, data=json.dumps(data))
-            file_path = os.path.join(service_path, folder, file)    
+            file_path = os.path.join(service_path, folder, file)
+            print(file_path)    
             result = subprocess.Popen(f'echo "rocks" | sudo -S -k tcpreplay -i ens33 -K {file_path}', 
                                       shell=True, stdout=subprocess.PIPE, 
                                       stderr=subprocess.PIPE).communicate()
             end_time = time.time()
+            print(f'start time: {start_time}, end time: {end_time}, process time: {end_time - start_time}')
             process_time[file] = {
                 'start_time': start_time,
                 'end_time': end_time,
                 'process_time': end_time - start_time
             }
 
-            logging.INFO(f'Played file {file_path}, start time: {start_time}, \
-                         end time: {end_time}, process time: {end_time - start_time}')
+            # logging.INFO(f'Played file {file_path}, start time: {start_time}, end time: {end_time}, process time: {end_time - start_time}')
             # delay between each file
             time.sleep(5)
     return {
