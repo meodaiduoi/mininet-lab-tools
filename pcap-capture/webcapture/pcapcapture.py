@@ -30,7 +30,7 @@ class PcapCapture:
             tshark_capture_cmd += f' -a {self.autostop}'
 
         logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
-        result = subprocess.Popen(tshark_capture_cmd, shell=False,
+        result = subprocess.Popen(tshark_capture_cmd, shell=True,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
         logging.info(result[0].decode('latin-1'), result[1].decode('latin-1'))
@@ -45,7 +45,7 @@ class PcapCapture:
             if self.filter:
                 tshark_filter_cmd += f' -Y {self.filter}'
 
-            result = subprocess.Popen(tshark_filter_cmd, shell=False,
+            result = subprocess.Popen(tshark_filter_cmd, shell=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             
             os.remove(f'{self.pcap_filename}_temp')
@@ -76,7 +76,7 @@ class AsynCapCapture(PcapCapture):
         #     tshark_capture_cmd += '-a', self.autostop
 
         logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
-        self.process = subprocess.Popen(tshark_capture_cmd, shell=False,
+        self.process = subprocess.Popen(tshark_capture_cmd, shell=True,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     def terminate(self):
         if self.process:
