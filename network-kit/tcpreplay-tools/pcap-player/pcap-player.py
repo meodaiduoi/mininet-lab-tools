@@ -7,7 +7,11 @@
 
 import os, sys
 import subprocess
-import fastapi  
+import time                                                                                                                    
+import logging
+
+import requests as rq
+import json
 
 from typing import Union
 from fastapi import FastAPI
@@ -15,73 +19,85 @@ from pydantic import BaseModel
 from threading import Thread
 import uvicorn
 
+
+
+app = FastAPI()
+logging.basicConfig(filename='pcap-player.log', level=logging.INFO)
+
+def ls_subfolders(rootdir):
+    sub_folders_n_files = []
+    for path, _, files in os.walk(rootdir):
+        for name in files:
+            sub_folders_n_files.append(os.path.join(path, name))
+    return sorted(sub_folders_n_files)
+
+def ls_file_in_current_folder(path):
+    return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+
+def ls_folder_in_current_folder(path):
+    return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
+
+# split folder
+fd = ls_subfolders('/home/onos/Desktop/output_rewrite/')
+# folders = [os.path.split(f)[0] for f in fd]
+# files = [os.path.split(f)[1] for f in fd]
+
 class ServicePcap(BaseModel):
     service_name: str
     pcap_file: str
     src_name: str
-    # src_ip: str
+    src_ip: str
     dst_name: str
-    # dst_ip: str
-
-# '''
-#     {[{host_name: ip}, {host_name: ip},...]}
-# '''
-
-# class HostsIps(BaseModel):
-#     hosts_ips: list
-
-def ls_subfolders(rootdir):
-    sub_folders_n_files = []
-    for path, _, files in os.walk(rootdir):
-        for name in files:
-            sub_folders_n_files.append(os.path.join(path, name))
-    return sorted(sub_folders_n_files)
-
-# split folder
-fd = ls_subfolders('/home/onos/Desktop/output_rewrite/')
-folders = [os.path.split(f)[0] for f in fd]
-files = [os.path.split(f)[1] for f in fd]
-
-def ls_subfolders(rootdir):
-    sub_folders_n_files = []
-    for path, _, files in os.walk(rootdir):
-        for name in files:
-            sub_folders_n_files.append(os.path.join(path, name))
-    return sorted(sub_folders_n_files)
-
-app = FastAPI()
-
-# @app.get("/")
-# def read_root():
-    # return {"Hello": "World"}
-
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[str, None] = None):
-    # return {"item_id": item_id, "q": q}
-
-# @app.post("/update_ip_index")
-# def update_ip_index(ip_index: HostsIps):
-    # return ip_index
+    dst_ip: str
 
 @app.post("/play_pcap")
 async def play_pcap(service_pcap: ServicePcap):
     store_path = '/home/onos/Desktop/output_rewrite/'    
-    file_path = f'{store_path}{service_pcap.service_name}/{service_pcap.pcap_file}/{service_pcap.src_name}-{service_pcap.dst_name}/{service_pcap.src_name}-{service_pcap.dst_name}.pcap'    
+    service_path = f'{store_path}{service_pcap.service_name}/'
+    
+    process_time = {}
+    for folder in ls_folder_in_current_folder(service_path):
+        for file in ls_file_in_current_folder(
+            os.path.join(service_path, 
+                         f'{service_pcap.src_name}-{service_pcap.dst_name}',
+                         folder)):
+            start_time = time.time()
+            data = {
+                'file': file,
+                'start_time': start_time,
+            }
+            rq.post(f'http://{service_pcap.dst_ip}:8000/ping', 
+                    headers={'Content-Type': 'application/json'}, data=json.dumps(data))
+            file_path = os.path.join(service_path, folder, file)    
+            result = subprocess.Popen(f'echo "rocks" | sudo -S -k tcpreplay -i ens33 -K {file_path}', 
+                                      shell=True, stdout=subprocess.PIPE, 
+                                      stderr=subprocess.PIPE).communicate()
+            end_time = time.time()
+            process_time[file] = {
+                'start_time': start_time,
+                'end_time': end_time,
+                'process_time': end_time - start_time
+            }
 
-    result = subprocess.Popen(f'echo "rocks" | sudo -S -k tcpdump -i ens33 -K {file_path}', shell=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            logging.INFO(f'Played file {file_path}, start time: {start_time}, \
+                         end time: {end_time}, process time: {end_time - start_time}')
+            # delay between each file
+            time.sleep(5)
     return {
         'result': result[0],
-        'error': result[1]
+        'error': result[1],
+        'process_time': process_time
     }
 
-class RespondingTime(BaseModel):
-    end_time: float
+class LatencyTime(BaseModel):
+    server_send_time: float
 
-@app.post("/responding_time")
-async def responding_time(end_time: RespondingTime):
+@app.post("/respone_time")
+async def server_latency(latency: LatencyTime):
     return {
-        'end_time': end_time.end_time
+        ''
+        'sv_r': latency.server_send_time,
+        'latency': latency.server_send_time - time.time()
     }
 
 @app.get('/')
@@ -89,10 +105,6 @@ async def hello():
     return {
         'hello': 'world'
     }
-
-# @app.post("/")
-# def update_route():
-#     return {""}
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
