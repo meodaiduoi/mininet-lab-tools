@@ -32,7 +32,7 @@ if __name__ == '__main__':
     capture = QUICTrafficCapture(interface, pcap_filename='./output/test.pcap',autostop='duration:15')
     youtube.play_button()
     youtube.fast_forward(10)
-    print(capture.capture())
-    capture.apply_filter()
+    print(capture.capture("aaa", "aaa"))
+    capture.__apply_filter()
     youtube.close_driver()
 
