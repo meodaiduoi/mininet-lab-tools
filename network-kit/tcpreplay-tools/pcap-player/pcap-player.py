@@ -44,11 +44,11 @@ fd = ls_subfolders('/home/onos/Desktop/output_rewrite/')
 
 class ServicePcap(BaseModel):
     service_name: str
-    pcap_file: str
+    # pcap_file: str
     src_name: str
-    src_ip: str
+    # src_ip: str
     dst_name: str
-    dst_ip: str
+    # dst_ip: str
 
 @app.post("/play_pcap")
 async def play_pcap(service_pcap: ServicePcap):
@@ -58,16 +58,15 @@ async def play_pcap(service_pcap: ServicePcap):
     process_time = {}
     for folder in ls_folder_in_current_folder(service_path):
         for file in ls_file_in_current_folder(
-            os.path.join(service_path, 
-                         f'{service_pcap.src_name}-{service_pcap.dst_name}',
-                         folder)):
+            os.path.join(service_path, folder,
+                         f'{service_pcap.src_name}-{service_pcap.dst_name}')):
             start_time = time.time()
             data = {
                 'file': file,
                 'start_time': start_time,
             }
-            rq.post(f'http://{service_pcap.dst_ip}:8000/ping', 
-                    headers={'Content-Type': 'application/json'}, data=json.dumps(data))
+            # rq.post(f'http://{service_pcap.dst_ip}:8000/ping', 
+            #         headers={'Content-Type': 'application/json'}, data=json.dumps(data))
             file_path = os.path.join(service_path, folder, file)    
             result = subprocess.Popen(f'echo "rocks" | sudo -S -k tcpreplay -i ens33 -K {file_path}', 
                                       shell=True, stdout=subprocess.PIPE, 
@@ -89,15 +88,22 @@ async def play_pcap(service_pcap: ServicePcap):
         'process_time': process_time
     }
 
-class LatencyTime(BaseModel):
-    server_send_time: float
+class ServerLatency(BaseModel):
+    file: str
+    server_start_time: float
+    respone_time_1: float
+
+server_respone_time = {}
 
 @app.post("/respone_time")
-async def server_latency(latency: LatencyTime):
+async def respone_time(server_latency: ServerLatency):
+    respone_time = respone_time.server_start_time - time.time() + respone_time.respone_time_1
+    server_respone_time[server_latency.file] = {
+        'respone_time': respone_time
+    }
     return {
-        ''
-        'sv_r': latency.server_send_time,
-        'latency': latency.server_send_time - time.time()
+        'sv_r': server_latency.server_send_time,
+        'latency': server_latency.server_send_time - time.time()
     }
 
 @app.get('/')
