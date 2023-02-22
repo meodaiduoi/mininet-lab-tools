@@ -16,12 +16,18 @@ except FileNotFoundError:
 # sslkeylog.set_keylog(os.environ.get('SSLKEYLOGFILE'))
 # os.putenv('SSLKEYLOGFILE', './output/ssl-key.log',)
 
-
 # Code start from here
-from webcapture.pcapcapture import QUICTrafficCapture
+from webcapture.pcapcapture import *
 from webcapture.ggservice import YoutubePlayer
 
 if __name__ == '__main__':
+    '''
+    !TODO: Implement a config file to store the initial config
+    !TODO: Implement a folder structure to store the output
+    /{protocol: QUIC/HTTP}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap} + {SSLKEYLOGFILE: Youtube_sslkey_{timestamp}.log}:
+    Create loop to capture all links in the dataset csv file
+    '''
+
     # Save ssl key to file
     os.environ['SSLKEYLOGFILE'] = './output/ssl-key.log'
     
@@ -29,10 +35,12 @@ if __name__ == '__main__':
     youtube = YoutubePlayer('https://www.youtube.com/watch?v=9bZkp7q19f0')
     
     # Start capture
-    capture = QUICTrafficCapture(interface, pcap_filename='./output/test.pcap',autostop='duration:15')
+    capture = AsyncQUICTrafficCapture()
+    capture.capture(interface, './output/capture.pcap')
     youtube.play_button()
-    youtube.fast_forward(10)
-    print(capture.capture("aaa", "aaa"))
-    capture.__apply_filter()
+    for _ in range(10):
+        youtube.fast_forward(2)
+        time.sleep(1)
+    capture.terminate()
     youtube.close_driver()
 
