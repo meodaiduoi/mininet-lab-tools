@@ -1,7 +1,8 @@
 from scapy.all import *
+import requests as rq
 
 # Set the IP address and port to listen on
-ip = "172.10.0.14"
+ip = "0.0.0.0"
 
 # Define a callback function to handle incoming packets
 def handle_packet(packet):
