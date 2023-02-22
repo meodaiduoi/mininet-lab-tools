@@ -27,7 +27,7 @@ for host in hosts:
         mac_1 = f'00:00:00:00:00:{host[1:]}'
         mac_2 = f'00:00:00:00:00:{server.split("-")[1]}'
         label = f'{server.split("-")[2]}'
-        pair = {"name": name, "new_ip_1": ip_1, "new_mac_1": mac_2, "new_ip_2": ip_2, "new_mac_2": mac_2, "label": label}
+        pair = {"name": name, "new_ip_1": ip_1, "new_mac_1": mac_1, "new_ip_2": ip_2, "new_mac_2": mac_2, "label": label}
         pairs.append(pair)
 
 def conv_rewrite(input_pcap):
