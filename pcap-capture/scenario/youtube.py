@@ -1,51 +1,54 @@
-from webcapture.pcapcapture import AsycnQUICTrafficCapture
-from webcapture.ggservice import YoutubePlayer
-import os, sys
-import pandas as pd
+# config and environment
 import tomli
-import logging
-import time
+import sys, os
+import sslkeylog
+import pandas as pd
+from logging import info, debug, warning, error, critical
 
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
-        sys.path.insert(0, '../' )
+        interface = config['youtube']['interface']
+        sys.path.insert(1, '../' )
 except FileNotFoundError:
     print('Config file not found')
     exit(1)
 
-# def main():
-#     df = pd.read_csv("/home/bkcs/CaptureData/mininet-lab-tools-main/pcap-capture/scenario/Links Youtube (25-35p) - Trang tính1.csv")
-#     df_link = df['Links']
-#     for i in range(len(df_link)):
-#         youtube_capture = AsycnQUICTrafficCapture()
-#         youtube_capture.capture("youtube", "youtube")
-#         youtube_driver = YoutubePlayer(df_link[i])
-#         youtube_driver.load(df_link[i])
-#         youtube_driver.play_button()
-        
-#         time.sleep(30)
-#         youtube_capture.terminate()
-#         youtube_driver.close_driver()
+# sslkeylog.set_keylog(os.environ.get('SSLKEYLOGFILE'))
+# os.putenv('SSLKEYLOGFILE', './output/ssl-key.log',)
+
+# Code start from here
+from webcapture.pcapcapture import *
+from webcapture.ggservice import YoutubePlayer
 
 if __name__ == '__main__':
-    # capture.capture("","aaa")
     try:
-        df = pd.read_csv("/home/bkcs/CaptureData/mininet-lab-tools-main/pcap-capture/scenario/Links Youtube (25-35p) - Trang tính1.csv")
+        # Read file csv and get links
+        df = pd.read_csv("")
         df_link = df['Links']
+        
         for i in range(len(df_link)):
-            youtube_capture = AsycnQUICTrafficCapture()
-            youtube_capture.capture("ens160", "youtube")
-            youtube_driver = YoutubePlayer(df_link[i])
-            youtube_driver.load(df_link[i])
-            youtube_driver.play_button()
-            
-            time.sleep(30)
-            youtube_capture.terminate()
-            youtube_driver.close_driver()
+            # Create timestamp
+
+            # Save ssl key to file
+            os.environ['SSLKEYLOGFILE'] = './output/Youtube_sslkey_{timestamp}.log'
+
+            # Load youtube page
+            youtube = YoutubePlayer(df_link[i])
+            youtube.load(df_link[i])
+
+            # Start capture
+            capture = AsyncQUICTrafficCapture()
+            capture.capture(interface, './output/Youtube_{timestamp}.pcap')
+            youtube.play_button()
+
+            for _ in range(10):
+                youtube.fast_forward(2)
+                time.sleep(1)
+            capture.terminate()
+            youtube.close_driver()
 
     except KeyboardInterrupt:
-        
         logging.error('Keyboard Inter')
-        youtube_driver.close_driver()
+        # youtube.close_driver()
         sys.exit()

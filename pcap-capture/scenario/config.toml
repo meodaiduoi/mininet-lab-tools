@@ -5,11 +5,29 @@ webcapture_lib_path = '../webcapture'
 
 [meet-host]
 
+[gg-search]
+interface = ''
+
+[gg-docs]
+interface = ''
+
 [gg-photos]
+interface = ''
 
 [gg-drive]
+interface = ''
 
 [youtube]
+interface = ''
+
+[amazon]
+interface = ''
+
+[shopee]
+interface = ''
+
+[tiktok]
+interface = ''
 
 [test-capture]
 interface = 'ens33'

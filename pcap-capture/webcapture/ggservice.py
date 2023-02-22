@@ -188,7 +188,7 @@ class GDocsPageLoader(PageLoader):
 
 class GPhotosPageLoader(PageLoader):
     def __init__(self, url=None, delay=3, extension=''):
-        super().__init__((By.CLASS_NAME, 'BiCYpc'), delay, extension)
+        super(GPhotosPageLoader, self).__init__((By.CLASS_NAME, 'BiCYpc'), delay, extension)
         self.start_driver()
         if url:
             self.load(url)

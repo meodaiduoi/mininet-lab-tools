@@ -22,7 +22,7 @@ class AmazonLoader(PageLoader):
     addons: A list of paths to the addons to be added to the firefox profile
     '''
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super().__init__((By.CSS_SELECTOR, "[aria-label='Amazon']"), delay, preferences, addons)
+        super(AmazonLoader, self).__init__((By.CSS_SELECTOR, "[aria-label='Amazon']"), delay, preferences, addons)
         
         self.start_driver()
         if url:
@@ -34,9 +34,9 @@ class AmazonLoader(PageLoader):
         else:
             error('Not a valid amazon url')
 
-class Shopee(PageLoader):
+class ShopeeLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(Shopee, self).__init__((By.CLASS_NAME, "Hyfopi"), delay, preferences, addons)
+        super(ShopeeLoader, self).__init__((By.CLASS_NAME, "Hyfopi"), delay, preferences, addons)
     
     def load(self, url):
         if 'shopee.vn' in url:
@@ -44,9 +44,9 @@ class Shopee(PageLoader):
         else:
             error('Not a valid shopee url')
 
-class Tiktok(PageLoader):
+class TiktokLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super().__init__((By.CSS_SELECTOR, ""), delay, preferences, addons)
+        super(TiktokLoader, self).__init__((By.CLASS_NAME, "tiktok-xk7ai4-DivHeaderContainer e10win0d0"), delay, preferences, addons)
 
     def load(self, url):
         if 'tiktok.com' in url:
