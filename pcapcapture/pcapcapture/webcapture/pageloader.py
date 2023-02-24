@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 import time
-from logging import warning, info, debug, error
+import logging
 
 
 class PageLoader():
@@ -39,14 +39,14 @@ class PageLoader():
         try:
             self.driver.get(url)
             WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.locator))
-            info("Page is ready!")
+            logging.info("Page is ready!")
         except TimeoutException:
-            info("Loading took too much time!")
+            logging.info("Loading took too much time!")
             self.close_driver()
         except AttributeError as e:
-            error('Required to start_driver() first')
+            logging.error('Required to start_driver() first')
         except Exception as e:
-            error(e)
+            logging.error(e)
             self.close_driver()
             raise e
 
@@ -65,6 +65,9 @@ class PageLoader():
         return self.driver.page_source
 
     def close_driver(self, quit=False):
-        if quit:
-            self.driver.quit()
-        self.driver.close()
+        try:
+            if quit:
+                self.driver.quit()
+            self.driver.close()
+        except AttributeError:
+            logging.error('Required to load() first')

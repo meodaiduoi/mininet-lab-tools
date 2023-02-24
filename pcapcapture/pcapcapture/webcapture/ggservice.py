@@ -12,6 +12,7 @@ from selenium.webdriver.common.keys import Keys
 
 import os
 import logging
+import time
 
 from webcapture.pageloader import PageLoader
 class YoutubePlayer(PageLoader):
@@ -36,11 +37,43 @@ class YoutubePlayer(PageLoader):
         else:
             logging.error('Not a valid youtube url')
     
-    def play_button(self):
+
+    def get_player_state(self) -> int:
+        '''
+        Return the state of the player which:
+        -1: Unstarted or Advertisement is playing
+        0: Ended
+        1: Playing
+        2: Paused
+        '''
+        try:
+            state = self.driver.execute_script(
+                "return document.getElementById('movie_player').getPlayerState()")
+            return state
+        except AttributeError:
+            logging.error('Required to load() first')
+
+    def play(self):
+        player_sate = self.get_player_state() 
+        if player_sate == 1:
+            logging.error('Player is already playing')
+            return
         try:
             self.driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
+            logging.info('Player is playing')
         except AttributeError as e:
             logging.error('Required to load() first')
+
+    def pause(self):
+        player_sate = self.get_player_state() 
+        if player_sate == 1:            
+            try:
+                self.driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
+                logging.info('Player is paused')
+            except AttributeError:
+                logging.error('Required to load() first')
+        else:
+            logging.error('Player is already not playing')    
 
     def fast_forward(self, times=1):
         '''
@@ -49,18 +82,15 @@ class YoutubePlayer(PageLoader):
         '''
         try:
             self.driver.find_element(By.CLASS_NAME,'html5-main-video').send_keys(Keys.RIGHT * times)
-        except AttributeError as e:
+        except AttributeError:
             logging.error('Required to load() first')
 
-# class YoutubeLivePlayer(YoutubePlayer):
-#     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-#         super(YoutubeLivePlayer, self).__init__(url, delay, preferences, addons)
+class YoutubeLivePlayer(YoutubePlayer):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super(YoutubeLivePlayer, self).__init__(url, delay, preferences, addons)
     
-#     def _get_stream_url_list(self):
-#         pass
-
-#     def _play_stream(self, stream_url):
-#         pass
+    def get_stream_url_list(self):
+        pass
 
 class GMeetHost(PageLoader):
     def __init__(self, url=None,timeout=20):
@@ -70,9 +100,6 @@ class GMeetHost(PageLoader):
         self.start_driver()
         if url:
             self.load(url)
-
-    # def load(self, url):
-    #     pass
 
     def user(self, name, passwrd):
         self.name = name
@@ -95,7 +122,7 @@ class GMeetHost(PageLoader):
             signInButton = self.driver.find_element(By.ID,'passwordNext')
             signInButton.click()
         except AttributeError as e:
-            error('Required to user() first')
+            logging.error('Required to user() first')
         
     def code_meet(self, code):
         # Create code meet before
@@ -112,7 +139,7 @@ class GMeetHost(PageLoader):
             # press enter key
             code_input.send_keys(Keys.RETURN)
         except AttributeError as e:
-            error('Required to code_meet() first')
+            logging.error('Required to code_meet() first')
 
     def join_meeting(self):
         # find the element for joining the meeting
@@ -163,7 +190,7 @@ class GMeetGuest(PageLoader):
             signInButton = self.driver.find_element(By.ID,'passwordNext')
             signInButton.click()
         except AttributeError as e:
-            error('Required to user() first')
+            logging.error('Required to user() first')
 
     def code_meet(self, code):
         # Code GHost
@@ -180,7 +207,7 @@ class GMeetGuest(PageLoader):
             # press enter key
             code_input.send_keys(Keys.RETURN)
         except AttributeError as e:
-            error('Required to code_meet() first')
+            logging.error('Required to code_meet() first')
 
     def join_meeting(self):
         # find the element for joining the meeting

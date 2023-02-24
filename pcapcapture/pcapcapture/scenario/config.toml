@@ -19,7 +19,7 @@ store_path = './output'
 
 
 [youtube]
-
+url_list = './common-res/youtube.csv'
 
 [amazon]
 
@@ -31,4 +31,4 @@ store_path = './output'
 url_list = ''
 
 [helloworld-capture]
-url_list = './common-res/youtube'
+url_list = './common-res/youtube.csv'

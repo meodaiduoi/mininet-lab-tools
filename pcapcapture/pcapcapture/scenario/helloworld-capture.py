@@ -24,10 +24,10 @@ from webcapture.utils import *
 
 if __name__ == '__main__':
     '''
-    /{protocol: QUIC/HTTP}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap} + {SSLKEYLOGFILE: Youtube_sslkey_{timestamp}.log}:
-    Create loop to capture all links in the dataset csv file
+    Folder structure:
+    /{protocol: QUIC/HTTP}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap}:
+                                                    .../SSLKEYLOG/Youtube_{timestamp}.log
     '''
-
     try:
         # Load link from csv file
         df_link = pd.read_csv('./common-res/youtube.csv') 
@@ -53,10 +53,10 @@ if __name__ == '__main__':
             capture.capture(interface, f'{file_path}.pcap')
             
             # Interact with youtube
-            youtube_player.play_button()
-            for _ in range(10):
+            youtube_player.play()
+            while youtube_player.get_player_state() != 0:
                 youtube_player.fast_forward(1)
-                time.sleep(5)
+                time.sleep(2)
 
             # Finish capture
             capture.terminate()
