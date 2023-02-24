@@ -3,7 +3,7 @@ import tomli
 import sys, os
 import sslkeylog
 import pandas as pd
-from logging import info, debug, warning, error, critical
+import logging
 
 try:
     with open('config.toml', 'rb') as f:
