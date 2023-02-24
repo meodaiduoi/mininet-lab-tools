@@ -20,7 +20,7 @@ def mkpath_abs(path):
     # return os.path.abspath(os.path.expanduser(path))
     if not os.path.isabs(path):
         path = os.path.abspath(os.path.expanduser(path))
-    return path
+    return  path
 
 def mkdir_by_path(path):
     try:
@@ -28,7 +28,6 @@ def mkdir_by_path(path):
             os.makedirs(path)
     except NotADirectoryError:
         logging.error(f'Not a directory: {path} or already exists as a file')
-
 
 # https://narok.io/creating-a-virtual-webcam-on-linux/
 def init_virtual_cam(device_id: int=10, ):
