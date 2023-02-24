@@ -2,7 +2,7 @@ import os, sys
 import subprocess, signal
 import logging
 
-# folder path
+# Directory utils
 def ls_subfolders(rootdir):
     sub_folders_n_files = []
     for path, _, files in os.walk(rootdir):
@@ -16,11 +16,18 @@ def ls_file_in_current_folder(path):
 def ls_folder_in_current_folder(path):
     return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
 
-# def create_folder_by_path(path):
-#     if not os.path.abspath(path):
+def mkpath_abs(path):
+    # return os.path.abspath(os.path.expanduser(path))
+    if not os.path.isabs(path):
+        path = os.path.abspath(os.path.expanduser(path))
+    return path
 
-#     if not os.path.exists(path):
-#         os.makedirs(path)
+def mkdir_by_path(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except NotADirectoryError:
+        logging.error(f'Not a directory: {path} or already exists as a file')
 
 
 # https://narok.io/creating-a-virtual-webcam-on-linux/
