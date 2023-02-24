@@ -17,6 +17,19 @@ except FileNotFoundError:
 # sslkeylog.set_keylog(os.environ.get('SSLKEYLOGFILE'))
 # os.putenv('SSLKEYLOGFILE', './output/ssl-key.log',)
 
+# Directory
+directory = "Youtube file"
+
+# Directory path
+path_dir = "D:/Capture/"
+
+# Path
+path = os.path.join(path_dir, directory)
+
+# Create the directory in path
+os.mkdir(path)
+print("Directory '% s' created" % directory)
+
 # Code start from here
 from ..webcapture.pcapcapture import *
 from ..webcapture.ggservice import YoutubePlayer
@@ -31,7 +44,7 @@ if __name__ == '__main__':
             # Create timestamp
 
             # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = './output/Youtube_sslkey_{timestamp}.log'
+            os.environ['SSLKEYLOGFILE'] = './Youtube file/Youtube_sslkey_{timestamp}.log'
 
             # Load youtube page
             youtube = YoutubePlayer(df_link[i])
@@ -39,9 +52,10 @@ if __name__ == '__main__':
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
-            capture.capture(interface, './output/Youtube_{timestamp}.pcap')
+            capture.capture(interface, './Youtube file/Youtube_{timestamp}.pcap')
             youtube.play_button()
 
+            # Turn off
             for _ in range(10):
                 youtube.fast_forward(2)
                 time.sleep(1)
