@@ -1,33 +1,33 @@
+# move interface to enviroment
 [enviroment]
 webcapture_lib_path = '../webcapture'
+interface = ''
 
 [meet-guest]
 
 [meet-host]
 
 [gg-search]
-interface = ''
 
 [gg-docs]
-interface = ''
+
 
 [gg-photos]
-interface = ''
 
 [gg-drive]
-interface = ''
+
 
 [youtube]
-interface = ''
+
 
 [amazon]
-interface = ''
+
 
 [shopee]
-interface = ''
+
 
 [tiktok]
-interface = ''
+
 
 [test-capture]
 interface = 'ens33'

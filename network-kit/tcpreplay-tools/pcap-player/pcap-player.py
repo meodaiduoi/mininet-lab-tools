@@ -19,8 +19,6 @@ from pydantic import BaseModel
 from threading import Thread
 import uvicorn
 
-
-
 app = FastAPI()
 logging.basicConfig(filename='pcap-player.log', level=logging.INFO)
 
@@ -57,29 +55,27 @@ async def play_pcap(service_pcap: ServicePcap):
     
     process_time = {}
     for folder in ls_folder_in_current_folder(service_path):
-        for file in ls_file_in_current_folder(
+        for file_path in ls_subfolders(
             os.path.join(service_path, folder,
                          f'{service_pcap.src_name}-{service_pcap.dst_name}')):
             start_time = time.time()
             data = {
-                'file': file,
+                'file': file_path,
                 'start_time': start_time,
             }
             # rq.post(f'http://{service_pcap.dst_ip}:8000/ping', 
             #         headers={'Content-Type': 'application/json'}, data=json.dumps(data))
-            file_path = os.path.join(service_path, folder, file)
-            print(file_path)    
+            file_path = os.path.join(service_path, folder, file_path)
             result = subprocess.Popen(f'echo "rocks" | sudo -S -k tcpreplay -i ens33 -K {file_path}', 
                                       shell=True, stdout=subprocess.PIPE, 
                                       stderr=subprocess.PIPE).communicate()
             end_time = time.time()
             print(f'start time: {start_time}, end time: {end_time}, process time: {end_time - start_time}')
-            process_time[file] = {
+            process_time[file_path] = {
                 'start_time': start_time,
                 'end_time': end_time,
                 'process_time': end_time - start_time
             }
-
             # logging.INFO(f'Played file {file_path}, start time: {start_time}, end time: {end_time}, process time: {end_time - start_time}')
             # delay between each file
             time.sleep(5)
@@ -88,6 +84,17 @@ async def play_pcap(service_pcap: ServicePcap):
         'error': result[1],
         'process_time': process_time
     }
+
+# global server_config
+# class ServerConfig(BaseModel):
+#     server_config: dict
+
+# @app.post('/server_config')
+# async def server_config(server_config: ServerConfig):
+#     server_config = server_config.server_config 
+#     return {
+#         'server_config': 'server_config'
+#     }
 
 class ServerLatency(BaseModel):
     file: str
