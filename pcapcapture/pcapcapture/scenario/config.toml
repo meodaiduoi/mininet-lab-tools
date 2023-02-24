@@ -1,7 +1,8 @@
 # move interface to enviroment
 [enviroment]
 webcapture_lib_path = '../webcapture'
-interface = ''
+interface = 'ens33'
+store_path = './output' 
 
 [meet-guest]
 
@@ -27,7 +28,7 @@ interface = ''
 
 
 [tiktok]
+url_list = ''
 
-
-[test-capture]
-interface = 'ens33'
+[helloworld-capture]
+url_list = './common-res/youtube'

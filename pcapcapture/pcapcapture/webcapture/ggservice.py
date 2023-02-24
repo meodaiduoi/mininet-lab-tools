@@ -1,4 +1,3 @@
-from pageloader import PageLoader
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,9 +11,9 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.common.keys import Keys
 
 import os
+import logging
 
-from logging import warning, info, debug, error
-
+from webcapture.pageloader import PageLoader
 class YoutubePlayer(PageLoader):
     '''
     YoutubePlayer class is used to load a youtube video and wait for the video to load completely.
@@ -35,13 +34,13 @@ class YoutubePlayer(PageLoader):
         if 'youtube.com' in url:
             super().load(url)
         else:
-            error('Not a valid youtube url')
+            logging.error('Not a valid youtube url')
     
     def play_button(self):
         try:
             self.driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
         except AttributeError as e:
-            error('Required to load() first')
+            logging.error('Required to load() first')
 
     def fast_forward(self, times=1):
         '''
@@ -51,7 +50,7 @@ class YoutubePlayer(PageLoader):
         try:
             self.driver.find_element(By.CLASS_NAME,'html5-main-video').send_keys(Keys.RIGHT * times)
         except AttributeError as e:
-            error('Required to load() first')
+            logging.error('Required to load() first')
 
 # class YoutubeLivePlayer(YoutubePlayer):
 #     def __init__(self, url=None, delay=20, preferences=None, addons=None):
@@ -143,7 +142,7 @@ class GDriveDownloader(PageLoader):
         if 'drive.google.com' in url:
             super().load(url)
         else:
-            error('Not a valid google drive url')
+            logging.error('Not a valid google drive url')
 
     def download(self) -> None:
         self.driver.find_element(By.ID, 'uc-download-link').click()

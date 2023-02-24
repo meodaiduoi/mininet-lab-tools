@@ -9,7 +9,7 @@ try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
         interface = config['youtube']['interface']
-        sys.path.insert(1, '../' )
+        # sys.path.insert(1, '../' )
 except FileNotFoundError:
     print('Config file not found')
     exit(1)
@@ -18,8 +18,8 @@ except FileNotFoundError:
 # os.putenv('SSLKEYLOGFILE', './output/ssl-key.log',)
 
 # Code start from here
-from webcapture.pcapcapture import *
-from webcapture.ggservice import YoutubePlayer
+from ..webcapture.pcapcapture import *
+from ..webcapture.ggservice import YoutubePlayer
 
 if __name__ == '__main__':
     try:
