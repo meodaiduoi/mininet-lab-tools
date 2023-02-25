@@ -55,6 +55,10 @@ class PcapCapture:
         else:
             logging.error('', 'File not found')
 
+    # TODO:used on Interrupt or Exception orcurred
+    def clean_up(self):
+        pass
+
 class AsyncPcapCapture(PcapCapture):
     def __init__(self, decode_as=None, filter=None):
         '''
@@ -80,6 +84,7 @@ class AsyncPcapCapture(PcapCapture):
         logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
         self.process = subprocess.Popen(tshark_capture_cmd, shell=True,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     def terminate(self):
         if self.process:
             result = subprocess.Popen(f'pgrep -P {self.process.pid}', 

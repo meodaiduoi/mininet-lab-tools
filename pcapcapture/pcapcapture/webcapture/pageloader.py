@@ -18,7 +18,7 @@ class PageLoader():
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     addons: A list of paths to the addons to be added to the firefox profile
     '''
-    def __init__(self, locator, timeout=3, preferences=None, addons=None):
+    def __init__(self, locator=None, timeout: int=3, preferences=None, addons=None):
         self.locator = locator
         self.delay = timeout
         self.preferences = preferences # [(preference_name, preference_value]
@@ -32,14 +32,19 @@ class PageLoader():
 
         if self.extension:
             self.firefox_profile.add_extension(self.extension)
-
         self.driver = webdriver.Firefox()
 
     def load(self, url):
         try:
             self.driver.get(url)
-            WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located(self.locator))
+            if self.locator:
+                WebDriverWait(self.driver, self.delay).until(
+                    EC.presence_of_element_located(self.locator))
+            if not self.locator:
+                WebDriverWait(self.driver, self.delay).until(
+                    EC.presence_of_element_located((By.TAG_NAME, 'html')))
             logging.info("Page is ready!")
+        
         except TimeoutException:
             logging.info("Loading took too much time!")
             self.close_driver()
@@ -49,20 +54,39 @@ class PageLoader():
             logging.error(e)
             self.close_driver()
             raise e
+    
+    @property
+    def current_height(self):
+        return self.driver.execute_script(
+            "return document.documentElement.scrollTop || document.body.scrollTop")
+    
+    @property
+    def page_height(self):
+        return self.driver.execute_script('return document.body.scrollHeight')
 
-    def scroll_to_bottom(self, speed=8, delay=0.5):
+    @property
+    def page_source(self):
+        return self.driver.page_source
+
+    def scroll_to_specific_height(self, height):
+        self.driver.execute_script(f"window.scrollTo(0, {height})")
+
+    def jump_to_top(self):
+        self.scroll_to_specific_height(0)
+
+    def jump_to_bottom(self):
+        self.scroll_to_specific_height(self.page_height)
+
+    def scroll_slowly_to_bottom(self, speed: int=3, delay: float=1):
         # Scroll slowly to bottom of page
-        last_height = self.driver.execute_script("return document.body.scrollHeight")
+        last_height = self.current_height
         while True:
-            self.driver.execute_script(f"window.scrollTo(0, document.body.scrollHeight/{speed});")
-            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            self.driver.execute_script(f"window.scrollBy(0, {100 * speed});")
+            new_height = self.current_height
             time.sleep(delay)
             if new_height == last_height:
                 break
             last_height = new_height
-
-    def get_page_source(self):
-        return self.driver.page_source
 
     def close_driver(self, quit=False):
         try:
@@ -71,3 +95,16 @@ class PageLoader():
             self.driver.close()
         except AttributeError:
             logging.error('Required to load() first')
+
+class SimplePageLoader(PageLoader):
+    '''
+    SimplePageLoader class is used to load a webpage and wait for the page to load completely.
+    '''
+    def __init__(self, url=None, timeout=20):
+        super().__init__(timeout=timeout)
+        self.start_driver()
+        if url:
+            self.load(url)
+
+    def load(self, url):
+        super().load(url)
