@@ -12,14 +12,14 @@ class PcapCapture:
     filter: A string of the format to filter packets
     autostop: A string of the format "duration:60" to stop capturing after 60 seconds
     '''
-    def __init__(self, decode_as=None, 
+    def __init__(self, decode_as=None,
                  filter=None, autostop='duration:5'):
 
         self.autostop = autostop
         self.filter = filter
         self.decode_as = decode_as
         self.autostop = autostop
-            
+
     def capture(self, interface, pcap_filename):
         '''
         Invoke tshark to capture packets from an interface and save them to a pcap file
@@ -49,7 +49,7 @@ class PcapCapture:
 
             result = subprocess.Popen(tshark_filter_cmd, shell=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-            
+
             os.remove(f'{self.pcap_filename}_temp')
             logging.info(result[0].decode('latin-1'), result[1].decode('latin-1'))
         else:
@@ -68,7 +68,7 @@ class AsyncPcapCapture(PcapCapture):
         '''
         super().__init__(decode_as, filter, None)
         self.process = None
-    
+
     def capture(self, interface, pcap_filename):
         if self.process:
             logging.error('', 'Already capturing')
@@ -87,7 +87,7 @@ class AsyncPcapCapture(PcapCapture):
 
     def terminate(self):
         if self.process:
-            result = subprocess.Popen(f'pgrep -P {self.process.pid}', 
+            result = subprocess.Popen(f'pgrep -P {self.process.pid}',
                                       shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             parent_pid = int(result[0].decode('latin-1').split('\n')[0])
             os.kill(parent_pid, signal.SIGTERM)
@@ -96,8 +96,8 @@ class AsyncPcapCapture(PcapCapture):
 
             if return_code != 0:
                 logging.error('', 'Error in terminating process')
-                return 
-            
+                return
+
             super()._apply_filter()
             return return_code
         else:

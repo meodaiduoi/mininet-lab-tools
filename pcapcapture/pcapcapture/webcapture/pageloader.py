@@ -32,16 +32,16 @@ class PageLoader():
 
         if self.extension:
             self.firefox_profile.add_extension(self.extension)
-        self.driver = webdriver.Firefox()
+        self._driver = webdriver.Firefox()
 
     def load(self, url):
         try:
-            self.driver.get(url)
+            self._driver.get(url)
             if self.locator:
-                WebDriverWait(self.driver, self.delay).until(
+                WebDriverWait(self._driver, self.delay).until(
                     EC.presence_of_element_located(self.locator))
             if not self.locator:
-                WebDriverWait(self.driver, self.delay).until(
+                WebDriverWait(self._driver, self.delay).until(
                     EC.presence_of_element_located((By.TAG_NAME, 'html')))
             logging.info("Page is ready!")
         
@@ -57,19 +57,19 @@ class PageLoader():
     
     @property
     def current_height(self):
-        return self.driver.execute_script(
+        return self._driver.execute_script(
             "return document.documentElement.scrollTop || document.body.scrollTop")
     
     @property
     def page_height(self):
-        return self.driver.execute_script('return document.body.scrollHeight')
+        return self._driver.execute_script('return document.body.scrollHeight')
 
     @property
     def page_source(self):
-        return self.driver.page_source
+        return self._driver.page_source
 
     def scroll_to_specific_height(self, height):
-        self.driver.execute_script(f"window.scrollTo(0, {height})")
+        self._driver.execute_script(f"window.scrollTo(0, {height})")
 
     def jump_to_top(self):
         self.scroll_to_specific_height(0)
@@ -81,7 +81,7 @@ class PageLoader():
         # Scroll slowly to bottom of page
         last_height = self.current_height
         while True:
-            self.driver.execute_script(f"window.scrollBy(0, {100 * speed});")
+            self._driver.execute_script(f"window.scrollBy(0, {speed});")
             new_height = self.current_height
             time.sleep(delay)
             if new_height == last_height:
@@ -91,8 +91,8 @@ class PageLoader():
     def close_driver(self, quit=False):
         try:
             if quit:
-                self.driver.quit()
-            self.driver.close()
+                self._driver.quit()
+            self._driver.close()
         except AttributeError:
             logging.error('Required to load() first')
 

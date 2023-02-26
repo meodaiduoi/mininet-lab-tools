@@ -9,8 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 import os
-
-from logging import warning, info, debug, error
+import logging
 
 
 class AmazonLoader(PageLoader):
@@ -23,7 +22,7 @@ class AmazonLoader(PageLoader):
     '''
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
         super(AmazonLoader, self).__init__((By.CSS_SELECTOR, "[aria-label='Amazon']"), delay, preferences, addons)
-        
+
         self.start_driver()
         if url:
             self.load(url)
@@ -32,17 +31,17 @@ class AmazonLoader(PageLoader):
         if 'amazon.com' in url:
             super().load(url)
         else:
-            error('Not a valid amazon url')
+            logging.error('Not a valid amazon url')
 
 class ShopeeLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
         super(ShopeeLoader, self).__init__((By.CLASS_NAME, "Hyfopi"), delay, preferences, addons)
-    
+
     def load(self, url):
         if 'shopee.vn' in url:
             super().load(url)
         else:
-            error('Not a valid shopee url')
+            logging.error('Not a valid shopee url')
 
 class TiktokLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
@@ -52,4 +51,4 @@ class TiktokLoader(PageLoader):
         if 'tiktok.com' in url:
             super().load(url)
         else:
-            error('Not a valid tiktok url')
+            logging.error('Not a valid tiktok url')

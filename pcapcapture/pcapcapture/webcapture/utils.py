@@ -51,11 +51,11 @@ class FFMPEGVideoStream:
             self.process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i {video_path}.mp4 \
                                             -f v4l2 -vcodec rawvideo -s 640x480  /dev/video{self.device_id} \
                                             -f alsa -ac 2 -i hw:Loopback,1,0')
-    
+
     def terminate(self):
         if self.process:
             # Stop ffmpeg
-            result = subprocess.Popen(f'pgrep -P {self.process.pid}', 
+            result = subprocess.Popen(f'pgrep -P {self.process.pid}',
                                         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             parent_pid = int(result[0].decode('latin-1').split('\n')[0])
             os.kill(parent_pid, signal.SIGTERM)
@@ -64,7 +64,7 @@ class FFMPEGVideoStream:
                 logging.error('Error: ffmpeg process terminated with non-zero return code')
             logging.info('ffmpeg process terminated')
             return return_code
-        
+
 def init_virutal_microphone():
     # Load v4l2loopback module
     os.system('sudo modprobe snd-aloop')
