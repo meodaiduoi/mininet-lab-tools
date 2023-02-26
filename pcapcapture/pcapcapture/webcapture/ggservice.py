@@ -13,6 +13,7 @@ from selenium.webdriver.common.keys import Keys
 import os
 import logging
 import time, random
+import re
 
 from webcapture.pageloader import PageLoader
 
@@ -45,12 +46,14 @@ class YoutubePlayer(PageLoader):
         0: Ended
         1: Playing
         2: Paused
+        3: Unready
         '''
         state_dict = { 
            -1: 'Unstarted or Advertisement is playing',
             0: 'Ended',
             1: 'Playing',
-            2: 'Paused'
+            2: 'Paused',
+            3: 'Unready'
         }
         try:
             state = self._driver.execute_script(
@@ -105,7 +108,7 @@ class YoutubeLivePlayer(PageLoader):
             'https://www.youtube.com/playlist?list=PLU12uITxBEPGILPLxvkCc4L_iL7aHf4J2'
         )
         self.url_list = self.__get_stream_url_list()
-        self._yliveplayer = None
+        self.yliveplayer = None
 
     def __get_stream_url_list(self, speed=700, delay=1):
         self.scroll_slowly_to_bottom(speed, delay)
@@ -117,13 +120,16 @@ class YoutubeLivePlayer(PageLoader):
         for url in all_url:
             if url.text == 'TRỰC TIẾP' or url.text == 'LIVE':
                 url_list.append(url.get_attribute("href"))
-        self._driver.close()
+        self.close_driver()
         return url_list
     
-    def load_in_playlist(self, id: int):
-        if self._yliveplayer:
-            self._yliveplayer._driver.close()
-        self._yliveplayer = YoutubePlayer(
+    def load_in_playlist(self, id: -1=int)-> str:
+        if self.yliveplayer:
+            self.close()
+        if id not in range(len(self.url_list)):
+            id = random.randint(0, len(self.url_list))
+
+        self.yliveplayer = YoutubePlayer(
             self.url_list[id], 
             self.timeout,
             self.preferences, 
@@ -132,15 +138,17 @@ class YoutubeLivePlayer(PageLoader):
         return self.url_list[id]
 
     def play(self):
-        self._yliveplayer.play()
+        self.yliveplayer.play()
     
     def pause(self):
-        self._yliveplayer.pause()
+        self.yliveplayer.pause()
 
     def get_player_state(self):
-        return self._yliveplayer.get_player_state()
+        return self.yliveplayer.get_player_state()
     
-
+    def close(self, quit=False):
+        self.yliveplayer.close_driver(quit)
+        self.yliveplayer = None
 class GMeetHost(PageLoader):
     def __init__(self, url=None,timeout=20, preferences=None, addons=None):
         # !TODO: Change the locator to homepage of meet

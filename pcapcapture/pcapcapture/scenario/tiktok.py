@@ -34,7 +34,7 @@ if __name__ == '__main__':
             tiktok = TiktokLoader(df_link[i])
 
             # Start capture
-            capture = AsyncHTTPTrafficCapture()
+            capture = AsyncWebTrafficCapture()
             capture.capture(interface, './output/Tiktok_{timestamp}.pcap')
             tiktok.load(df_link[i])
 

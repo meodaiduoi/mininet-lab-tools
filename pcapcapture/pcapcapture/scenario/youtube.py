@@ -65,7 +65,12 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         youtube_player.close_driver()
         capture.terminate()
+        capture.clean_up()
         logging.error('Keyboard Interrupt')
         sys.exit(0)
 
-
+    except Exception as e:
+        youtube_player.close_driver()
+        capture.terminate()
+        capture.clean_up()
+        raise e

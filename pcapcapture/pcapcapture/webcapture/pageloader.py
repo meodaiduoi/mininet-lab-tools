@@ -23,6 +23,7 @@ class PageLoader():
         self.delay = timeout
         self.preferences = preferences # [(preference_name, preference_value]
         self.extension = addons # [addon_paths]
+        self._driver = None
 
     def start_driver(self):
         self.firefox_profile = FirefoxProfile()
@@ -50,10 +51,10 @@ class PageLoader():
             self.close_driver()
         except AttributeError as e:
             logging.error('Required to start_driver() first')
-        except Exception as e:
-            logging.error(e)
-            self.close_driver()
-            raise e
+        # except Exception as e:
+        #     logging.error(e)
+        #     self.close_driver()
+        #     raise e
     
     @property
     def current_height(self):
@@ -93,6 +94,7 @@ class PageLoader():
             if quit:
                 self._driver.quit()
             self._driver.close()
+            self._driver = None
         except AttributeError:
             logging.error('Required to load() first')
 

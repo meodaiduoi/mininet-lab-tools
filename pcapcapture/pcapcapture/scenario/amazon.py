@@ -34,7 +34,7 @@ if __name__ == '__main__':
             amazon = AmazonLoader(df_link[i])
 
             # Start capture
-            capture = AsyncHTTPTrafficCapture()
+            capture = AsyncWebTrafficCapture()
             capture.capture(interface, './output/Amazon_{timestamp}.pcap')
             amazon.load(df_link[i])
 

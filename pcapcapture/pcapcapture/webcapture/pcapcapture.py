@@ -4,6 +4,7 @@ import time
 
 import logging
 
+WEB_FILTER = '(quic and udp.port==443) or ((http or http2) or (tls.app_data and not tls.handshake) and tcp.payload and tcp.port==443 or tcp.port==80)'
 class PcapCapture:
     '''
     PcapCapture is a class that uses tshark to capture packets from an interface
@@ -57,7 +58,10 @@ class PcapCapture:
 
     # TODO:used on Interrupt or Exception orcurred
     def clean_up(self):
-        pass
+        if os.path.exists(f'{self.pcap_filename}_temp'):
+            os.remove(f'{self.pcap_filename}_temp')
+        if os.path.exists(f'{self.pcap_filename}'):
+            os.remove(f'{self.pcap_filename}')
 
 class AsyncPcapCapture(PcapCapture):
     def __init__(self, decode_as=None, filter=None):
@@ -110,26 +114,29 @@ class QUICTrafficCapture(PcapCapture):
     autostop: autostop condition
     '''
     def __init__(self, autostop='duration:10'):
-        super().__init__('udp.port==443,quic', 'quic', autostop)
+        super().__init__('udp.port==443,quic', 'quic',
+                         autostop)
 
-class HTTPTrafficCapture(PcapCapture):
+class WebTrafficCapture(PcapCapture):
     def __init__(self, autostop='duration:60'):
-        super().__init__(filter='http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
+        super().__init__(decode_as='udp.port=443,quic',
+                         filter=WEB_FILTER,
                          autostop=autostop)
 
 class AsyncQUICTrafficCapture(AsyncPcapCapture):
     def __init__(self):
         super().__init__('udp.port=443,quic', 'quic')
 
-class AsyncHTTPTrafficCapture(AsyncPcapCapture):
+class AsyncWebTrafficCapture(AsyncPcapCapture):
     def __init__(self):
-        super().__init__(filter='http or http2 and tcp.payload and tcp.port==443 or tcp.port==80')
+        super().__init__(decode_as='udp.port=443,quic',
+                         filter=WEB_FILTER)
 
-class QUICAndHTTPTrafficCapture(PcapCapture):
-    def __init__(self, autostop='duration:60'):
-        super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
-                         autostop=autostop)
+# class QUICAndHTTPTrafficCapture(PcapCapture):
+#     def __init__(self, autostop='duration:60'):
+#         super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
+#                          autostop=autostop)
 
-class AsyncQUICAndHTTPTrafficCapture(AsyncPcapCapture):
-    def __init__(self):
-        super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80')
+# class AsyncQUICAndHTTPTrafficCapture(AsyncPcapCapture):
+#     def __init__(self):
+#         super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80')

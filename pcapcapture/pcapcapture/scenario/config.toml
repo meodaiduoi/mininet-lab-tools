@@ -21,6 +21,9 @@ store_path = './output'
 [youtube]
 url_list = './common-res/youtube.csv'
 
+[youtubelive]
+duration = 10
+
 [amazon]
 
 
