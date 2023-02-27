@@ -15,20 +15,21 @@ CONC_THREAD = 12
 INPUT_FOLDER = '/home/hoangnv46/Documents/mininet-lab-tools/network-kit/tcpreplay-tools/test-ds-extractor/output_split'
 OUTPUT_FOLDER = '/home/hoangnv46/Documents/mininet-lab-tools/network-kit/tcpreplay-tools/test-ds-extractor/output_rewrite'
 
-hosts = ["h1", "h3", "h4", "h5", "h8"]  
-servers = ["h-11-FileTransfer", "h-12-FileTransfer", "h-14-Music", "h-16-Music", "h-17-VoIP", "h-18-VoIP", "h-19-Youtube", "h-20-Youtube"]
+hosts = ["h-1-FileTransfer", "h-3-VoIP", "h-9-Youtube"]  
+servers = ["h-11-FileTransfer", "h-17-VoIP", "h-25-Youtube"]
 pairs = []
 
 for host in hosts:
     for server in servers:
-        name = f'{host}-{server.split("-")[0]}{server.split("-")[1]}'
-        ip_1 = f'10.0.0.{host[1:]}'
-        ip_2 = f'10.0.0.{server.split("-")[1]}'
-        mac_1 = f'00:00:00:00:00:{host[1:]}'
-        mac_2 = f'00:00:00:00:00:{server.split("-")[1]}'
-        label = f'{server.split("-")[2]}'
-        pair = {"name": name, "new_ip_1": ip_1, "new_mac_1": mac_1, "new_ip_2": ip_2, "new_mac_2": mac_2, "label": label}
-        pairs.append(pair)
+        if host.split("-")[2] == server.split("-")[2]:
+            name = f'{host.split("-")[0]}{host.split("-")[1]}-{server.split("-")[0]}{server.split("-")[1]}'
+            ip_1 = f'10.0.0.{host.split("-")[1]}'
+            ip_2 = f'10.0.0.{server.split("-")[1]}'
+            mac_1 = f'00:00:00:00:00:{host.split("-")[1]}'
+            mac_2 = f'00:00:00:00:00:{server.split("-")[1]}'
+            label = f'{server.split("-")[2]}'
+            pair = {"name": name, "new_ip_1": ip_1, "new_mac_1": mac_1, "new_ip_2": ip_2, "new_mac_2": mac_2, "label": label}
+            pairs.append(pair)
 
 def conv_rewrite(input_pcap):
     packets = rdpcap(input_pcap)
@@ -62,7 +63,3 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor(max_workers=CONC_THREAD) as pool:
         for item in ls_subfolders(INPUT_FOLDER):
             tasks.append(pool.submit(conv_rewrite, item))
-
-        # for task in concurrent.futures.as_completed(tasks):
-        #     finised_filename, result, err = task.result()
-        #     print(finised_filename, result, err)
