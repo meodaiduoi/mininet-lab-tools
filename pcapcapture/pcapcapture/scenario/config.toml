@@ -31,16 +31,16 @@ url_list = './common-res/amazon.csv'
 url_list = './common-res/shopee.csv'
 
 [lazada]
-url_list = './common-res/
+url_list = './common-res/'
 
 [tiki]
-url_list = './common-res/
+url_list = './common-res/'
 
 [thegioididong]
-url_list = './common-res/
+url_list = './common-res/'
 
 [ebay]
-url_list = './common-res/
+url_list = './common-res/'
 
 [tiktok]
 url_list = ''
