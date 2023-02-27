@@ -1,48 +1,68 @@
 # config and environment
 import tomli
 import sys, os
-import sslkeylog
+import logging
 import pandas as pd
-from logging import info, debug, warning, error, critical
 
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
-        interface = config['gg-photo']['interface']
+        interface = config['enviroment']['interface']
+        store_path = config['enviroment']['store_path']
+        url_list = config['gg-photos']['url_list']
+        
+        # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
-    print('Config file not found')
-    exit(1)
+    logging.critical('Config file not found')
+    os._exit(1)
 
 # Code start from here
 from webcapture.pcapcapture import *
 from webcapture.ggservice import GPhotosPageLoader
-        
+from webcapture.utils import *        
+
 if __name__ == '__main__':
     try:
-        # Read file csv and get links
-        df = pd.read_csv("")
-        df_link = df['Links']
-        
-        for i in range(len(df_link)):
-            # Create timestamp
+        # Load link from csv file
+        df_link = pd.read_csv(url_list)
+        for desc, url in zip(df_link['description'], df_link['url']):
+            
+            # Create folder to store output
+            pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo') 
+            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo', 'SSLKEYLOG')
+            mkdir_by_path(pcapstore_path)
+            mkdir_by_path(sslkeylog_path)
 
+            filename = f'{desc}_{time.time_ns()}'
+            file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = './output/Photo_sslkey_{timestamp}.log'
+            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load photo
-            photo = GPhotosPageLoader(df_link[i])
-            photo.load(df_link[i])
+            photo = GPhotosPageLoader()
+            photo.load(url)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
-            capture.capture(interface, './output/Photo_{timestamp}.pcap')
+            capture.capture(interface, f'{file_path}.pcap')
+
+            # Interact with Gphoto
             photo.download()
 
-            # Turn off capture and driver
+            # Finish capture
             capture.terminate()
             photo.close_driver()
 
     except KeyboardInterrupt:
-        logging.error('Keyboard Inter')
-        sys.exit()
+        photo.close_driver()
+        capture.terminate()
+        capture.clean_up()
+        logging.error('Keyboard Interrupt')
+        sys.exit(0)
+
+    except Exception as e:
+        photo.close_driver()
+        capture.terminate()
+        capture.clean_up()
+        raise e

@@ -1,18 +1,21 @@
 # config and environment
 import tomli
 import sys, os
-import sslkeylog
+import logging
 import pandas as pd
-from logging import info, debug, warning, error, critical
 
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
-        interface = config['gg-docs']['interface']
+        interface = config['enviroment']['interface']
+        store_path = config['enviroment']['store_path']
+        url_list = config['gg-docs']['url_list']
+        
+        # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
-    print('Config file not found')
-    exit(1)
+    logging.critical('Config file not found')
+    os._exit(1)
 
 # Code start from here
 from webcapture.pcapcapture import *

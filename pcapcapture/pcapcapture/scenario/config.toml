@@ -16,7 +16,7 @@ store_path = './output'
 [gg-photos]
 
 [gg-drive]
-
+url_list = './common-res/gdrive.csv'
 
 [youtube]
 url_list = './common-res/youtube.csv'
@@ -25,10 +25,18 @@ url_list = './common-res/youtube.csv'
 duration = 10
 
 [amazon]
-
+url_list = './common-res/amazon.csv'
 
 [shopee]
+url_list = './common-res/shopee.csv'
 
+[lazada]
+
+[tiki]
+
+[thegioididong]
+
+[ebay]
 
 [tiktok]
 url_list = ''
