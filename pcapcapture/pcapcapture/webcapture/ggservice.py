@@ -25,9 +25,11 @@ class YoutubePlayer(PageLoader):
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     addons: A list of paths to the addons to be added to the firefox profile
     '''
-    def __init__(self, url=None, timeout=20, preferences=None, addons=None):
+    def __init__(self, url: str=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
         super(YoutubePlayer, self).__init__((By.CLASS_NAME, 'html5-main-video'),
-                                            timeout, preferences, addons)
+                                            timeout, profile_path,
+                                            preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -48,7 +50,7 @@ class YoutubePlayer(PageLoader):
         2: Paused
         3: Unready
         '''
-        state_dict = { 
+        state_dict = {
            -1: 'Unstarted or Advertisement is playing',
             0: 'Ended',
             1: 'Playing',
@@ -97,12 +99,14 @@ class YoutubePlayer(PageLoader):
             logging.error('Required to load() first')
 
 class YoutubeLivePlayer(PageLoader):
-    def __init__(self, timeout=20, preferences=None, addons=None):
+    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
         self.timeout = timeout
         self.preferences = preferences
         self.addons = addons
         super(YoutubeLivePlayer, self).__init__((By.CLASS_NAME, 'yt-core-image'),
-                                            timeout, preferences, addons)
+                                            timeout, profile_path,
+                                            preferences, addons)
         self.start_driver()
         self.load(
             'https://www.youtube.com/playlist?list=PLU12uITxBEPGILPLxvkCc4L_iL7aHf4J2'
@@ -115,14 +119,14 @@ class YoutubeLivePlayer(PageLoader):
         content = self._driver.find_element(By.CSS_SELECTOR,"#contents")
         all_url = content.find_elements(
             By.CSS_SELECTOR,".yt-simple-endpoint#thumbnail")
-        
+
         url_list = []
         for url in all_url:
             if url.text == 'TRỰC TIẾP' or url.text == 'LIVE':
                 url_list.append(url.get_attribute("href"))
         self.close_driver()
         return url_list
-    
+
     def load_in_playlist(self, id: -1=int)-> str:
         if self.yliveplayer:
             self.close()
@@ -130,30 +134,32 @@ class YoutubeLivePlayer(PageLoader):
             id = random.randint(0, len(self.url_list))
 
         self.yliveplayer = YoutubePlayer(
-            self.url_list[id], 
+            self.url_list[id],
             self.timeout,
-            self.preferences, 
+            self.preferences,
             self.addons
         )
         return self.url_list[id]
 
     def play(self):
         self.yliveplayer.play()
-    
+
     def pause(self):
         self.yliveplayer.pause()
 
     def get_player_state(self):
         return self.yliveplayer.get_player_state()
-    
+
     def close(self, quit=False):
         self.yliveplayer.close_driver(quit)
         self.yliveplayer = None
 class GMeetHost(PageLoader):
-    def __init__(self, url=None,timeout=20, preferences=None, addons=None):
+    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
         # !TODO: Change the locator to homepage of meet
         super(GMeetHost, self).__init__((By.CLASS_NAME, 'google-material-icons'),
-                                        timeout, preferences, addons)
+                                        timeout, profile_path,
+                                        preferences, addons)
 
         self.start_driver()
         if url:
@@ -220,8 +226,10 @@ class GMeetHost(PageLoader):
         self._driver.find_element(By.CSS_SELECTOR, "[jsaction='Az4Fr:Jv50ub']").click()
 
 class GMeetGuest(PageLoader):
-    def __init__(self, url=None, delay=20):
-        super(GMeetGuest, self).__init__((By.CLASS_NAME, 'google-material-icons', delay))
+    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+        super(GMeetGuest, self).__init__((By.CLASS_NAME, 'google-material-icons'), timeout,
+                                         profile_path, preferences, addons)
 
         self.start_driver()
         if url:
@@ -288,7 +296,8 @@ class GDriveDownloader(PageLoader):
     timeout: Time to wait for the page to load
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     '''
-    def __init__(self, url=None, download_folder='./temp', timeout=20, addons=None):
+    def __init__(self, url: str=None, download_folder: str='./temp', timeout: int=20,
+                 profile_path: str=None, preferences: list[tuple[str, str]]=None, addons: list[str]=None):
         # check if it is absolute path or relative path
         if not os.path.isabs(download_folder):
             download_folder = f'{os.getcwd()}/{download_folder}'
@@ -299,11 +308,11 @@ class GDriveDownloader(PageLoader):
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
 
-        super(GDriveDownloader, self).__init__((By.ID, 'uc-download-link'),
-                                               preferences=[('browser.download.folderList', 2),
-                                                            ('browser.download.dir', f'{download_folder}'),
-                                                            ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')],
-                                               timeout=timeout, addons=addons)
+        super(GDriveDownloader, self).__init__((By.ID, 'uc-download-link'), timeout, profile_path,
+                                               [('browser.download.folderList', 2),
+                                                ('browser.download.dir', f'{download_folder}'),
+                                                ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')],
+                                                addons)
 
         self.download_folder = download_folder
         self.start_driver()
@@ -325,8 +334,10 @@ class GDriveDownloader(PageLoader):
             os.remove(f"{self.download_folder}/{file}")
 
 class GDocsPageLoader(PageLoader):
-    def __init__(self, url, timeout=20, preferences=None, addons=None, ):
-        super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "gb_oe gb_Bc"), timeout, preferences, addons)
+    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+        super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "gb_oe gb_Bc"), timeout,
+                                              profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -360,8 +371,10 @@ class GDocsPageLoader(PageLoader):
             time.sleep(1.5)
 
 class GPhotosPageLoader(PageLoader):
-    def __init__(self, url=None, delay=3, extension=''):
-        super(GPhotosPageLoader, self).__init__((By.CLASS_NAME, 'BiCYpc'), delay, extension)
+    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+        super(GPhotosPageLoader, self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout,
+                                                profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
