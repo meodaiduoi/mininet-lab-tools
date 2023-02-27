@@ -17,7 +17,6 @@ except FileNotFoundError:
     logging.critical('Config file not found')
     os._exit(1)
 
-
 # Code start from here
 from webcapture.pcapcapture import *
 from webcapture.ecomservice import TikiLoader
@@ -30,8 +29,8 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Tiki') 
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Tiki', 'SSLKEYLOG')
+            pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Tiki') 
+            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Tiki', 'SSLKEYLOG')
             mkdir_by_path(pcapstore_path)
             mkdir_by_path(sslkeylog_path)
 

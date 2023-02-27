@@ -25,7 +25,7 @@ from webcapture.utils import *
 if __name__ == '__main__':
     '''
     Folder structure:
-    /{protocol: QUIC/HTTP}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap}:
+    /{protocol: QUIC/WEB}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap}:
                                                     .../SSLKEYLOG/Youtube_{timestamp}.log
     '''
     try:

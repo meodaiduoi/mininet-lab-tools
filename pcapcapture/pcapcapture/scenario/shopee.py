@@ -30,8 +30,8 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Shopee') 
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Shopee', 'SSLKEYLOG')
+            pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Shopee') 
+            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Shopee', 'SSLKEYLOG')
             mkdir_by_path(pcapstore_path)
             mkdir_by_path(sslkeylog_path)
 
