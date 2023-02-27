@@ -30,8 +30,8 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Thegioididong') 
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Thegioididong', 'SSLKEYLOG')
+            pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Thegioididong') 
+            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Thegioididong', 'SSLKEYLOG')
             mkdir_by_path(pcapstore_path)
             mkdir_by_path(sslkeylog_path)
 
@@ -49,6 +49,7 @@ if __name__ == '__main__':
 
             # Interact with thegioididong
             thegioididong.load(url)
+            thegioididong.scroll_slowly_to_bottom()
 
             # Turn off capture and driver
             capture.terminate()

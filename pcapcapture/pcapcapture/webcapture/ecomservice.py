@@ -21,7 +21,7 @@ class AmazonLoader(PageLoader):
     addons: A list of paths to the addons to be added to the firefox profile
     '''
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(AmazonLoader, self).__init__((By.CSS_SELECTOR, "[aria-label='Amazon']"), delay, preferences, addons)
+        super(AmazonLoader, self).__init__((By.ID, "navbar-main"), delay, preferences, addons)
 
         self.start_driver()
         if url:
@@ -35,7 +35,7 @@ class AmazonLoader(PageLoader):
 
 class ShopeeLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(ShopeeLoader, self).__init__((By.CLASS_NAME, "Hyfopi"), delay, preferences, addons)
+        super(ShopeeLoader, self).__init__((By.CLASS_NAME, "CTYAuL"), delay, preferences, addons)
 
     def load(self, url):
         if 'shopee.vn' in url:
@@ -45,7 +45,7 @@ class ShopeeLoader(PageLoader):
 
 class EbayLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(EbayLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+        super(EbayLoader, self).__init__((By.ID, "rtm_list3"), delay, preferences, addons)
 
     def load(self, url):
         if 'shopee.vn' in url:
@@ -55,7 +55,7 @@ class EbayLoader(PageLoader):
 
 class TGDDLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(TGDDLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+        super(TGDDLoader, self).__init__((By.CLASS_NAME, "watched"), delay, preferences, addons)
 
     def load(self, url):
         if 'shopee.vn' in url:
@@ -65,7 +65,7 @@ class TGDDLoader(PageLoader):
 
 class TikiLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(TikiLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+        super(TikiLoader, self).__init__((By.CLASS_NAME, "styles__Wrapper-sc-32ws10-0 hoKyYL"), delay, preferences, addons)
 
     def load(self, url):
         if 'shopee.vn' in url:
@@ -75,7 +75,7 @@ class TikiLoader(PageLoader):
 
 class LazadaLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
-        super(LazadaLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+        super(LazadaLoader, self).__init__((By.CLASS_NAME, "card-jfy-item-desc"), delay, preferences, addons)
 
     def load(self, url):
         if 'shopee.vn' in url:

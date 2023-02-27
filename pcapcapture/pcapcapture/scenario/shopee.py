@@ -49,6 +49,7 @@ if __name__ == '__main__':
 
             # Interact with shopee
             shopee.load(url)
+            shopee.scroll_slowly_to_bottom()
 
             # Turn off capture and driver
             capture.terminate()

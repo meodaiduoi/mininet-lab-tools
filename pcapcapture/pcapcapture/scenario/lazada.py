@@ -30,8 +30,8 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Lazada') 
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'HTTP', 'Lazada', 'SSLKEYLOG')
+            pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Lazada') 
+            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Lazada', 'SSLKEYLOG')
             mkdir_by_path(pcapstore_path)
             mkdir_by_path(sslkeylog_path)
 
@@ -50,6 +50,7 @@ if __name__ == '__main__':
 
             # Interact with lazada
             lazada.load(url)
+            lazada.scroll_slowly_to_bottom()
 
             # Turn off capture and driver
             capture.terminate()
