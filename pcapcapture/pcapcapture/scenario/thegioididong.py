@@ -49,6 +49,7 @@ if __name__ == '__main__':
 
             # Interact with thegioididong
             thegioididong.load(url)
+            thegioididong.scroll_slowly_to_bottom(400, 1)
 
             # Turn off capture and driver
             capture.terminate()

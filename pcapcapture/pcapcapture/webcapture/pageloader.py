@@ -18,22 +18,26 @@ class PageLoader():
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     addons: A list of paths to the addons to be added to the firefox profile
     '''
-    def __init__(self, locator=None, timeout: int=3, preferences=None, addons=None):
+    def __init__(self, locator=None, timeout: int=3,
+                 profile_path: str=None, preferences=None, addons=None):
         self.locator = locator
         self.delay = timeout
-        self.preferences = preferences # [(preference_name, preference_value]
+        self.profile_path = profile_path
+        self.preferences = preferences # [(preference_name, preference_value),../]
         self.extension = addons # [addon_paths]
         self._driver = None
 
     def start_driver(self):
         self.firefox_profile = FirefoxProfile()
+        if self.profile_path:
+            self.firefox_profile = FirefoxProfile(self.profile_path)
         if self.preferences:
             for preference in self.preferences:
                 self.firefox_profile.set_preference(preference[0], preference[1])
-
         if self.extension:
-            self.firefox_profile.add_extension(self.extension)
-        self._driver = webdriver.Firefox()
+            self.firefox_profile.add_extension(self.extension)        
+
+        self._driver = webdriver.Firefox(self.firefox_profile)
 
     def load(self, url):
         try:
@@ -45,7 +49,7 @@ class PageLoader():
                 WebDriverWait(self._driver, self.delay).until(
                     EC.presence_of_element_located((By.TAG_NAME, 'html')))
             logging.info("Page is ready!")
-        
+
         except TimeoutException:
             logging.info("Loading took too much time!")
             self.close_driver()
@@ -55,12 +59,12 @@ class PageLoader():
         #     logging.error(e)
         #     self.close_driver()
         #     raise e
-    
+
     @property
     def current_height(self):
         return self._driver.execute_script(
             "return document.documentElement.scrollTop || document.body.scrollTop")
-    
+
     @property
     def page_height(self):
         return self._driver.execute_script('return document.body.scrollHeight')
@@ -100,10 +104,13 @@ class PageLoader():
 
 class SimplePageLoader(PageLoader):
     '''
-    SimplePageLoader class is used to load a webpage and wait for the page to load completely.
+    SimplePageLoader class is used to load a webpage.
     '''
-    def __init__(self, url=None, timeout=20):
-        super().__init__(timeout=timeout)
+    def __init__(self, url=None, timeout=20,
+                 profile_path=None, preferences=None,
+                 addons=None):
+        super().__init__(timeout=timeout, profile_path=profile_path,
+                         preferences=preferences, addons=addons)
         self.start_driver()
         if url:
             self.load(url)
