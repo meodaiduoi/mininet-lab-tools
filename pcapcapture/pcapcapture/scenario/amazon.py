@@ -42,7 +42,6 @@ if __name__ == '__main__':
 
             # Load amazon
             amazon = AmazonLoader()
-            amazon.load(url)
 
             # Start capture
             capture = AsyncWebTrafficCapture()

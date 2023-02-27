@@ -43,6 +43,46 @@ class ShopeeLoader(PageLoader):
         else:
             logging.error('Not a valid shopee url')
 
+class EbayLoader(PageLoader):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super(EbayLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+
+    def load(self, url):
+        if 'shopee.vn' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid shopee url')
+
+class TGDDLoader(PageLoader):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super(TGDDLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+
+    def load(self, url):
+        if 'shopee.vn' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid shopee url')
+
+class TikiLoader(PageLoader):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super(TikiLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+
+    def load(self, url):
+        if 'shopee.vn' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid shopee url')
+
+class LazadaLoader(PageLoader):
+    def __init__(self, url=None, delay=20, preferences=None, addons=None):
+        super(LazadaLoader, self).__init__((By.CLASS_NAME, ""), delay, preferences, addons)
+
+    def load(self, url):
+        if 'shopee.vn' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid shopee url')
+
 class TiktokLoader(PageLoader):
     def __init__(self, url=None, delay=20, preferences=None, addons=None):
         super(TiktokLoader, self).__init__((By.CLASS_NAME, "tiktok-xk7ai4-DivHeaderContainer e10win0d0"), delay, preferences, addons)
