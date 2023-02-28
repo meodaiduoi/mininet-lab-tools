@@ -45,14 +45,11 @@ if __name__ == '__main__':
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            # Load tiki
             tiki = TikiLoader()
-
-            # Start capture
             capture = AsyncWebTrafficCapture()
-            capture.capture(interface, f'{file_path}.pcap')
 
             # Interact with tiki
+            capture.capture(interface, f'{file_path}.pcap')
             tiki.load(url)
             tiki.scroll_slowly_to_bottom()
 

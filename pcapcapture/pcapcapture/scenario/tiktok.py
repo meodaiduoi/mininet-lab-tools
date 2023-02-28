@@ -10,6 +10,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        log_level = config['enviroment']['log_level']
         url_list = config['tiktok']['url_list']
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -23,15 +24,19 @@ from webcapture.utils import *
         
 if __name__ == '__main__':
     try:
+        # Create folder to store output
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Tiktok')
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Tiktok', 'SSLKEYLOG')
+        mkdir_by_path(pcapstore_path)
+        mkdir_by_path(sslkeylog_path)
+        
+        # Create logger
+        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Tiktok_{time.time_ns()}.log'), 
+                            level=log_level, format="%(asctime)s %(message)s")
+
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
-
-            # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Tiktok')
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Tiktok', 'SSLKEYLOG')
-            mkdir_by_path(pcapstore_path)
-            mkdir_by_path(sslkeylog_path)
 
             filename = f'{desc}_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)

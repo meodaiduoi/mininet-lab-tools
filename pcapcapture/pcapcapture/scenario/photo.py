@@ -3,6 +3,7 @@ import tomli
 import sys, os
 import logging
 import pandas as pd
+import time
 
 try:
     with open('config.toml', 'rb') as f:
@@ -23,17 +24,15 @@ from webcapture.ggservice import GPhotosPageLoader
 from webcapture.utils import *        
 
 if __name__ == '__main__':
+    # Create folder to store output
+    pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo') 
+    sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo', 'SSLKEYLOG')
+    mkdir_by_path(pcapstore_path)
+    mkdir_by_path(sslkeylog_path)
     try:
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
-            
-            # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo') 
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo', 'SSLKEYLOG')
-            mkdir_by_path(pcapstore_path)
-            mkdir_by_path(sslkeylog_path)
-
             filename = f'{desc}_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file

@@ -73,12 +73,12 @@ if __name__ == '__main__':
         ylive.close()
         capture.terminate()
         capture.clean_up()
-        logging.error('Keyboard Interrupt')
+        logging.error(f'Keyboard Interrupt at: {ylive.url_list[url_id]} and {file_path}')
         sys.exit(0)
 
     except Exception as e:
         ylive.close()
         capture.terminate()
-        capture.clean_up()
+        logging.critical(f'Error at: {ylive.url_list[url_id]} and {file_path}')
         raise e
 

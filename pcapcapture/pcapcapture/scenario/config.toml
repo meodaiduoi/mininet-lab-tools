@@ -13,6 +13,8 @@ store_path = './output'
 # NOTSET = 0
 log_level = 10
 
+profile_path = ''
+
 [meet-guest]
 
 [meet-host]
@@ -40,10 +42,10 @@ url_list = './common-res/amazon.csv'
 url_list = './common-res/shopee.csv'
 
 [lazada]
-url_list = './common-res/'
+url_list = './common-res/lazada.csv'
 
 [tiki]
-url_list = './common-res/'
+url_list = './common-res/tiki.csv'
 
 [thegioididong]
 url_list = './common-res/'
