@@ -4,6 +4,15 @@ webcapture_lib_path = '../webcapture'
 interface = 'ens33'
 store_path = './output' 
 
+# CRITICAL = 50
+# FATAL = CRITICAL
+# ERROR = 40
+# WARNING = 30
+# INFO = 20
+# DEBUG = 10
+# NOTSET = 0
+log_level = 10
+
 [meet-guest]
 
 [meet-host]
@@ -43,7 +52,7 @@ url_list = './common-res/'
 url_list = './common-res/'
 
 [tiktok]
-url_list = ''
+url_list = './common-res/tiktok.csv'
 
 [helloworld-capture]
 url_list = './common-res/youtube.csv'

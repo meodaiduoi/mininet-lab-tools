@@ -1,9 +1,9 @@
 import subprocess
-import os, sys, signal
-import time
+import os, signal
 
 import logging
 
+QUIC_DECODE_AS = 'udp.port==443,quic'
 WEB_FILTER = '(quic and udp.port==443) or ((http or http2) or (tls.app_data and not tls.handshake) and tcp.payload and tcp.port==443 or tcp.port==80)'
 class PcapCapture:
     '''
@@ -36,9 +36,13 @@ class PcapCapture:
         result = subprocess.Popen(tshark_capture_cmd, shell=True,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-        logging.info(result[0].decode('latin-1'), result[1].decode('latin-1'))
+        result_out = result[0].decode('latin-1')
+        result_err = result[1].decode('latin-1')
+        logging.info(result_out)
+        if result_err:
+            logging.error(result_err)
+        
         self._apply_filter()
-
 
     def _apply_filter(self):
         if os.path.exists(f'{self.pcap_filename}_temp'):
@@ -52,9 +56,14 @@ class PcapCapture:
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
             os.remove(f'{self.pcap_filename}_temp')
-            logging.info(result[0].decode('latin-1'), result[1].decode('latin-1'))
+
+            result_out = result[0].decode('latin-1')
+            result_err = result[1].decode('latin-1')
+            logging.info(result_out)
+            if result_err:
+                logging.error(result_err)
         else:
-            logging.error('', 'File not found')
+            logging.error(f'File {self.pcap_filename}_temp not found')
 
     # TODO:used on Interrupt or Exception orcurred
     def clean_up(self):
@@ -99,7 +108,7 @@ class AsyncPcapCapture(PcapCapture):
             self.process = None
 
             if return_code != 0:
-                logging.error('', 'Error in terminating process')
+                logging.error('Error in terminating process')
                 return
 
             super()._apply_filter()
@@ -107,29 +116,28 @@ class AsyncPcapCapture(PcapCapture):
         else:
             logging.error('No process to terminate')
 
-
 class QUICTrafficCapture(PcapCapture):
     '''
     Capture QUIC traffic on a given interface
     autostop: autostop condition
     '''
     def __init__(self, autostop='duration:10'):
-        super().__init__('udp.port==443,quic', 'quic',
+        super().__init__(QUIC_DECODE_AS, 'quic',
                          autostop)
 
 class WebTrafficCapture(PcapCapture):
     def __init__(self, autostop='duration:60'):
-        super().__init__(decode_as='udp.port=443,quic',
+        super().__init__(decode_as=QUIC_DECODE_AS,
                          filter=WEB_FILTER,
                          autostop=autostop)
 
 class AsyncQUICTrafficCapture(AsyncPcapCapture):
     def __init__(self):
-        super().__init__('udp.port=443,quic', 'quic')
+        super().__init__(QUIC_DECODE_AS, 'quic')
 
 class AsyncWebTrafficCapture(AsyncPcapCapture):
     def __init__(self):
-        super().__init__(decode_as='udp.port=443,quic',
+        super().__init__(decode_as=QUIC_DECODE_AS,
                          filter=WEB_FILTER)
 
 # class QUICAndHTTPTrafficCapture(PcapCapture):

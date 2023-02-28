@@ -30,7 +30,6 @@ from webcapture.ggservice import GMeetHost
 if __name__ == '__main__':
     try:
         # Create timestamp
-
         # Save ssl key to file
         os.environ['SSLKEYLOGFILE'] = './output/Host_sslkey_{timestamp}.log'
 

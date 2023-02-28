@@ -8,6 +8,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        log_level = config['enviroment']['log_level']
         duration = config['youtubelive']['duration']
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -27,15 +28,19 @@ if __name__ == '__main__':
                                                     .../SSLKEYLOG/Youtube_{timestamp}.log
     '''
     try:
+        # Create folder to store output
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive') 
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive', 'SSLKEYLOG')
+        mkdir_by_path(pcapstore_path)
+        mkdir_by_path(sslkeylog_path)
+
+        # Create logger
+        logging.basicConfig(filename=os.path.join(pcapstore_path, f'YoutubeLive_{time.time_ns()}.log'), 
+                            level=log_level, format="%(asctime)s %(message)s")
+
         # Load url from playlist id
         ylive = YoutubeLivePlayer()
         while True:
-            # Create folder to store output
-            pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive') 
-            sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive', 'SSLKEYLOG')
-            mkdir_by_path(pcapstore_path)
-            mkdir_by_path(sslkeylog_path)
-
             filename = f'YoutubeLive_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file

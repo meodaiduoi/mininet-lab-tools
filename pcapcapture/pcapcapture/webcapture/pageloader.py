@@ -9,7 +9,6 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import time
 import logging
 
-
 class PageLoader():
     '''
     PageLoader class is used to load a webpage and wait for the page to load completely.

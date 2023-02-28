@@ -1,5 +1,3 @@
-from pageloader import PageLoader
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -11,6 +9,7 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import os
 import logging
 
+from webcapture.pageloader import PageLoader
 
 class AmazonLoader(PageLoader):
     '''

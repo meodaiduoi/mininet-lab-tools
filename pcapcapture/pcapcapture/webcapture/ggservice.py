@@ -99,7 +99,7 @@ class YoutubePlayer(PageLoader):
             logging.error('Required to load() first')
 
 class YoutubeLivePlayer(PageLoader):
-    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+    def __init__(self, timeout: int=20, profile_path: str=None,
                  preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
         self.timeout = timeout
         self.preferences = preferences
