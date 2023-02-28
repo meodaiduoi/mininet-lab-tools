@@ -20,7 +20,7 @@ class AmazonLoader(PageLoader):
     addons: A list of paths to the addons to be added to the firefox profile
     '''
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(AmazonLoader, self).__init__((By.ID, "navbar-main"), delay, profile_path, preferences, addons)
+        super(AmazonLoader, self).__init__((By.ID, "gw-layout"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -33,7 +33,7 @@ class AmazonLoader(PageLoader):
 
 class ShopeeLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(ShopeeLoader, self).__init__((By.CLASS_NAME, "CTYAuL"), delay, profile_path, preferences, addons)
+        super(ShopeeLoader, self).__init__((By.CLASS_NAME, "_4FDN71"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -46,27 +46,33 @@ class ShopeeLoader(PageLoader):
 
 class EbayLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(EbayLoader, self).__init__((By.ID, "rtm_list3"), delay, profile_path, preferences, addons)
+        super(EbayLoader, self).__init__((By.CLASS_NAME, "gh-ui"), delay, profile_path, preferences, addons)
+        self.start_driver()
+        if url:
+            self.load(url)
 
     def load(self, url):
-        if 'shopee.vn' in url:
+        if 'ebay.com' in url:
             super().load(url)
         else:
             logging.error('Not a valid shopee url')
 
 class TGDDLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(TGDDLoader, self).__init__((By.CLASS_NAME, "watched"), delay, profile_path, preferences, addons)
+        super(TGDDLoader, self).__init__((By.CLASS_NAME, "main-menu"), delay, profile_path, preferences, addons)
+        self.start_driver()
+        if url:
+            self.load(url)
 
     def load(self, url):
-        if 'shopee.vn' in url:
+        if 'thegioididong.com' in url:
             super().load(url)
         else:
             logging.error('Not a valid shopee url')
 
 class TikiLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(TikiLoader, self).__init__((By.CLASS_NAME, "styles__Wrapper-sc-32ws10-0 hoKyYL"), delay, profile_path, preferences, addons)
+        super(TikiLoader, self).__init__((By.CLASS_NAME, "StyledCategoryList"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -79,7 +85,10 @@ class TikiLoader(PageLoader):
 
 class LazadaLoader(PageLoader):
     def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=None, addons=None):
-        super(LazadaLoader, self).__init__((By.CLASS_NAME, "card-jfy-item-desc"), timeout, profile_path, preferences, addons)
+        super(LazadaLoader, self).__init__((By.CLASS_NAME, "lzd-footer"), timeout, profile_path, preferences, addons)
+        self.start_driver()
+        if url:
+            self.load(url)
 
     def load(self, url):
         if 'lazada.vn' in url:
