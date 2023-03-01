@@ -48,10 +48,10 @@ url_list = './common-res/lazada.csv'
 url_list = './common-res/tiki.csv'
 
 [thegioididong]
-url_list = './common-res/'
+url_list = './common-res/thegioididong.csv'
 
 [ebay]
-url_list = './common-res/'
+url_list = './common-res/ebay.csv'
 
 [tiktok]
 url_list = './common-res/tiktok.csv'

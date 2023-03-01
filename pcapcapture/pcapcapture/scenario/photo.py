@@ -10,6 +10,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        log_level = config['enviroment']['log_level']
         url_list = config['gg-photos']['url_list']
         
         # To load module from parent folder
@@ -24,12 +25,17 @@ from webcapture.ggservice import GPhotosPageLoader
 from webcapture.utils import *        
 
 if __name__ == '__main__':
-    # Create folder to store output
-    pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo') 
-    sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo', 'SSLKEYLOG')
-    mkdir_by_path(pcapstore_path)
-    mkdir_by_path(sslkeylog_path)
     try:
+        # Create folder to store output
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo') 
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Photo', 'SSLKEYLOG')
+        mkdir_by_path(pcapstore_path)
+        mkdir_by_path(sslkeylog_path)
+
+        # Create logger
+        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Photo_{time.time_ns()}.log'), 
+                            level=log_level, format="%(asctime)s %(message)s")
+        
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
@@ -39,6 +45,7 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load photo
+            logging.info(f'Starting capture {url} to {file_path}')
             photo = GPhotosPageLoader()
             photo.load(url)
 
@@ -57,11 +64,12 @@ if __name__ == '__main__':
         photo.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.error('Keyboard Interrupt')
+        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
         sys.exit(0)
 
     except Exception as e:
         photo.close_driver()
         capture.terminate()
         capture.clean_up()
+        logging.critical(f'Error at: {url} and {file_path}')
         raise e

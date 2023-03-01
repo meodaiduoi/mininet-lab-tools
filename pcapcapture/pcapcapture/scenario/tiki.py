@@ -3,7 +3,6 @@ import tomli
 import sys, os
 import logging
 import pandas as pd
-
 import time
 
 try:
@@ -45,13 +44,15 @@ if __name__ == '__main__':
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
+            # Init driver and capture object
+            logging.info(f'Starting capture {url} to {file_path}')
             tiki = TikiLoader()
             capture = AsyncWebTrafficCapture()
 
             # Interact with tiki
             capture.capture(interface, f'{file_path}.pcap')
             tiki.load(url)
-            tiki.scroll_slowly_to_bottom()
+            tiki.scroll_slowly_to_bottom(300, 1)
 
             # Turn off capture and driver
             capture.terminate()
@@ -61,11 +62,12 @@ if __name__ == '__main__':
         tiki.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.error('Keyboard Interrupt')
+        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
         sys.exit(0)
 
     except Exception as e:
         tiki.close_driver()
         capture.terminate()
         capture.clean_up()
+        logging.critical(f'Error at: {url} and {file_path}')
         raise e
