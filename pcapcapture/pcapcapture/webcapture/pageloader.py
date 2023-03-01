@@ -50,7 +50,7 @@ class PageLoader():
             logging.info("Page is ready!")
 
         except TimeoutException:
-            logging.info("Loading took too much time!")
+            logging.error("Loading took too much time!")
             self.close_driver()
         except AttributeError as e:
             logging.error('Required to start_driver() first')

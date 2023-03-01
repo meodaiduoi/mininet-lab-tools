@@ -33,7 +33,7 @@ class AmazonLoader(PageLoader):
 
 class ShopeeLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(ShopeeLoader, self).__init__((By.CLASS_NAME, "_4FDN71"), delay, profile_path, preferences, addons)
+        super(ShopeeLoader, self).__init__((By.TAG_NAME, 'footer'), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -46,7 +46,7 @@ class ShopeeLoader(PageLoader):
 
 class EbayLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(EbayLoader, self).__init__((By.CLASS_NAME, "gh-ui"), delay, profile_path, preferences, addons)
+        super(EbayLoader, self).__init__((By.TAG_NAME, "footer"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -59,7 +59,7 @@ class EbayLoader(PageLoader):
 
 class TGDDLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(TGDDLoader, self).__init__((By.CLASS_NAME, "main-menu"), delay, profile_path, preferences, addons)
+        super(TGDDLoader, self).__init__((By.TAG_NAME, "footer"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -72,7 +72,7 @@ class TGDDLoader(PageLoader):
 
 class TikiLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(TikiLoader, self).__init__((By.CLASS_NAME, "StyledCategoryList"), delay, profile_path, preferences, addons)
+        super(TikiLoader, self).__init__((By.TAG_NAME, "footer"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -83,9 +83,12 @@ class TikiLoader(PageLoader):
         else:
             logging.error('Not a valid tiki url')
 
+# Remove duo to agressive captcha
 class LazadaLoader(PageLoader):
     def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=None, addons=None):
-        super(LazadaLoader, self).__init__((By.CLASS_NAME, "lzd-footer"), timeout, profile_path, preferences, addons)
+        # fix find the footer
+        super(LazadaLoader, self).__init__((By.TAG_NAME, "div"),
+                                           timeout, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
