@@ -52,7 +52,7 @@ if __name__ == '__main__':
             # Interact with tiki
             capture.capture(interface, f'{file_path}.pcap')
             tiki.load(url)
-            tiki.scroll_slowly_to_bottom()
+            tiki.scroll_slowly_to_bottom(300, 1)
 
             # Turn off capture and driver
             capture.terminate()

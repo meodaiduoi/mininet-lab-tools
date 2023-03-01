@@ -20,7 +20,7 @@ class AmazonLoader(PageLoader):
     addons: A list of paths to the addons to be added to the firefox profile
     '''
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
-        super(AmazonLoader, self).__init__((By.ID, "gw-layout"), delay, profile_path, preferences, addons)
+        super(AmazonLoader, self).__init__((By.ID, "nav-xshop"), delay, profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
@@ -55,7 +55,7 @@ class EbayLoader(PageLoader):
         if 'ebay.com' in url:
             super().load(url)
         else:
-            logging.error('Not a valid shopee url')
+            logging.error('Not a valid ebay url')
 
 class TGDDLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
@@ -68,7 +68,7 @@ class TGDDLoader(PageLoader):
         if 'thegioididong.com' in url:
             super().load(url)
         else:
-            logging.error('Not a valid shopee url')
+            logging.error('Not a valid thegioididong url')
 
 class TikiLoader(PageLoader):
     def __init__(self, url=None, delay=20, profile_path: str=None, preferences=None, addons=None):
@@ -81,7 +81,7 @@ class TikiLoader(PageLoader):
         if 'tiki.vn' in url:
             super().load(url)
         else:
-            logging.error('Not a valid shopee url')
+            logging.error('Not a valid tiki url')
 
 class LazadaLoader(PageLoader):
     def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=None, addons=None):
@@ -94,7 +94,7 @@ class LazadaLoader(PageLoader):
         if 'lazada.vn' in url:
             super().load(url)
         else:
-            logging.error('Not a valid shopee url')
+            logging.error('Not a valid lazada url')
 
 class TiktokLoader(PageLoader):
     def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=None, addons=None):

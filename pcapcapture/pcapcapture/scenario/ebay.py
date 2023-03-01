@@ -18,7 +18,6 @@ except FileNotFoundError:
     logging.critical('Config file not found')
     os._exit(1)
 
-
 # Code start from here
 from webcapture.pcapcapture import *
 from webcapture.ecomservice import EbayLoader
@@ -55,7 +54,7 @@ if __name__ == '__main__':
 
             # Interact with ebay
             ebay.load(url)
-            ebay.scroll_slowly_to_bottom()
+            ebay.scroll_slowly_to_bottom(300, 1)
 
             # Turn off capture and driver
             capture.terminate()

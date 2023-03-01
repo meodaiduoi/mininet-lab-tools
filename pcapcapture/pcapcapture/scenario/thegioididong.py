@@ -18,7 +18,6 @@ except FileNotFoundError:
     logging.critical('Config file not found')
     os._exit(1)
 
-
 # Code start from here
 from webcapture.pcapcapture import *
 from webcapture.ecomservice import TGDDLoader
@@ -35,7 +34,6 @@ if __name__ == '__main__':
         # Create logger
         logging.basicConfig(filename=os.path.join(pcapstore_path, f'Thegioididong_{time.time_ns()}.log'), 
                             level=log_level, format="%(asctime)s %(message)s")
-
 
         # Load link from csv file
         df_link = pd.read_csv(url_list)
@@ -56,7 +54,7 @@ if __name__ == '__main__':
 
             # Interact with thegioididong
             thegioididong.load(url)
-            thegioididong.scroll_slowly_to_bottom(400, 1)
+            thegioididong.scroll_slowly_to_bottom(300, 1)
 
             # Turn off capture and driver
             capture.terminate()

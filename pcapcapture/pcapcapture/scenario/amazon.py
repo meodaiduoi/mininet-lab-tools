@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
             # Interact with amazon
             amazon.load(url)
-            amazon.scroll_slowly_to_bottom()
+            amazon.scroll_slowly_to_bottom(300, 1)
 
             # Turn off capture and driver
             capture.terminate()
