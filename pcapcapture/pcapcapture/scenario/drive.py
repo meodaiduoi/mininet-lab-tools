@@ -3,12 +3,14 @@ import tomli
 import sys, os
 import logging
 import pandas as pd
+import time
 
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        log_level = config['enviroment']['log_level']
         url_list = config['gg-drive']['url_list']
         
         # To load module from parent folder
