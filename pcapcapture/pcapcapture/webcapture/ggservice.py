@@ -343,6 +343,12 @@ class GDocsPageLoader(PageLoader):
             self.load(url)
         self.strings = []
 
+    def load(self, url) -> None:
+        if 'docs.google.com' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid google docs url')
+
     def user(self, name, passwrd):
         self.name = name
         self.passwrd = passwrd
@@ -380,7 +386,10 @@ class GPhotosPageLoader(PageLoader):
             self.load(url)
 
     def load(self, url):
-        super().load(url)
+        if 'photos.google.com' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid google photos url')
 
     def download(self) -> None:
         self._driver.find_element(By.CSS_SELECTOR, "[aria-label='More options']").click()
