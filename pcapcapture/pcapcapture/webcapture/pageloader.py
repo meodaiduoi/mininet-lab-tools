@@ -54,10 +54,10 @@ class PageLoader():
             self.close_driver()
         except AttributeError as e:
             logging.error('Required to start_driver() first')
-        # except Exception as e:
-        #     logging.error(e)
-        #     self.close_driver()
-        #     raise e
+        except Exception as e:
+            self.close_driver()
+            logging.critical(f'fatal error: {e}')
+            raise e
 
     @property
     def current_height(self):
