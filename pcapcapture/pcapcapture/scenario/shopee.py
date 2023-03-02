@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
         # Create logger
         logging.basicConfig(filename=os.path.join(pcapstore_path, f'Shopee_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+                            level=logging.INFO, format="%(asctime)s %(message)s")
             
         # Load link from csv file
         df_link = pd.read_csv(url_list)
