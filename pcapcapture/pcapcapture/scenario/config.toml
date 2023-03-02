@@ -1,6 +1,6 @@
 # move interface to enviroment
 [enviroment]
-interface = 'ens33'
+interface = '' # Default to main
 store_path = '~/Desktop/rawpcap' 
 
 # CRITICAL = 50
