@@ -67,9 +67,9 @@ if __name__ == '__main__':
                 while ylive.yliveplayer != 0 and timer <= duration:
                     if ylive.get_player_state() != 1:
                         ylive.play()
-                    if random.randint(1, 10) == 1: ylive.yliveplayer.fast_forward(1)
+                    if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
                     ylive.yliveplayer
-                    time.sleep(1)
+                    time.sleep(20)
                     timer = time.time() - start_time
 
                 # Finish capture
