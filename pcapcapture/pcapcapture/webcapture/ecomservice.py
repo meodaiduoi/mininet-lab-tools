@@ -98,16 +98,3 @@ class LazadaLoader(PageLoader):
             super().load(url)
         else:
             logging.error('Not a valid lazada url')
-
-class TiktokLoader(PageLoader):
-    def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=None, addons=None):
-        super(TiktokLoader, self).__init__((By.CLASS_NAME, "tiktok-xk7ai4-DivHeaderContainer e10win0d0"), timeout, profile_path, preferences, addons)
-        self.start_driver()
-        if url:
-            self.load(url)
-
-    def load(self, url):
-        if 'tiktok.com' in url:
-            super().load(url)
-        else:
-            logging.error('Not a valid tiktok url')
