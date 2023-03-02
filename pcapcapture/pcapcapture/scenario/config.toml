@@ -1,8 +1,7 @@
 # move interface to enviroment
 [enviroment]
-webcapture_lib_path = '../webcapture'
 interface = 'ens33'
-store_path = './output' 
+store_path = '~/Desktop/rawpcap' 
 
 # CRITICAL = 50
 # FATAL = CRITICAL
@@ -33,7 +32,7 @@ url_list = './common-res/gdrive.csv'
 url_list = './common-res/youtube.csv'
 
 [youtubelive]
-duration = 10
+duration = 900
 
 [amazon]
 url_list = './common-res/amazon.csv'
