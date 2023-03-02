@@ -10,7 +10,7 @@ import os
 import logging
 
 from webcapture.pageloader import PageLoader
-
+ 
 class AmazonLoader(PageLoader):
     '''
     AmazonLoader class is used to load a amazon service and wait for the page to load completely.
