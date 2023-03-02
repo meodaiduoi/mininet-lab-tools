@@ -4,6 +4,7 @@ import sys, os
 import pandas as pd
 import time
 import logging
+import numpy as np
 
 try:
     with open('config.toml', 'rb') as f:
