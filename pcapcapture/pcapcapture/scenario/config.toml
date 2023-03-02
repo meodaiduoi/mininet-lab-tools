@@ -1,7 +1,8 @@
 # move interface to enviroment
 [enviroment]
 interface = '' # Default to main
-store_path = '~/Desktop/rawpcap' 
+store_path = '~/Desktop/rawpcap'
+profile_path = '/home/onos/Desktop/selenium-user' 
 
 # CRITICAL = 50
 # FATAL = CRITICAL
@@ -11,8 +12,6 @@ store_path = '~/Desktop/rawpcap'
 # DEBUG = 10
 # NOTSET = 0
 log_level = 10
-
-profile_path = ''
 
 [meet-guest]
 
