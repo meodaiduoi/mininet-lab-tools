@@ -35,8 +35,15 @@ if __name__ == '__main__':
         mkdir_by_path(sslkeylog_path)
 
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'YoutubeLive_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'YoutubeLive_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
 
         # Load url from playlist id
         ylive = YoutubeLivePlayer()
@@ -60,9 +67,9 @@ if __name__ == '__main__':
                 while ylive.yliveplayer != 0 and timer <= duration:
                     if ylive.get_player_state() != 1:
                         ylive.play()
-                    if random.randint(1, 10) == 1: ylive.yliveplayer.fast_forward(1)
+                    if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
                     ylive.yliveplayer
-                    time.sleep(1)
+                    time.sleep(20)
                     timer = time.time() - start_time
 
                 # Finish capture

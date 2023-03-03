@@ -11,6 +11,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['youtube']['url_list']
         # To load module from parent folder
@@ -28,19 +29,26 @@ if __name__ == '__main__':
     '''
     Folder structure:
     /{protocol: QUIC/WEB}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap}:
-                                                    .../SSLKEYLOG/Youtube_{timestamp}.log
+                                                   .../SSLKEYLOG/Youtube_{timestamp}.log
     '''
+    # Create folder to store output
+    pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Youtube')
+    sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Youtube', 'SSLKEYLOG')
+    mkdir_by_path(pcapstore_path)
+    mkdir_by_path(sslkeylog_path)
+
+    # Create logger
+    file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Youtube_{time.time_ns()}.log'))
+    stdout_handler = logging.StreamHandler(stream=sys.stdout)
+    handlers = [file_handler, stdout_handler]
+
+    logging.basicConfig(
+        level=log_level, 
+        format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+        handlers=handlers
+    )
+
     try:
-        # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Youtube')
-        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Youtube', 'SSLKEYLOG')
-        mkdir_by_path(pcapstore_path)
-        mkdir_by_path(sslkeylog_path)
-
-        # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Youtube_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
-
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
@@ -53,7 +61,7 @@ if __name__ == '__main__':
 
             # Init driver and capture object
             logging.info(f'Starting capture {url} to {file_path}')
-            youtube_player = YoutubePlayer()
+            youtube_player = YoutubePlayer(profile_path=profile_path)
             capture = AsyncQUICTrafficCapture()
 
             # Load youtube page and capture
