@@ -31,7 +31,7 @@ url_list = './common-res/gdrive.csv'
 url_list = './common-res/youtube.csv'
 
 [youtubelive]
-duration = 900
+duration = 1800
 
 [amazon]
 url_list = './common-res/amazon.csv'
