@@ -4,12 +4,14 @@ import sys, os
 import logging
 import pandas as pd
 import time
+import numpy as np
 
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['amazon']['url_list']
         # To load module from parent folder
@@ -33,9 +35,16 @@ if __name__ == '__main__':
         mkdir_by_path(sslkeylog_path)
 
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Amazon_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Amazon_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
 
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
+        
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
@@ -47,7 +56,7 @@ if __name__ == '__main__':
 
             # Load amazon
             logging.info(f'Starting capture {url} to {file_path}')
-            amazon = AmazonLoader()
+            amazon = AmazonLoader(profile_path=profile_path)
 
             # Start capture
             capture = AsyncWebTrafficCapture()

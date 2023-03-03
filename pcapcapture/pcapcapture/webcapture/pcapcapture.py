@@ -2,9 +2,10 @@ import subprocess
 import os, signal
 
 import logging
+import time
 
-QUIC_DECODE_AS = 'udp.port==443,quic'
-WEB_FILTER = '(quic and udp.port==443) or ((http or http2) or (tls.app_data and not tls.handshake) and tcp.payload and tcp.port==443 or tcp.port==80)'
+QUIC_DECODE_AS = '"udp.port==443,quic"'
+WEB_FILTER = '"(quic and udp.port==443) or ((http or http2) or (tls.app_data and not tls.handshake) and tcp.payload and tcp.port==443 or tcp.port==80)"'
 class PcapCapture:
     '''
     PcapCapture is a class that uses tshark to capture packets from an interface
@@ -21,14 +22,18 @@ class PcapCapture:
         self.decode_as = decode_as
         self.autostop = autostop
 
-    def capture(self, interface, pcap_filename):
+    def capture(self, interface: str=None, pcap_filename: str=f'capture_{time.time_ns()}.pcap'):
         '''
         Invoke tshark to capture packets from an interface and save them to a pcap file
         interface: The interface to capture packets from
         pcap_filename: The path to the pcap file to save the packets to
         '''
+        self.interface = interface
         self.pcap_filename = pcap_filename
-        tshark_capture_cmd = f'tshark -i {interface} -w {self.pcap_filename}_temp'
+        
+        tshark_capture_cmd = f'tshark -w {self.pcap_filename}_temp'
+        if self.interface and not (self.interface == 'None' or self.interface == ''):
+            tshark_capture_cmd += f' -i {self.interface}'
         if self.autostop:
             tshark_capture_cmd += f' -a {self.autostop}'
 
@@ -62,8 +67,11 @@ class PcapCapture:
             logging.info(result_out)
             if result_err:
                 logging.error(result_err)
+                return False
         else:
             logging.error(f'File {self.pcap_filename}_temp not found')
+            return False
+        logging.info(f'Captured packets to {self.pcap_filename}')
 
     # TODO:used on Interrupt or Exception orcurred
     def clean_up(self):
@@ -82,17 +90,18 @@ class AsyncPcapCapture(PcapCapture):
         super().__init__(decode_as, filter, None)
         self.process = None
 
-    def capture(self, interface, pcap_filename):
+    def capture(self, interface: str=None, pcap_filename: str=f'capture_{time.time_ns()}.pcap'):
         if self.process:
-            logging.error('', 'Already capturing')
+            logging.error('Already capturing')
             return
 
+        self.interface = interface
         self.pcap_filename = pcap_filename
-        tshark_capture_cmd = f'tshark -i {interface} -w {self.pcap_filename}_temp'
-
-        # disable autostop for manual termination
-        # if self.autostop:
-        #     tshark_capture_cmd += '-a', self.autostop
+        tshark_capture_cmd = f'tshark -w {self.pcap_filename}_temp'
+        if self.interface and not (self.interface == 'None' or self.interface == ''):
+            tshark_capture_cmd += f' -i {self.interface}'
+        if self.autostop:
+            tshark_capture_cmd += f' -a {self.autostop}'
 
         logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
         self.process = subprocess.Popen(tshark_capture_cmd, shell=True,

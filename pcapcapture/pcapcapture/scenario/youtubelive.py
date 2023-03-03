@@ -35,35 +35,41 @@ if __name__ == '__main__':
         mkdir_by_path(sslkeylog_path)
 
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'YoutubeLive_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'YoutubeLive_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
 
         # Load url from playlist id
         ylive = YoutubeLivePlayer()
-        while True:
+        for url_id in range(len(ylive.url_list)):
             filename = f'YoutubeLive_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-            
-            for url_id in range(len(ylive.url_list)):
-                # Load youtube page
-                ylive.load_in_playlist(url_id)
 
-                # Start capture
-                capture = AsyncQUICTrafficCapture()
-                capture.capture(interface, f'{file_path}.pcap')
-                
-                # Interact with youtube
-                start_time = time.time()
-                timer = 0
-                while ylive.yliveplayer != 0 and timer <= duration:
-                    if ylive.get_player_state() != 1:
-                        ylive.play()
-                    if random.randint(1, 10) == 1: ylive.yliveplayer.fast_forward(1)
-                    ylive.yliveplayer
-                    time.sleep(1)
-                    timer = time.time() - start_time
+            # Load youtube page
+            ylive.load_in_playlist(url_id)
+
+            # Start capture
+            capture = AsyncQUICTrafficCapture()
+            capture.capture(interface, f'{file_path}.pcap')
+            
+            # Interact with youtube
+            start_time = time.time()
+            timer = 0
+            while ylive.yliveplayer != 0 and timer <= duration:
+                if ylive.get_player_state() != 1:
+                    ylive.play()
+                if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
+                ylive.yliveplayer
+                time.sleep(5)
+                timer = time.time() - start_time
 
                 # Finish capture
                 capture.terminate()

@@ -1,8 +1,8 @@
 # move interface to enviroment
 [enviroment]
-webcapture_lib_path = '../webcapture'
-interface = 'ens33'
-store_path = './output' 
+interface = '' # Default to main
+store_path = '~/Desktop/rawpcap'
+profile_path = '/home/onos/Desktop/selenium-user' 
 
 # CRITICAL = 50
 # FATAL = CRITICAL
@@ -11,9 +11,7 @@ store_path = './output'
 # INFO = 20
 # DEBUG = 10
 # NOTSET = 0
-log_level = 10
-
-profile_path = ''
+log_level = 20
 
 [meet-guest]
 
@@ -33,7 +31,7 @@ url_list = './common-res/gdrive.csv'
 url_list = './common-res/youtube.csv'
 
 [youtubelive]
-duration = 10
+duration = 1800
 
 [amazon]
 url_list = './common-res/amazon.csv'
