@@ -44,47 +44,48 @@ if __name__ == '__main__':
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
+        
+        while True:
+            # Load url from playlist id
+            ylive = YoutubeLivePlayer()
+            for _ in range(3):
+                filename = f'YoutubeLive_{time.time_ns()}'
+                file_path = os.path.join(pcapstore_path, filename)
+                # Save ssl key to file
+                os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-        # Load url from playlist id
-        ylive = YoutubeLivePlayer()
-        for url_id in range(len(ylive.url_list)):
-            filename = f'YoutubeLive_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+                # Load youtube page
+                ylive.load_in_playlist(-1)
 
-            # Load youtube page
-            ylive.load_in_playlist(url_id)
-
-            # Start capture
-            capture = AsyncQUICTrafficCapture()
-            capture.capture(interface, f'{file_path}.pcap')
-            
-            # Interact with youtube
-            start_time = time.time()
-            timer = 0
-            while ylive.yliveplayer != 0 and timer <= duration:
-                if ylive.get_player_state() != 1:
-                    ylive.play()
-                if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
-                ylive.yliveplayer
-                time.sleep(5)
-                timer = time.time() - start_time
+                # Start capture
+                capture = AsyncQUICTrafficCapture()
+                capture.capture(interface, f'{file_path}.pcap')
+                
+                # Interact with youtube
+                start_time = time.time()
+                timer = 0
+                while ylive.player_state != 0 and timer <= duration:
+                    if ylive.player_state != 1:
+                        ylive.play()
+                    if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
+                    time.sleep(5)
+                    timer = time.time() - start_time
 
                 # Finish capture
                 capture.terminate()
                 ylive.close()
-    
+
     except KeyboardInterrupt:
         ylive.close()
         capture.terminate()
         capture.clean_up()
-        logging.error(f'Keyboard Interrupt at: {ylive.url_list[url_id]} and {file_path}')
+        logging.error(f'Keyboard Interrupt at: {file_path}')
         sys.exit(0)
 
     except Exception as e:
         ylive.close()
         capture.terminate()
-        logging.critical(f'Error at: {ylive.url_list[url_id]} and {file_path}')
+        capture.clean_up()
+        logging.critical(f'Error at: {file_path}')
         raise e
 

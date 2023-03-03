@@ -105,8 +105,8 @@ class YoutubeLivePlayer(PageLoader):
         self.preferences = preferences
         self.addons = addons
         super(YoutubeLivePlayer, self).__init__((By.CLASS_NAME, 'yt-core-image'),
-                                            timeout, profile_path,
-                                            preferences, addons)
+                                                timeout, profile_path,
+                                                preferences, addons)
         self.start_driver()
         self.load(
             'https://www.youtube.com/playlist?list=PLU12uITxBEPGILPLxvkCc4L_iL7aHf4J2'
@@ -147,7 +147,8 @@ class YoutubeLivePlayer(PageLoader):
     def pause(self):
         self.yliveplayer.pause()
 
-    def get_player_state(self):
+    @property
+    def player_state(self):
         return self.yliveplayer.get_player_state()
 
     def close(self, quit=False):
