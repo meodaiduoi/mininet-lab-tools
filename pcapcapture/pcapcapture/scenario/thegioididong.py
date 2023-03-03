@@ -10,6 +10,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['thegioididong']['url_list']
         # To load module from parent folder
@@ -53,7 +54,7 @@ if __name__ == '__main__':
 
             # Load Thegioididong
             logging.info(f'Starting capture {url} to {file_path}')
-            thegioididong = TGDDLoader()
+            thegioididong = TGDDLoader(profile_path=profile_path)
             capture = AsyncWebTrafficCapture()
 
             # Start capture

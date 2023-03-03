@@ -10,6 +10,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['gg-docs']['url_list']
         
@@ -33,8 +34,15 @@ if __name__ == '__main__':
         mkdir_by_path(sslkeylog_path)
 
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Docs_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Docs_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
 
         filename = f'{time.time_ns()}'
         file_path = os.path.join(pcapstore_path, filename)
@@ -43,7 +51,7 @@ if __name__ == '__main__':
 
         # Load docs
         logging.info(f'Starting capture docs to {file_path}')
-        docs = GDocsPageLoader()
+        docs = GDocsPageLoader(profile_path=profile_path)
         docs.load("")
         docs.user("account","passwrd")
         docs.signin()
