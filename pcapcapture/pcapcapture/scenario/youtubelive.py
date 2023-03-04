@@ -8,6 +8,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         duration = config['youtubelive']['duration']
         # To load module from parent folder
@@ -44,18 +45,18 @@ if __name__ == '__main__':
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
-
-        # Load url from playlist id
-        ylive = YoutubeLivePlayer()
+        
         while True:
-            filename = f'YoutubeLive_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-            
-            for url_id in range(len(ylive.url_list)):
+            # Load url from playlist id
+            ylive = YoutubeLivePlayer(profile_path=profile_path)
+            for _ in range(3):
+                filename = f'YoutubeLive_{time.time_ns()}'
+                file_path = os.path.join(pcapstore_path, filename)
+                # Save ssl key to file
+                os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+
                 # Load youtube page
-                ylive.load_in_playlist(url_id)
+                ylive.load_in_playlist(-1)
 
                 # Start capture
                 capture = AsyncQUICTrafficCapture()
@@ -64,28 +65,37 @@ if __name__ == '__main__':
                 # Interact with youtube
                 start_time = time.time()
                 timer = 0
-                while ylive.yliveplayer != 0 and timer <= duration:
-                    if ylive.get_player_state() != 1:
+                skip_count = 0
+                while ylive.player_state != 0 and timer <= duration:
+                    if ylive.player_state != 1:
                         ylive.play()
                     if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
-                    ylive.yliveplayer
-                    time.sleep(20)
+                    if ylive.player_state == -1:
+                        skip_count += 1
+                        if skip_count >= 5: 
+                            capture.terminate()
+                            capture.clean_up()
+                            capture = None
+                            break
+                    time.sleep(5)
                     timer = time.time() - start_time
 
                 # Finish capture
-                capture.terminate()
+                if capture:
+                    capture.terminate()
                 ylive.close()
-    
+
     except KeyboardInterrupt:
         ylive.close()
         capture.terminate()
         capture.clean_up()
-        logging.error(f'Keyboard Interrupt at: {ylive.url_list[url_id]} and {file_path}')
+        logging.error(f'Keyboard Interrupt at: {file_path}')
         sys.exit(0)
 
     except Exception as e:
         ylive.close()
         capture.terminate()
-        logging.critical(f'Error at: {ylive.url_list[url_id]} and {file_path}')
+        capture.clean_up()
+        logging.critical(f'Error at: {file_path}')
         raise e
 

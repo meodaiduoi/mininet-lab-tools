@@ -4,12 +4,14 @@ import sys, os
 import logging
 import pandas as pd
 import time
+import random
 
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['thegioididong']['url_list']
         # To load module from parent folder
@@ -44,8 +46,15 @@ if __name__ == '__main__':
 
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        for desc, url in zip(df_link['description'], df_link['url']):
-
+        
+        # Init load times
+        times = random.randint(100,200)
+        
+        for _ in range(times):
+            des, urls = zip(df_link.iloc[random.randint(0, df_link.__len__())])
+            desc = des.__getitem__(0)
+            url = urls.__getitem__(0)
+            
             filename = f'{desc}_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
@@ -53,7 +62,7 @@ if __name__ == '__main__':
 
             # Load Thegioididong
             logging.info(f'Starting capture {url} to {file_path}')
-            thegioididong = TGDDLoader()
+            thegioididong = TGDDLoader(profile_path=profile_path)
             capture = AsyncWebTrafficCapture()
 
             # Start capture
@@ -61,7 +70,7 @@ if __name__ == '__main__':
 
             # Interact with thegioididong
             thegioididong.load(url)
-            thegioididong.scroll_slowly_to_bottom(300, 1)
+            thegioididong.scroll_slowly_to_bottom(random.randint(250,350), random.randrange(1,2))
 
             # Turn off capture and driver
             capture.terminate()

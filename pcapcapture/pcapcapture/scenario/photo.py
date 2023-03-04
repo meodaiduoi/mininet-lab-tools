@@ -10,6 +10,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['gg-photos']['url_list']
         
@@ -33,8 +34,15 @@ if __name__ == '__main__':
         mkdir_by_path(sslkeylog_path)
 
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Photo_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Photo_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
         
         # Load link from csv file
         df_link = pd.read_csv(url_list)
@@ -46,7 +54,7 @@ if __name__ == '__main__':
 
             # Load photo
             logging.info(f'Starting capture {url} to {file_path}')
-            photo = GPhotosPageLoader()
+            photo = GPhotosPageLoader(profile_path=profile_path)
             photo.load(url)
 
             # Start capture

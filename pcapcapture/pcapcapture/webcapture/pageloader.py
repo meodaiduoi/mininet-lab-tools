@@ -58,6 +58,11 @@ class PageLoader():
             self.close_driver()
             logging.critical(f'fatal error: {e}')
             raise e
+        
+    # def new_tab(self):
+    #     self._driver.execute_script("window.open('');")
+    #     chwd = self._driver.window_handles
+    #     self._driver.switch_to.window(chwd[-1])
 
     @property
     def current_height(self):

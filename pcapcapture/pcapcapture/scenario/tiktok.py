@@ -10,6 +10,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['tiktok']['url_list']
         sys.path.insert(1, '../' )
@@ -31,8 +32,15 @@ if __name__ == '__main__':
         mkdir_by_path(sslkeylog_path)
         
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Tiktok_{time.time_ns()}.log'), 
-                            level=log_level, format="%(asctime)s %(message)s")
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Tiktok_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
 
         # Load link from csv file
         df_link = pd.read_csv(url_list)
@@ -44,7 +52,8 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Init driver and capture object
-            tiktok = TiktokLoader()
+            logging.info(f'Starting capture {url} to {file_path}')
+            tiktok = TiktokLoader(profile_path=profile_path)
             capture = AsyncWebTrafficCapture()
 
             # Load tiktok page and start capture
@@ -59,11 +68,12 @@ if __name__ == '__main__':
         tiktok.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.error('Keyboard Interrupt')
+        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
         sys.exit(0)
 
     except Exception as e:
         tiktok.close_driver()
         capture.terminate()
         capture.clean_up()
+        logging.critical(f'Error at: {url} and {file_path}')
         raise e
