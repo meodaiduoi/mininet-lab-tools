@@ -13,7 +13,10 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
+        
         url_list = config['thegioididong']['url_list']
+        min_page = config['thegioididong']['min_page']
+        max_page = config['thegioididong']['max_page']
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -23,12 +26,12 @@ except FileNotFoundError:
 # Code start from here
 from webcapture.pcapcapture import *
 from webcapture.ecomservice import TGDDLoader
-from webcapture.utils import *        
+from webcapture.utils import *
 
 if __name__ == '__main__':
     try:
         # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Thegioididong') 
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Thegioididong')
         sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Thegioididong', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
@@ -39,38 +42,32 @@ if __name__ == '__main__':
         handlers = [file_handler, stdout_handler]
 
         logging.basicConfig(
-            level=log_level, 
+            level=log_level,
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
 
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        
-        # Init load times
-        times = random.randint(100,200)
-        
-        for _ in range(times):
-            des, urls = zip(df_link.iloc[random.randint(0, df_link.__len__())])
-            desc = des.__getitem__(0)
-            url = urls.__getitem__(0)
-            
-            filename = f'{desc}_{time.time_ns()}'
+
+        while True:
+            capture = AsyncWebTrafficCapture()
+            filename = f'Thegioididiong_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            # Load Thegioididong
-            logging.info(f'Starting capture {url} to {file_path}')
-            thegioididong = TGDDLoader(profile_path=profile_path)
-            capture = AsyncWebTrafficCapture()
-
-            # Start capture
+            # Load Thegioididong and start capture
+            thegioididong = TGDDLoader()
             capture.capture(interface, f'{file_path}.pcap')
-
-            # Interact with thegioididong
-            thegioididong.load(url)
-            thegioididong.scroll_slowly_to_bottom(random.randint(250,350), random.randrange(1,2))
+            
+            for no_of_page in range(random.randint(min_page, max_page)):
+                desc, url = df_link.iloc[random.randint(0, len(df_link)-1)].to_list()
+                logging.info(f'Loading: {no_of_page}: {desc} - {url}')
+                # Interact with thegioididong
+                thegioididong.load(url)
+                thegioididong.scroll_slowly_to_bottom(random.randint(300,650), 
+                                                      random.randrange(1,4))
 
             # Turn off capture and driver
             capture.terminate()

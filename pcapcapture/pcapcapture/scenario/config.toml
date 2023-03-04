@@ -48,6 +48,8 @@ url_list = './common-res/tiki.csv'
 
 [thegioididong]
 url_list = './common-res/thegioididong.csv'
+min_page = 25
+max_page = 150
 
 [ebay]
 url_list = './common-res/ebay.csv'

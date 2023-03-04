@@ -71,7 +71,7 @@ class PcapCapture:
         else:
             logging.error(f'File {self.pcap_filename}_temp not found')
             return False
-        logging.info(f'Captured packets to {self.pcap_filename}')
+        logging.info(f'Saved pcap file to: {self.pcap_filename}')
 
     # TODO:used on Interrupt or Exception orcurred
     def clean_up(self):
@@ -118,6 +118,7 @@ class AsyncPcapCapture(PcapCapture):
 
             if return_code != 0:
                 logging.error('Error in terminating process')
+                self.clean_up()
                 return
 
             super()._apply_filter()
