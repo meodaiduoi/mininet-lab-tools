@@ -235,40 +235,38 @@ class GMeetGuest(PageLoader):
         if url:
             self.load(url)
 
-    def user(self, name, passwrd):
-        self.name = name
-        self.passwrd = passwrd
+    # !DEPRECATED: Load through profile_path
+    # def user(self, name, passwrd):
+    #     self.name = name
+    #     self.passwrd = passwrd
 
-    def signin(self):
-        try:
-            # Click button sign-in
-            self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
+    # !DEPRECATED: Load through profile_path
+    # def signin(self):
+    #     try:
+    #         # Click button sign-in
+    #         self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
 
-            # Input user account
-            username = self._driver.find_element(By.ID, 'identifierId')
-            username.send_keys(self.name)
-            nextButton = self._driver.find_element(By.ID, 'identifierNext')
-            nextButton.click()
+    #         # Input user account
+    #         username = self._driver.find_element(By.ID, 'identifierId')
+    #         username.send_keys(self.name)
+    #         nextButton = self._driver.find_element(By.ID, 'identifierNext')
+    #         nextButton.click()
 
-            # Input user password
-            password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-            password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-            signInButton = self._driver.find_element(By.ID,'passwordNext')
-            signInButton.click()
-        except AttributeError:
-            logging.error('Required to user() first')
+    #         # Input user password
+    #         password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
+    #         password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
+    #         signInButton = self._driver.find_element(By.ID,'passwordNext')
+    #         signInButton.click()
+    #     except AttributeError:
+    #         logging.error('Required to user() first')
 
-    def code_meet(self, code):
-        # Code GHost
-        self.code = code
-
-    def input_code(self):
+    def input_code(self, code):
         try:
             # find the element for entering meeting code
             code_input = self._driver.find_element(By.ID, "i6")
 
             # enter the meeting code
-            code_input.send_keys(self.code)
+            code_input.send_keys(code)
 
             # press enter key
             code_input.send_keys(Keys.RETURN)
