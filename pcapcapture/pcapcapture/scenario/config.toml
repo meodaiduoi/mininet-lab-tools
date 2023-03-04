@@ -1,7 +1,7 @@
 # move interface to enviroment
 [enviroment]
 interface = '' # Default to main
-store_path = '~/Desktop/rawpcap'
+store_path = '~/Desktop/rawpcap/test'
 profile_path = '/home/onos/Desktop/selenium-user' 
 
 # CRITICAL = 50
@@ -31,7 +31,8 @@ url_list = './common-res/gdrive.csv'
 url_list = './common-res/youtube.csv'
 
 [youtubelive]
-duration = 900
+# duration = 1800
+duration = 10
 
 [amazon]
 url_list = './common-res/amazon.csv'
