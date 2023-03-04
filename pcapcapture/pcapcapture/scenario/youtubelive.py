@@ -8,6 +8,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
+        profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         duration = config['youtubelive']['duration']
         # To load module from parent folder
@@ -47,7 +48,7 @@ if __name__ == '__main__':
         
         while True:
             # Load url from playlist id
-            ylive = YoutubeLivePlayer()
+            ylive = YoutubeLivePlayer(profile_path=profile_path)
             for _ in range(3):
                 filename = f'YoutubeLive_{time.time_ns()}'
                 file_path = os.path.join(pcapstore_path, filename)
@@ -64,15 +65,24 @@ if __name__ == '__main__':
                 # Interact with youtube
                 start_time = time.time()
                 timer = 0
+                skip_count = 0
                 while ylive.player_state != 0 and timer <= duration:
                     if ylive.player_state != 1:
                         ylive.play()
                     if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
+                    if ylive.player_state == -1:
+                        skip_count += 1
+                        if skip_count >= 5: 
+                            capture.terminate()
+                            capture.clean_up()
+                            capture = None
+                            break
                     time.sleep(5)
                     timer = time.time() - start_time
 
                 # Finish capture
-                capture.terminate()
+                if capture:
+                    capture.terminate()
                 ylive.close()
 
     except KeyboardInterrupt:

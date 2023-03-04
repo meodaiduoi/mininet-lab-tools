@@ -131,7 +131,7 @@ class YoutubeLivePlayer(PageLoader):
         if self.yliveplayer:
             self.close()
         if id not in range(len(self.url_list)):
-            id = random.randint(0, len(self.url_list))
+            id = random.randint(0, len(self.url_list)-1)
 
         self.yliveplayer = YoutubePlayer(
             self.url_list[id],
