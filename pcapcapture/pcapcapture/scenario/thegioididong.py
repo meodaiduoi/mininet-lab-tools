@@ -51,9 +51,9 @@ if __name__ == '__main__':
         times = random.randint(100,200)
         
         for _ in range(times):
-            des, url = zip(df_link.iloc[random.randint(0, df_link.__len__())])
+            des, urls = zip(df_link.iloc[random.randint(0, df_link.__len__())])
             desc = des.__getitem__(0)
-            urls = url.__getitem__(0)
+            url = urls.__getitem__(0)
             
             filename = f'{desc}_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
