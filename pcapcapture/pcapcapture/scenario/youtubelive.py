@@ -19,7 +19,7 @@ except FileNotFoundError:
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ggservice import YoutubePlayer, YoutubeLivePlayer
+from webcapture.ggservice import YoutubeLivePlayer
 from webcapture.utils import *
 
 if __name__ == '__main__':
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     '''
     try:
         # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive') 
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive')
         sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'YoutubeLive', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
@@ -41,11 +41,11 @@ if __name__ == '__main__':
         handlers = [file_handler, stdout_handler]
 
         logging.basicConfig(
-            level=log_level, 
+            level=log_level,
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
-        
+
         while True:
             # Load url from playlist id
             ylive = YoutubeLivePlayer(profile_path=profile_path)
@@ -61,7 +61,7 @@ if __name__ == '__main__':
                 # Start capture
                 capture = AsyncQUICTrafficCapture()
                 capture.capture(interface, f'{file_path}.pcap')
-                
+
                 # Interact with youtube
                 start_time = time.time()
                 timer = 0
@@ -72,7 +72,7 @@ if __name__ == '__main__':
                     if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
                     if ylive.player_state == -1:
                         skip_count += 1
-                        if skip_count >= 5: 
+                        if skip_count >= 5:
                             capture.terminate()
                             capture.clean_up()
                             capture = None

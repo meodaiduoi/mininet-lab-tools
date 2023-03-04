@@ -13,7 +13,7 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
-        
+
         url_list = config['thegioididong']['url_list']
         min_page = config['thegioididong']['min_page']
         max_page = config['thegioididong']['max_page']
@@ -60,13 +60,13 @@ if __name__ == '__main__':
             # Load Thegioididong and start capture
             thegioididong = TGDDLoader()
             capture.capture(interface, f'{file_path}.pcap')
-            
+
             for no_of_page in range(random.randint(min_page, max_page)):
                 desc, url = df_link.iloc[random.randint(0, len(df_link)-1)].to_list()
                 logging.info(f'Loading: {no_of_page}: {desc} - {url}')
                 # Interact with thegioididong
                 thegioididong.load(url)
-                thegioididong.scroll_slowly_to_bottom(random.randint(300,650), 
+                thegioididong.scroll_slowly_to_bottom(random.randint(300,650),
                                                       random.randrange(1,4))
 
             # Turn off capture and driver
