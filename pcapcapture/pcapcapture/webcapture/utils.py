@@ -29,27 +29,38 @@ def mkdir_by_path(path):
     except NotADirectoryError:
         logging.error(f'Not a directory: {path} or already exists as a file')
 
-# https://narok.io/creating-a-virtual-webcam-on-linux/
-def init_virtual_cam(device_id: int=10, ):
-    # Load v4l2loopback module
-    os.system(f'sudo modprobe v4l2loopback devices=1 video_nr={device_id} max_buffers=2 exclusive_caps=1 card_label="Default WebCam"')
-    return device_id
+# def init_virutal_microphone():
+#     # Load v4l2loopback module
+#     os.system('sudo modprobe snd-aloop')
 
-def rm_virtual_cam():
-    # Unload v4l2loopback module
-    os.system('sudo modprobe -r v4l2loopback')
+# def rm_virutal_microphone():
+#     # Unload v4l2loopback module
+#     os.system('sudo modprobe -r snd-aloop')
 
 class FFMPEGVideoStream:
     def __init__(self, device_id: int=10):
         self.device_id = device_id
+        
         self.process = None
+
+    # https://narok.io/creating-a-virtual-webcam-on-linux/
+    def __init_virtual_cam(device_id: int=10) -> bool:
+        # Load v4l2loopback module
+        os.system(f'sudo modprobe v4l2loopback devices=1 video_nr={device_id} max_buffers=2 exclusive_caps=1 card_label="Default WebCam"')
+        # return device_id
+        return True
+
+    def __rm_virtual_cam() -> bool:
+        # Unload v4l2loopback module
+        os.system('sudo modprobe -r v4l2loopback')
+        return True
 
     def start(self, video_path: str):
         # Start ffmpeg
         if not self.process:
             logging.info(f'Starting ffmpeg process to stream video {video_path} to /dev/video{self.device_id}')
             self.process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i {video_path}.mp4 \
-                                            -f v4l2 -vcodec rawvideo -s 640x480  /dev/video{self.device_id} \
+                                            -f v4l2 -vcodec rawvideo -s 1280x720  /dev/video{self.device_id} \
                                             -f alsa -ac 2 -i hw:Loopback,1,0')
 
     def terminate(self):
@@ -65,10 +76,3 @@ class FFMPEGVideoStream:
             logging.info('ffmpeg process terminated')
             return return_code
 
-def init_virutal_microphone():
-    # Load v4l2loopback module
-    os.system('sudo modprobe snd-aloop')
-
-def rm_virutal_microphone():
-    # Unload v4l2loopback module
-    os.system('sudo modprobe -r snd-aloop')
