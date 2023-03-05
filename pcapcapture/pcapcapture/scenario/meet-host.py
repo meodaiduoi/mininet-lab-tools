@@ -37,7 +37,7 @@ if __name__ == '__main__':
         host = GMeetHost("")
         host.user("account","passwrd")
         host.signin()
-        
+
         # Join meeting
         host.code_meet("")
         host.input_code()
