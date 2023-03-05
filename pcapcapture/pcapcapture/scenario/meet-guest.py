@@ -8,7 +8,9 @@ from logging import info, debug, warning, error, critical
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
-        interface = config['meet-guest']['interface']
+        interface = config['enviroment']['interface']
+        store_path = config['enviroment']['store_path']
+        log_level = config['enviroment']['log_level']
         sys.path.insert(1, '../' )
 except FileNotFoundError:
     print('Config file not found')

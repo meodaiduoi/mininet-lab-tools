@@ -105,8 +105,8 @@ class YoutubeLivePlayer(PageLoader):
         self.preferences = preferences
         self.addons = addons
         super(YoutubeLivePlayer, self).__init__((By.CLASS_NAME, 'yt-core-image'),
-                                            timeout, profile_path,
-                                            preferences, addons)
+                                                timeout, profile_path,
+                                                preferences, addons)
         self.start_driver()
         self.load(
             'https://www.youtube.com/playlist?list=PLU12uITxBEPGILPLxvkCc4L_iL7aHf4J2'
@@ -131,7 +131,7 @@ class YoutubeLivePlayer(PageLoader):
         if self.yliveplayer:
             self.close()
         if id not in range(len(self.url_list)):
-            id = random.randint(0, len(self.url_list))
+            id = random.randint(0, len(self.url_list)-1)
 
         self.yliveplayer = YoutubePlayer(
             self.url_list[id],
@@ -147,7 +147,8 @@ class YoutubeLivePlayer(PageLoader):
     def pause(self):
         self.yliveplayer.pause()
 
-    def get_player_state(self):
+    @property
+    def player_state(self):
         return self.yliveplayer.get_player_state()
 
     def close(self, quit=False):
@@ -235,40 +236,38 @@ class GMeetGuest(PageLoader):
         if url:
             self.load(url)
 
-    def user(self, name, passwrd):
-        self.name = name
-        self.passwrd = passwrd
+    # !DEPRECATED: Load through profile_path
+    # def user(self, name, passwrd):
+    #     self.name = name
+    #     self.passwrd = passwrd
 
-    def signin(self):
-        try:
-            # Click button sign-in
-            self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
+    # !DEPRECATED: Load through profile_path
+    # def signin(self):
+    #     try:
+    #         # Click button sign-in
+    #         self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
 
-            # Input user account
-            username = self._driver.find_element(By.ID, 'identifierId')
-            username.send_keys(self.name)
-            nextButton = self._driver.find_element(By.ID, 'identifierNext')
-            nextButton.click()
+    #         # Input user account
+    #         username = self._driver.find_element(By.ID, 'identifierId')
+    #         username.send_keys(self.name)
+    #         nextButton = self._driver.find_element(By.ID, 'identifierNext')
+    #         nextButton.click()
 
-            # Input user password
-            password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-            password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-            signInButton = self._driver.find_element(By.ID,'passwordNext')
-            signInButton.click()
-        except AttributeError:
-            logging.error('Required to user() first')
+    #         # Input user password
+    #         password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
+    #         password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
+    #         signInButton = self._driver.find_element(By.ID,'passwordNext')
+    #         signInButton.click()
+    #     except AttributeError:
+    #         logging.error('Required to user() first')
 
-    def code_meet(self, code):
-        # Code GHost
-        self.code = code
-
-    def input_code(self):
+    def input_code(self, code):
         try:
             # find the element for entering meeting code
             code_input = self._driver.find_element(By.ID, "i6")
 
             # enter the meeting code
-            code_input.send_keys(self.code)
+            code_input.send_keys(code)
 
             # press enter key
             code_input.send_keys(Keys.RETURN)

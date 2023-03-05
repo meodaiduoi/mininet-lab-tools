@@ -43,7 +43,7 @@ if __name__ == '__main__':
     handlers = [file_handler, stdout_handler]
 
     logging.basicConfig(
-        level=log_level, 
+        level=log_level,
         format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
         handlers=handlers
     )
@@ -52,7 +52,7 @@ if __name__ == '__main__':
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
-            
+
             # Create filename
             filename = f'{desc}_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
