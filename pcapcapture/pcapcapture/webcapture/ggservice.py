@@ -14,6 +14,7 @@ import os
 import logging
 import time, random
 import re
+from pytube import Playlist
 
 from webcapture.pageloader import PageLoader
 
@@ -41,7 +42,8 @@ class YoutubePlayer(PageLoader):
         else:
             logging.error('Not a valid youtube url')
 
-    def get_player_state(self) -> int:
+    @property
+    def player_state(self) -> int:
         '''
         Return the state of the player which:
         -1: Unstarted or Advertisement is playing
@@ -66,19 +68,17 @@ class YoutubePlayer(PageLoader):
             logging.error('Required to load() first')
 
     def play(self):
-        player_sate = self.get_player_state()
-        if player_sate == 1:
+        if self.player_state == 1:
             logging.error('Player is already playing')
             return
         try:
             self._driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
             logging.info('Player is playing')
-        except AttributeError as e:
+        except AttributeError:
             logging.error('Required to load() first')
 
     def pause(self):
-        player_sate = self.get_player_state()
-        if player_sate == 1:
+        if self.player_state == 1:
             try:
                 self._driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
                 logging.info('Player is paused')
@@ -98,23 +98,28 @@ class YoutubePlayer(PageLoader):
         except AttributeError:
             logging.error('Required to load() first')
 
-class YoutubeLivePlayer(PageLoader):
+
+class YoutubePlaylistFetch(PageLoader):
     def __init__(self, timeout: int=20, profile_path: str=None,
                  preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
-        self.timeout = timeout
-        self.preferences = preferences
-        self.addons = addons
-        super(YoutubeLivePlayer, self).__init__((By.CLASS_NAME, 'yt-core-image'),
-                                                timeout, profile_path,
-                                                preferences, addons)
+        super(YoutubePlaylistFetch, self).__init__((By.CLASS_NAME, 'yt-core-image'),
+                                                   timeout, profile_path,
+                                                   preferences, addons)
+        self.url_list = None
+
+    # Don't required webdriver due to access via api
+    def get_video_url_playlist(self, playlist_url: str):
+        self.url_list = Playlist(playlist_url)
+        return self.url_list
+
+    # Will required to open browser for url checking
+    def get_live_url_playlist(self, speed=700, delay=1):
+
         self.start_driver()
         self.load(
             'https://www.youtube.com/playlist?list=PLU12uITxBEPGILPLxvkCc4L_iL7aHf4J2'
         )
-        self.url_list = self.__get_stream_url_list()
-        self.yliveplayer = None
 
-    def __get_stream_url_list(self, speed=700, delay=1):
         self.scroll_slowly_to_bottom(speed, delay)
         content = self._driver.find_element(By.CSS_SELECTOR,"#contents")
         all_url = content.find_elements(
@@ -124,36 +129,74 @@ class YoutubeLivePlayer(PageLoader):
         for url in all_url:
             if url.text == 'TRỰC TIẾP' or url.text == 'LIVE':
                 url_list.append(url.get_attribute("href"))
+
         self.close_driver()
-        return url_list
+        self.url_list = url_list
+        return self.url_list
 
-    def load_in_playlist(self, id: -1=int)-> str:
-        if self.yliveplayer:
-            self.close()
-        if id not in range(len(self.url_list)):
-            id = random.randint(0, len(self.url_list)-1)
+# Deprecated, techical debt paid.
+# class YoutubeLivePlayer(YoutubePlayer):
+#     def __init__(self, url: str=None, timeout: int=20, profile_path: str=None,
+#                  preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+#         super(YoutubeLivePlayer, self).__init__(url, timeout, profile_path,
+#                                                 preferences, addons)
 
-        self.yliveplayer = YoutubePlayer(
-            self.url_list[id],
-            self.timeout,
-            self.preferences,
-            self.addons
-        )
-        return self.url_list[id]
+# class YoutubeLivePlayer(PageLoader):
+#     def __init__(self, timeout: int=20, profile_path: str=None,
+#                  preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+#         self.timeout = timeout
+#         self.preferences = preferences
+#         self.addons = addons
+#         super(YoutubeLivePlayer, self).__init__((By.CLASS_NAME, 'yt-core-image'),
+#                                                 timeout, profile_path,
+#                                                 preferences, addons)
+#         self.start_driver()
+#         self.load(
+#             'https://www.youtube.com/playlist?list=PLU12uITxBEPGILPLxvkCc4L_iL7aHf4J2'
+#         )
+#         self.url_list = self.__get_stream_url_list()
+#         self.yliveplayer = None
 
-    def play(self):
-        self.yliveplayer.play()
+#     def __get_stream_url_list(self, speed=700, delay=1):
+#         self.scroll_slowly_to_bottom(speed, delay)
+#         content = self._driver.find_element(By.CSS_SELECTOR,"#contents")
+#         all_url = content.find_elements(
+#             By.CSS_SELECTOR,".yt-simple-endpoint#thumbnail")
 
-    def pause(self):
-        self.yliveplayer.pause()
+#         url_list = []
+#         for url in all_url:
+#             if url.text == 'TRỰC TIẾP' or url.text == 'LIVE':
+#                 url_list.append(url.get_attribute("href"))
+#         self.close_driver()
+#         return url_list
 
-    @property
-    def player_state(self):
-        return self.yliveplayer.get_player_state()
+#     def load_in_playlist(self, id: -1=int)-> str:
+#         if self.yliveplayer:
+#             self.close()
+#         if id not in range(len(self.url_list)):
+#             id = random.randint(0, len(self.url_list)-1)
 
-    def close(self, quit=False):
-        self.yliveplayer.close_driver(quit)
-        self.yliveplayer = None
+#         self.yliveplayer = YoutubePlayer(
+#             self.url_list[id],
+#             self.timeout,
+#             self.preferences,
+#             self.addons
+#         )
+#         return self.url_list[id]
+
+#     def play(self):
+#         self.yliveplayer.play()
+
+#     def pause(self):
+#         self.yliveplayer.pause()
+
+#     @property
+#     def player_state(self):
+#         return self.yliveplayer.get_player_state
+
+#     def close(self, quit=False):
+#         self.yliveplayer.close_driver(quit)
+#         self.yliveplayer = None
 class GMeetHost(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
                  preferences: list[tuple[str, str]]=None, addons: list[str]=None):

@@ -13,7 +13,7 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
-        url_list = config['youtube']['url_list']
+        url_list = config['youtube']['playlist']
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -22,7 +22,7 @@ except FileNotFoundError:
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ggservice import YoutubePlayer
+from webcapture.ggservice import YoutubePlayer, YoutubePlaylistFetch
 from webcapture.utils import *
 
 if __name__ == '__main__':
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     # Create logger
     file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Youtube_{time.time_ns()}.log'))
-    stdout_handler = logging.StreamHandler(stream=sys.stdout)
+    stdout_handler  = logging.StreamHandler(stream=sys.stdout)
     handlers = [file_handler, stdout_handler]
 
     logging.basicConfig(
@@ -48,35 +48,37 @@ if __name__ == '__main__':
         handlers=handlers
     )
 
-    try:
+    try:    
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        for desc, url in zip(df_link['description'], df_link['url']):
+        for desc, url_playlist in zip(df_link['description'], df_link['url']):
+            playlist = YoutubePlaylistFetch().get_video_url_playlist(url_playlist)
+            for url in playlist:
 
-            # Create filename
-            filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+                # Create filename
+                filename = f'{desc}_{time.time_ns()}'
+                file_path = os.path.join(pcapstore_path, filename)
+                # Save ssl key to file
+                os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            # Init driver and capture object
-            logging.info(f'Starting capture {url} to {file_path}')
-            youtube_player = YoutubePlayer(profile_path=profile_path)
-            capture = AsyncQUICTrafficCapture()
+                # Init driver and capture object
+                logging.info(f'Starting capture {url} to {file_path}')
+                youtube_player = YoutubePlayer(profile_path=profile_path)
+                capture = AsyncQUICTrafficCapture()
 
-            # Load youtube page and capture
-            youtube_player.load(url)
-            capture.capture(interface, f'{file_path}.pcap')
+                # Load youtube page and capture
+                youtube_player.load(url)
+                capture.capture(interface, f'{file_path}.pcap')
 
-            # Interact with youtube
-            youtube_player.play()
-            while youtube_player.player_state != 0:
-                youtube_player.fast_forward(1)
-                time.sleep(2)
+                # Interact with youtube
+                youtube_player.play()
+                while youtube_player.player_state != 0:
+                    youtube_player.fast_forward(1)
+                    time.sleep(2)
 
-            # Finish capture
-            capture.terminate()
-            youtube_player.close_driver()
+                # Finish capture
+                capture.terminate()
+                youtube_player.close_driver()
 
     except KeyboardInterrupt:
         youtube_player.close_driver()

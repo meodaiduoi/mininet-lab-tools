@@ -19,7 +19,7 @@ except FileNotFoundError:
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ggservice import YoutubeLivePlayer
+from webcapture.ggservice import YoutubePlayer, YoutubePlaylistFetch
 from webcapture.utils import *
 
 if __name__ == '__main__':
@@ -48,16 +48,17 @@ if __name__ == '__main__':
 
         while True:
             # Load url from playlist id
-            ylive = YoutubeLivePlayer(profile_path=profile_path)
+            live_playlist = YoutubePlaylistFetch().get_live_url_playlist()
             for _ in range(3):
+                ylive = YoutubePlayer(profile_path=profile_path)
+                
                 filename = f'YoutubeLive_{time.time_ns()}'
                 file_path = os.path.join(pcapstore_path, filename)
                 # Save ssl key to file
                 os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
                 # Load youtube page
-                ylive.load_in_playlist(-1)
-
+                ylive.load(random.choice(live_playlist))
                 # Start capture
                 capture = AsyncQUICTrafficCapture()
                 capture.capture(interface, f'{file_path}.pcap')
@@ -67,12 +68,11 @@ if __name__ == '__main__':
                 timer = 0
                 skip_count = 0
                 while ylive.player_state != 0 and timer <= duration:
-                    if ylive.player_state != 1:
-                        ylive.play()
-                    if random.randint(1, 100) == 1: ylive.yliveplayer.fast_forward(1)
+                    ylive.play()
+                    if random.randint(1, 100) == 1: ylive.fast_forward(1)
                     if ylive.player_state == -1:
                         skip_count += 1
-                        if skip_count >= 5:
+                        if skip_count >= 4:
                             capture.terminate()
                             capture.clean_up()
                             capture = None
@@ -83,17 +83,17 @@ if __name__ == '__main__':
                 # Finish capture
                 if capture:
                     capture.terminate()
-                ylive.close()
+                ylive.close_driver()
 
     except KeyboardInterrupt:
-        ylive.close()
+        ylive.close_driver()
         capture.terminate()
         capture.clean_up()
         logging.error(f'Keyboard Interrupt at: {file_path}')
         sys.exit(0)
 
     except Exception as e:
-        ylive.close()
+        ylive.close_driver()
         capture.terminate()
         capture.clean_up()
         logging.critical(f'Error at: {file_path}')

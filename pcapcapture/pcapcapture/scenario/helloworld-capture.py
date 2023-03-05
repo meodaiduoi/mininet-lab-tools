@@ -54,7 +54,7 @@ if __name__ == '__main__':
             
             # Interact with youtube
             youtube_player.play()
-            while youtube_player.get_player_state() != 0:
+            while youtube_player.player_state() != 0:
                 youtube_player.fast_forward(1)
                 time.sleep(2)
 
