@@ -4,6 +4,7 @@ import sys, os
 import logging
 import pandas as pd
 import time
+import random
 
 try:
     with open('config.toml', 'rb') as f:
@@ -13,6 +14,8 @@ try:
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['lazada']['url_list']
+        min_page = config['lazada']['min_page']
+        max_page = config['lazada']['max_page']
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -45,24 +48,25 @@ if __name__ == '__main__':
 
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        for desc, url in zip(df_link['description'], df_link['url']):
 
-            filename = f'{desc}_{time.time_ns()}'
+        while True:
+            capture = AsyncWebTrafficCapture()
+            filename = f'Lazada_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load Lazada
-            logging.info(f'Starting capture {url} to {file_path}')
             lazada = LazadaLoader(profile_path=profile_path)
-            capture = AsyncWebTrafficCapture()
-
-            # Start capture
             capture.capture(interface, f'{file_path}.pcap')
 
-            # Interact with lazada
-            lazada.load(url)
-            lazada.scroll_slowly_to_bottom(300, 1)
+            for no_of_page in range(random.randint(min_page, max_page)):
+                desc, url = df_link.iloc[random.randint(0, len(df_link)-1)].to_list()
+                logging.info(f'Loading: {no_of_page}: {desc} - {url}')
+                # Interact with lazada
+                lazada.load(url)
+                lazada.scroll_slowly_to_bottom(random.randint(300,650),
+                                                random.randrange(1,4))
 
             # Turn off capture and driver
             capture.terminate()

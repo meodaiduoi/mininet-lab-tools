@@ -1,7 +1,7 @@
 # move interface to enviroment
 [enviroment]
 interface = '' # Default to main
-store_path = '~/Desktop/rawpcap/test/'
+store_path = '~/Desktop/rawpcap'
 profile_path = '/home/onos/Desktop/selenium-user' 
 
 # CRITICAL = 50
@@ -32,20 +32,28 @@ url_list = './common-res/youtube.csv'
 playlist = './common-res/youtube-playlist.csv'
 
 [youtubelive]
-# duration = 1800
-duration = 10
+duration = 1800
+# duration = 10
 
 [amazon]
 url_list = './common-res/amazon.csv'
+min_page = 25
+max_page = 150
 
 [shopee]
 url_list = './common-res/shopee.csv'
+min_page = 25
+max_page = 150
 
 [lazada]
 url_list = './common-res/lazada.csv'
+min_page = 25
+max_page = 150
 
 [tiki]
 url_list = './common-res/tiki.csv'
+min_page = 25
+max_page = 150
 
 [thegioididong]
 url_list = './common-res/thegioididong.csv'
@@ -54,6 +62,8 @@ max_page = 150
 
 [ebay]
 url_list = './common-res/ebay.csv'
+min_page = 25
+max_page = 150
 
 [tiktok]
 url_list = './common-res/tiktok.csv'
