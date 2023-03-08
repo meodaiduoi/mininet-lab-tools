@@ -55,7 +55,7 @@ async def video_endpoint(range: str = Header(None)):
             'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
             'Accept-Ranges': 'bytes'
         }
-        return Response(data, status_code=206, headers=headers, media_type="video/mp4")
+        return Response(data, status_code=200, headers=headers, media_type="video/mp4")
 
 
 @app.post("/upload")

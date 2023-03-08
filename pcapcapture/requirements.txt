@@ -3,3 +3,4 @@ pytube
 selenium
 pandas
 tomli
+fastapi
