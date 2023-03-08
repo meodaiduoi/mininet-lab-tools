@@ -378,45 +378,25 @@ class GDriveDownloader(PageLoader):
 class GDocsPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
                  preferences: list[tuple[str, str]]=None, addons: list[str]=None):
-        super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "gb_oe gb_Bc"), timeout,
+        super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "jfk-tooltip-contentId"), timeout,
                                               profile_path, preferences, addons)
         self.start_driver()
         if url:
             self.load(url)
         self.strings = []
 
-    def load(self, url) -> None:
+    def load(self, url):
         if 'docs.google.com' in url:
             super().load(url)
         else:
             logging.error('Not a valid google docs url')
 
-    def user(self, name, passwrd):
-        self.name = name
-        self.passwrd = passwrd
-
-    def signin(self):
-        # Input user account
-        username = self._driver.find_element(By.ID, 'identifierId')
-        username.send_keys(self.name)
-        nextButton = self._driver.find_element(By.ID, 'identifierNext')
-        nextButton.click()
-
-        # Input user password
-        password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-        password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-        signInButton = self._driver.find_element(By.ID,'passwordNext')
-        signInButton.click()
-
     def editor(self):
-        # Create docs
-        self._driver.find_element(By.CSS_SELECTOR, "[src='https://ssl.gstatic.com/docs/templates/thumbnails/docs-blank-googlecolors.png']").click()
-
-        edit = self._driver.find_element(By.CSS_SELECTOR, "[class='kix-canvas-tile-content']")
-        # self.strings = ['Khi', 'nhắc', 'lối', 'văn chương', 'khát khao', 'hướng', 'chân', '-', 'thiện', '-', 'mỹ', ',', 'ta', 'nhắc', 'Nguyễn Tuân', '-', 'nghệ sĩ', 'suốt', 'đời', 'đi', 'đẹp', 'Ông', 'bút', 'tài hoa văn học', 'Việt Nam', 'hiện đại', 'Trong', 'tác', 'Nguyễn Tuân', ',', 'nhân vật', 'miêu tả', ',', 'nghệ sĩ', 'Và', 'tác phẩm', '“', 'Chữ', 'tử tù', '”', 'xây dựng', 'vậy', 'Bên cạnh', 'đó', ',', 'văn', 'khéo léo', 'tình huống', 'truyện', 'vô', 'độc đáo', 'Đó', 'cảnh', 'chữ', 'giam', '-', 'đặc sắc', 'thiên truyện', '“', 'một', 'cảnh tượng', 'xưa', 'có', '”', '. Đoạn', 'chữ', 'nằm', 'tác phẩm', 'tình huống', 'truyện', 'đẩy', 'đỉnh', 'viên', 'quản ngục', 'công văn', 'xử tử', 'phản loạn', ',', 'Huấn', 'Cao', 'Do', 'cảnh', 'chữ nghĩa', 'cởi', 'nút', ',', 'giải tỏa', 'băn khoăn', ',', 'chờ đợi', 'đọc', ',', 'toát', 'lao', 'tác phẩm', 'công văn', ',', 'viên', 'quản ngục', 'giãi bày', 'tâm', 'thầy', 'thơ', 'lại', 'Nghe', 'xong', 'truyện', ',', 'thầy', 'thơ', 'chạy', 'buồng', 'giam', 'Huấn', 'Cao', 'nỗi', 'viên', 'quản ngục', 'Và', 'đêm', 'hôm', 'đó', ',', 'buồng tối', 'chật hẹp', 'ánh', 'đỏ rực', 'bó đuốc', 'tẩm', 'dầu', ',', '“', 'cảnh tượng', 'xưa', 'có', '”', 'diễn', 'ra', 'Thông', 'nghệ thuật', 'ta', 'gian', 'đẹp', ',', 'thoáng đãng', ',', 'yên tĩnh', 'Nhưng', 'gian', 'chứa', 'bóng tối', ',', 'nhơ bẩn', 'chốn', 'ngục tù', 'nghệ thuật', 'xảy', 'ra', 'Thời gian', 'gợi', 'ta', 'tình cảnh', 'tử tù', 'Đây', 'lẽ', 'đêm', 'tử', 'tù-người', 'chữ', 'phút', 'Huấn', 'Cao', 'Và', 'hoàn cảnh', '“', 'một', 'tù', 'cổ', 'đeo', 'gông', ',', 'chân', 'vướng', 'xiềng', '”', 'ung dung', ',', 'đĩnh đạc', '“', 'dậm', 'tô', 'nét', 'chữ', 'lụa', 'trắng tinh', '”', 'Trong', 'ấy', ',', 'viên', 'quản ngục', 'thầy', 'thơ', 'khúm', 'lúm', 'động', 'dường trật', 'xã hội', 'đảo lộn', 'Viên', 'quản ngục', 'nhẽ', 'hô hào', ',', 'răn đe', 'kẻ', 'tù tội', 'Thế', 'cảnh tượng', 'tù nhân', 'răn', 'dạy', ',', 'ban phát', 'đẹp', 'Đây', 'thực', 'gỡ', 'xưa', 'Huấn', 'Cao', '-', 'tài', 'viết', 'chữ', ',', 'đẹp', 'viên', 'quản ngục', ',', 'thầy', 'thơ', '-', 'chữ', 'Họ', 'hoàn cảnh', 'đặc biệt', ':', 'kẻ', 'phản nghịch', 'lĩnh', 'án', 'tử hình', '(', 'Huấn', 'Cao', ')', 'thực thi', 'pháp luật', 'Trên', 'bình diện', 'xã hội', ',', 'hai', 'đối lập', 'xét', 'bình diện', 'nghệ thuật', 'tri âm', ',', 'tri kỉ', 'nhau', 'Vì', 'chua xót', 'nhau', 'Hơn nữa', ',', 'thật', ',', 'ước', 'mình', 'Trong', 'đoạn', 'văn', ',', 'văn', 'tương phản ánh', 'bóng tối', 'câu', 'vận động', 'vận động', 'ánh', 'bóng tối', 'Cái', 'hỗn độn', ',', 'xô bồ', 'giam', 'khiết', 'lụa', 'trắng', 'nét', 'chữ', 'đẹp đẽ', 'Nhà văn', 'nổi bật', 'hình ảnh', 'Huấn', 'Cao', ',', 'tô', 'đậm', 'vươn', 'thắng', 'ánh', 'bóng tối', ',', 'đẹp', 'xấu', 'thiện ác', 'Vào', 'ấy', ',', 'quan hệ', 'đối nghịch', 'kì lạ', ':', 'lửa', 'nghĩa', 'bùng cháy', 'chốn', 'ngục tù', 'tối tăm', ',', 'đẹp', 'chốn', 'hôi hám', ',', 'nhơ bẩn', '…', 'đây', ',', 'Nguyễn Tuân', 'nêu bật', 'chủ đề', 'tác phẩm', ':', 'đẹp', 'chiến thắng', 'xấu xa', ',', 'thiên lương', 'chiến thắng', 'tội ác', 'Đó', 'tôn vinh', 'đẹp', ',', 'thiện', 'ấn tượng', 'chữ', 'xong', ',', 'Huấn', 'Cao', 'khuyên', 'quản ngục', 'chốn', 'ngục tù', 'nhơ bẩn', ':', '“', 'đổi', 'chỗ', 'ở', '”', 'sở nguyện', 'ý', 'Muốn', 'chữ', 'thiên lương', 'Trong', 'môi trường', 'ác', ',', 'đẹp', 'bền vững', 'Cái', 'đẹp', 'nảy sinh', 'chốn', 'tối tăm', ',', 'nhơ bẩn', ',', 'môi trường', 'ác', '(', 'chữ', 'tù', ') thể', 'sống', 'ác', 'Nguyễn Tuân nhắc', 'thú', 'chữ môn', 'nghệ thuật', 'đòi', 'cảm', 'thị giác', 'cảm', 'tâm hồn', 'Người ta', 'thưởng thức', 'mấy', 'thấy', ',', 'cảm', 'mùi', 'thơm', 'mực', 'Hãy', 'mực', 'chữ', 'hương vị', 'thiên lương', 'Cái', 'gốc', 'chữ', 'thiện', 'chữ', 'thể hiện', 'sống', 'văn hóa', 'khuyên', 'tử tù', ',', 'viên', 'quản ngục', 'xúc động', '“', 'vái', 'tù', 'vái', ',', 'chắp', 'câu', 'dòng', 'mắt', 'rỉ', 'kẽ', 'miệng', 'nghẹn ngào', ':', 'kẻ', 'mê muội', 'bái lĩnh', '”', 'Bằng', 'sức', 'nhân tài năng', 'xuất chúng', ',', 'tử tù', 'hướng', 'quản ngục', 'sống', 'thiện', 'Và', 'đường', 'chết', 'Huấn', 'Cao', 'gieo', 'mầm', 'sống', 'lầm đường', 'Trong', 'khung cảnh', 'đen tối', 'tù ngục', ',', 'hình tượng', 'Huấn', 'Cao', 'trở', 'thường', ',', 'dung tục', 'hèn', 'giới', 'xung quanh', 'Đồng thời', 'thể hiện', 'niềm', 'vững', 'người', ':', 'hoàn cảnh', 'khao khát', 'hướng', 'chân', '-', 'thiện-mỹ', '. Có', 'kiến', 'rằng', ':', 'Nguyễn Tuân', 'văn', 'mĩ', ',', 'tức', 'đẹp', ',', 'nghệ thuật', 'Nhưng', 'truyện ngắn', '“', 'Chữ', 'tử tù', '”', 'cảnh', 'chữ', 'ta', 'xét', 'hời hợt', ',', 'xác', 'Đúng', 'truyện ngắn', 'này', ',', 'Nguyễn Tuân', 'ca ngợi', 'đẹp', 'đẹp', 'bao', 'gắn', 'thiện', ',', 'thiên lương', 'người', 'Quan', 'định kiến', 'nghệ thuật', 'mạng', ',', 'Nguyễn Tuân văn', 'tư tưởng', 'mĩ', ',', 'quan', 'nghệ thuật', 'vị', 'nghệ thuật', 'Bên cạnh', 'đó', ',', 'truyện', 'ca ngợi', 'viên', 'quản ngục', 'thầy', 'thơ', 'sống', 'môi trường', 'độc ác', 'xấu', '“', 'thanh âm', 'trẻo', '”', 'hướng thiện', 'Qua', 'thể hiện', 'yêu', 'nước', ',', 'căm ghét', 'bọn', 'thống trị', 'đương thời', 'thái độ', 'trân trọng', 'đối', '“', 'thiên lương', '”', 'sở', 'đạo lí', 'truyền thống', 'văn', 'Chữ', 'tử tù', '”', 'ca', 'bi tráng', ',', 'bất diệt', 'thiên lương', ',', 'tài năng', 'nhân', 'người', 'Hành động', 'chữ', 'Huấn', 'Cao', ',', 'dòng', 'chữ', 'đời', 'nghĩa', 'truyền', 'tài hoa', 'kẻ', 'tri âm', ',', 'tri kỉ', 'hôm mai', 'sau', 'Nếu', 'truyền', 'đẹp', 'mai một', 'Đó', 'gìn', 'đẹp', 'đời', '. Bằng', 'nhịp điệu', 'chậm rãi', ',', 'câu văn', 'giàu', 'hình ảnh', 'gợi', 'liên tưởng', 'đoạn', 'phim', 'chậm', 'Từng', 'hình ảnh', ',', 'động tác', 'dần', 'hiện', 'ngòi bút', 'đậm', 'chất', 'điện ảnh', 'Nguyễn Tuân', ':', 'buồng tối', 'chật hẹp', '…', 'hình ảnh', '“', 'ba', 'đầu', 'chăm', 'lụa', 'trắng tinh', '”', ',', 'hình ảnh', 'tù', 'cổ', 'đeo', 'gông', ',', 'chân', 'vướng', 'xiềng', 'viết', 'chữ', 'Trình', 'miêu tả', 'thể hiện', 'tư tưởng', 'nét', ':', 'bóng tối', 'ánh sáng', ',', 'hôi hám', 'nhơ bẩn', 'đẹp', 'Ngôn ngữ', ',', 'hình ảnh', 'cổ kính', 'khí', 'tác phẩm', 'Ngôn ngữ', 'hán việt', 'miêu tả', 'đối tượng', 'thú', 'chữ', 'Tác giả', '“', 'phục chế', '”', 'cổ xưa', 'kĩ thuật', 'hiện đại', 'bút pháp', 'tả thực', ',', 'phân tích', 'tâm lí', 'nhân vật', '(', 'văn học', 'cổ', 'tả thực', 'phân tích', 'tâm lí', 'nhân vật', ')', '. Cảnh', 'chữ', '“', 'Chữ', 'tử tù', '”', 'kết tinh', 'tài năng', ',', 'tư tưởng', 'độc đáo', 'Nguyễn Tuân', 'Tác phẩm', 'ngưỡng vọng', 'tâm', 'nuối tiếc', 'đối', 'tài hoa', ',', 'nghĩa khí nhân', 'thượng', 'Đan xen', 'tác giả', 'kín', 'đao', 'bày tỏ', 'đau xót', 'đẹp', 'chân chính', ',', 'đích thực', 'hủy hoại', 'Tác phẩm', 'góp', 'tiếng', 'nhân bản', ':', 'đời', 'đen tối', 'tỏa', 'sáng']
+        edit = self._driver.find_element(By.TAG_NAME, "canvas")
+        
         for i in range(0, len(self.strings)):
             ActionChains(self._driver).move_to_element(edit).click(edit).send_keys(self.strings[i] + " ").perform()
-            time.sleep(1.5)
+            time.sleep(random.randrange(1,2))
 
 class GPhotosPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
