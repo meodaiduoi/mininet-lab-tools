@@ -32,7 +32,7 @@ url_list = './common-res/youtube.csv'
 playlist = './common-res/youtube-playlist.csv'
 
 [youtubelive]
-duration = 1800
+duration = 300
 # duration = 10
 
 [amazon]
