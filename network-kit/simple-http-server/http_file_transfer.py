@@ -26,11 +26,13 @@ def generate_big_file(filename, size=100) -> str:
     with open(f'{file_path}', 'wb') as f:
         f.seek(1024 * 1024 * size -1)
         f.write(str.encode("0"))
+    logging.info(f'File: {file_path} generated with size: {size}MB')
     return file_path
 
 def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+        logging.info(f'Folder: {path} created')
 
 # API functions
 class FileTask(BaseModel):
@@ -48,9 +50,19 @@ async def remove_file(rm_task: RemoveFileTask):
         Not for end user
     '''
     file_path = rm_task.file_path
-    if os.path.exists(file_path):
+    try:
         os.remove(file_path)
-    return {'status': 'success'}
+        logging.info(f'File: {file_path} deleted')
+        return {'status': 'success'}
+    except FileNotFoundError:
+        logging.error(f'File: {file_path} not exist')
+        return {'status': f'File: {file_path} not exist'}
+    except PermissionError:
+        logging.error(f'File: {file_path} no permission to delete file')
+        return {'status': f'File: {file_path} no permission to delete file'}
+    except Exception as e:
+        logging.error(e)
+        return {'status': 'exeption check log'}
 
 @app.post('/upload_speed/')
 async def upload_speed(upload_task: FileTask):
@@ -63,19 +75,22 @@ async def upload_speed(upload_task: FileTask):
     filename = time.time_ns()
     file_path = generate_big_file(filename, upload_task.size)
     with open(f'{file_path}', 'r') as upload_file:
-        start_time = time.time()
-        respone = rq.post(f'http://{upload_task.ip}:{upload_task.port}/upload', 
+        logging.info(f'Uploading file: {file_path}')
+        start_time = time.time_ns()
+        respone = rq.post(f'http://{upload_task.ip}:{upload_task.port}/upload',
                           files={'file': upload_file})
-        end_time = time.time()
+        end_time = time.time_ns()
+    logging.info(f'Temp file: {file_path} removed')
     os.remove(file_path)
-    
+
     speed = -1
     if respone.status_code == 200:
-        speed = upload_task.size*8 / (end_time - start_time)
+        speed = upload_task.size*8 / ((end_time - start_time)/1e9)
         speed = round(speed, 5)
     # Upload speed is in Mbit/s
+    logging.info(f'Upload speed: {speed} Mbit/s')
     return {'speed': speed}
-        
+
 @app.post("/upload")
 def upload(file: UploadFile = File(...)):
     try:
@@ -84,10 +99,15 @@ def upload(file: UploadFile = File(...)):
             while contents := file.file.read(1024 * 1024):
                 f.write(contents)
     except Exception:
+        logging.error(f'Error uploading file: {file.filename}')
         return {"message": "There was an error uploading the file"}
     finally:
+        logging.info(f'File: {file.filename} uploaded')
         file.file.close()
+        logging.info(f'Temp file: {file_path} removed')
+        os.remove(file_path)
     return ({"message": f"Successfully uploaded {file.filename}"})
+
 
 @app.post('/download_speed/')
 async def download_speed(download_task: FileTask):
@@ -97,29 +117,34 @@ async def download_speed(download_task: FileTask):
         filename is unix time store temporaly in temp/download \n
         speed unit: Mbit/s
     '''
-    
     with rq.get(f'http://{download_task.ip}:{download_task.port}/download/{download_task.size}', stream=True) \
         as respone:
-        
+
         # get filename from header
         sv_path = respone.headers['Content-Disposition'].split('=')[1].replace('"', '')
         cl_path = f'temp/download/{sv_path.split("/")[-1]}'
 
-        start_time = time.time()
+        logging.info(f'Downloading file: {sv_path}')
+        start_time = time.time_ns()
         respone.raise_for_status()
         with open(cl_path, 'wb') as f:
-            for chunk in respone.iter_content(chunk_size=8192): 
+            for chunk in respone.iter_content(chunk_size=8192):
                 f.write(chunk)
-        end_time = time.time()
-        
+        end_time = time.time_ns()
+        logging.info(f'File: {sv_path} downloaded')
+
         speed = -1
         if respone.status_code == 200:
             size = os.path.getsize(cl_path)
-            speed = size/1024/1024*8 / (end_time - start_time)
+            speed = size/1024/1024*8 / ((end_time - start_time)/1e9)
             speed = round(speed, 5)
-        os.remove(cl_path)
-    rq.post(f'http://{download_task.ip}:{download_task.port}/remove_file', 
+        logging.info(f'Download speed: {speed} Mbit/s')
+
+    rq.post(f'http://{download_task.ip}:{download_task.port}/remove_file',
             json={'file_path': sv_path})
+    os.remove(cl_path)
+    logging.info(f'Temp file: {cl_path} removed')
+
     return {"download_speed": speed}
 
 @app.get('/download/{size}')
@@ -131,7 +156,7 @@ async def download(size: int=100):
     '''
     filename = time.time_ns()
     file_path = generate_big_file(filename, size)
-    return FileResponse(path=file_path, filename=file_path); 
+    return FileResponse(path=file_path, filename=file_path);
 
 class ResponeTimeTask(BaseModel):
     ip: str
@@ -146,14 +171,16 @@ async def server_respone_time(rpt_task: ResponeTimeTask):
         return server time in milisecond
     '''
     cl_current_time = time.time_ns()
-    sv_data = rq.post(f'http://{rpt_task.ip}:{rpt_task.port}/sv_respone_time', 
+    sv_data = rq.post(f'http://{rpt_task.ip}:{rpt_task.port}/sv_respone_time',
                       json={'cl_current_time': cl_current_time}).json()
     cl_to_sv = sv_data['cl_to_sv']
     sv_current_time = sv_data['sv_current_time']
     result_time = time.time_ns() - sv_current_time + cl_to_sv
+    result_time = round(result_time/10**6, 5)
 
-    # return in milisecond
-    return {"time": result_time/10**6}
+    # return in rounded milisecond
+    logging.info(f'Respone time: {result_time} ms')
+    return {"time": result_time}
 
 class ResponeTimeChainTask(BaseModel):
     cl_current_time: int
@@ -166,16 +193,17 @@ async def post_server_respone_time(rp_time: ResponeTimeChainTask):
     '''
     sv_current_time = time.time_ns()
     cl_to_sv_latency = time.time_ns() - rp_time.cl_current_time
+    logging.info(f'cl_to_sv_latency: {cl_to_sv_latency}, sv_current_time: {sv_current_time}')
     return {'cl_to_sv': cl_to_sv_latency,
             'sv_current_time': sv_current_time}
 
 def main():
     parser = argparse.ArgumentParser(description='simple cli client')
-    
+
     parser.add_argument('ip', type=str,
                         default='0.0.0.0',
                         help='ip address of server')
-    
+
     parser.add_argument('port', type=int,
                         default=8000,
                         help='port of server')
