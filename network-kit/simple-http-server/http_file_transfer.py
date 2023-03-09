@@ -156,7 +156,7 @@ async def download(size: int=100):
     '''
     filename = time.time_ns()
     file_path = generate_big_file(filename, size)
-    return FileResponse(path=file_path, filename=file_path);
+    return FileResponse(path=file_path, filename=file_path)
 
 class ResponeTimeTask(BaseModel):
     ip: str
