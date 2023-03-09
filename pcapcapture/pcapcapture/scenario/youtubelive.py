@@ -72,7 +72,7 @@ if __name__ == '__main__':
                     if random.randint(1, 100) == 1: ylive.fast_forward(1)
                     if ylive.player_state == -1:
                         skip_count += 1
-                        if skip_count >= 4:
+                        if skip_count >= 5:
                             capture.terminate()
                             capture.clean_up()
                             capture = None
