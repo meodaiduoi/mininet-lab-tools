@@ -37,31 +37,49 @@ def mkdir_by_path(path):
 #     # Unload v4l2loopback module
 #     os.system('sudo modprobe -r snd-aloop')
 
+# https://narok.io/creating-a-virtual-webcam-on-linux/
+def init_virtual_cam(device_id: int=10, card_label=f'Default Cam') -> bool:
+    if os.path.exists(f'/dev/video{device_id}'):
+        os.system(f'sudo modprobe v4l2loopback \
+                   video_nr={device_id} max_buffers=2 \
+                   exclusive_caps=1 card_label="{card_label}"')
+    return True
+
+def rm_all_virtual_cam() -> bool:
+    os.system('sudo modprobe -r v4l2loopback')
+    return True
+
+def init_virtual_mic() -> bool:
+    os.system('pactl load-module module-null-sink sink_name="virtual_speaker" sink_properties=device.description="virtual_speaker"')
+    os.system('pactl load-module module-remap-source master="virtual_speaker.monitor" source_name="virtual_mic" source_properties=device.description="virtual_mic"')
+    return True
+
+def rm_virtual_mic() -> bool:
+    os.system('')
+    return True
+
+
+
 class FFMPEGVideoStream:
     def __init__(self, device_id: int=10):
         self.device_id = device_id
         
         self.process = None
 
-    # https://narok.io/creating-a-virtual-webcam-on-linux/
-    def __init_virtual_cam(device_id: int=10) -> bool:
-        # Load v4l2loopback module
-        os.system(f'sudo modprobe v4l2loopback devices=1 video_nr={device_id} max_buffers=2 exclusive_caps=1 card_label="Default WebCam"')
-        # return device_id
-        return True
+    # def start_(self, video_path: str):
+    #     # Start ffmpeg
+    #     if not self.process:
+    #         logging.info(f'Starting ffmpeg process to stream video {video_path} to /dev/video{self.device_id}')
+    #         self.process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i {video_path}.mp4 \
+    #                                         -f v4l2 -vcodec rawvideo -s 1280x720  /dev/video{self.device_id} \
+    #                                         -f alsa -ac 2 -i hw:Loopback,1,0')
 
-    def __rm_virtual_cam() -> bool:
-        # Unload v4l2loopback module
-        os.system('sudo modprobe -r v4l2loopback')
-        return True
+    def start_video_stream(self):
+        video_process = subprocess.Popen('ffmpeg -nostdin -re -i myfile.mkv -f v4l2 /dev/video0',
+                                        shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        audio_process = subprocess.Popen('PULSE_SINK=virtual_speaker ffmpeg -i myfile.mkv -f pulse "stream name"',
+                                        shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
-    def start(self, video_path: str):
-        # Start ffmpeg
-        if not self.process:
-            logging.info(f'Starting ffmpeg process to stream video {video_path} to /dev/video{self.device_id}')
-            self.process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i {video_path}.mp4 \
-                                            -f v4l2 -vcodec rawvideo -s 1280x720  /dev/video{self.device_id} \
-                                            -f alsa -ac 2 -i hw:Loopback,1,0')
 
     def terminate(self):
         if self.process:

@@ -4,6 +4,7 @@ import sys, os
 import time
 import logging
 import pandas as pd
+import random
 
 try:
     with open('config.toml', 'rb') as f:
@@ -13,6 +14,8 @@ try:
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['shopee']['url_list']
+        min_page = config['shopee']['min_page']
+        max_page = config['shopee']['max_page']
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -45,24 +48,25 @@ if __name__ == '__main__':
             
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        for desc, url in zip(df_link['description'], df_link['url']):
 
-            filename = f'{desc}_{time.time_ns()}'
+        while True:
+            capture = AsyncWebTrafficCapture()
+            filename = f'Shopee_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Init driver and capture object
-            logging.info(f'Starting capture {url} to {file_path}')
             shopee = ShopeeLoader(profile_path=profile_path)
-            capture = AsyncWebTrafficCapture()
-
-            # Start capture
             capture.capture(interface, f'{file_path}.pcap')
 
-            # Interact with shopee
-            shopee.load(url)
-            shopee.scroll_slowly_to_bottom(300, 1)
+            for no_of_page in range(random.randint(min_page, max_page)):
+                desc, url = df_link.iloc[random.randint(0, len(df_link)-1)].to_list()
+                logging.info(f'Loading: {no_of_page}: {desc} - {url}')
+                # Interact with shopee
+                shopee.load(url)
+                shopee.scroll_slowly_to_bottom(random.randint(300,650),
+                                                random.randrange(1,4))
 
             # Turn off capture and driver
             capture.terminate()
