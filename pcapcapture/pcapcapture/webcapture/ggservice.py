@@ -413,6 +413,6 @@ class GPhotosPageLoader(PageLoader):
         else:
             logging.error('Not a valid google photos url')
 
-    def download(self) -> None:
-        self._driver.find_element(By.CSS_SELECTOR, "[aria-label='More options']").click()
-        self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Download - Shift+D']").click()
+    # def download(self) -> None:
+    #     self._driver.find_element(By.CSS_SELECTOR, "[aria-label='More options']").click()
+    #     self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Download - Shift+D']").click()
