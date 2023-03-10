@@ -5,7 +5,8 @@ import logging
 import time
 
 QUIC_DECODE_AS = '"udp.port==443,quic"'
-WEB_FILTER = '"(quic and udp.port==443) or ((http or http2) or (tls.app_data and not tls.handshake) and tcp.payload and tcp.port==443 or tcp.port==80)"'
+WEB_FILTER = '"(quic or udp.port==443) or ((http or http2 or tls.app_data) and tcp.payload and (tcp.port==443 or tcp.port==80))"'
+HTTP_FILTER = '"(http or http2 or tls.app_data) and tcp.payload and (tcp.port==443 or tcp.port==80)"'
 class PcapCapture:
     '''
     PcapCapture is a class that uses tshark to capture packets from an interface
@@ -135,6 +136,11 @@ class QUICTrafficCapture(PcapCapture):
         super().__init__(QUIC_DECODE_AS, 'quic',
                          autostop)
 
+class HTTPTrafficCapture(AsyncPcapCapture):
+    def __init__(self):
+        super().__init__(filter=HTTP_FILTER,
+                         )
+
 class WebTrafficCapture(PcapCapture):
     def __init__(self, autostop='duration:60'):
         super().__init__(decode_as=QUIC_DECODE_AS,
@@ -145,16 +151,11 @@ class AsyncQUICTrafficCapture(AsyncPcapCapture):
     def __init__(self):
         super().__init__(QUIC_DECODE_AS, 'quic')
 
+class AsyncHTTPTrafficCapture(AsyncPcapCapture):
+    def __init__(self):
+        super().__init__(filter=HTTP_FILTER)
+
 class AsyncWebTrafficCapture(AsyncPcapCapture):
     def __init__(self):
         super().__init__(decode_as=QUIC_DECODE_AS,
                          filter=WEB_FILTER)
-
-# class QUICAndHTTPTrafficCapture(PcapCapture):
-#     def __init__(self, autostop='duration:60'):
-#         super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80',
-#                          autostop=autostop)
-
-# class AsyncQUICAndHTTPTrafficCapture(AsyncPcapCapture):
-#     def __init__(self):
-#         super().__init__(filter='quic and tcp.payload and tcp.port==443 or http or http2 and tcp.payload and tcp.port==443 or tcp.port==80')

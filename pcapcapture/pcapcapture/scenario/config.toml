@@ -3,6 +3,7 @@
 interface = '' # Default to main
 store_path = '~/Desktop/rawpcap'
 profile_path = '/home/onos/Desktop/selenium-user' 
+nohttp3_profile_path = '/home/onos/Desktop/selenium-user-nohttp3'
 
 # CRITICAL = 50
 # FATAL = CRITICAL
