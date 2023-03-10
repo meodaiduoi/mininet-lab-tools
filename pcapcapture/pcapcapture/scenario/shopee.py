@@ -11,7 +11,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
-        profile_path = config['enviroment']['profile_path']
+        profile_path = config['enviroment']['nohttp3_profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['shopee']['url_list']
         min_page = config['shopee']['min_page']

@@ -54,7 +54,7 @@ if __name__ == '__main__':
             # Init driver and capture object
             logging.info(f'Starting capture {url} to {file_path}')
             tiktok = TiktokLoader(profile_path=profile_path)
-            capture = AsyncWebTrafficCapture()
+            capture = AsyncHTTPTrafficCapture()
 
             # Load tiktok page and start capture
             capture.capture(interface, f'{file_path}.pcap')
