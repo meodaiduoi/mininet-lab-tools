@@ -136,10 +136,10 @@ class QUICTrafficCapture(PcapCapture):
         super().__init__(QUIC_DECODE_AS, 'quic',
                          autostop)
 
-class HTTPTrafficCapture(PcapCapture):
-    def __init__(self, autostop='duration:60'):
+class HTTPTrafficCapture(AsyncPcapCapture):
+    def __init__(self):
         super().__init__(filter=HTTP_FILTER,
-                         autostop=autostop)
+                         )
 
 class WebTrafficCapture(PcapCapture):
     def __init__(self, autostop='duration:60'):
