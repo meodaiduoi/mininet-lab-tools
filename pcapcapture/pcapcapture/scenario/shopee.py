@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 # Interact with shopee
                 shopee.load(url)
                 shopee.scroll_slowly_to_bottom(random.randint(300,650),
-                                                random.randrange(1,4))
+                                                random.randrange(1,3))
 
             # Turn off capture and driver
             capture.terminate()

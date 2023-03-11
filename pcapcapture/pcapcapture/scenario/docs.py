@@ -13,6 +13,7 @@ try:
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['gg-docs']['url_list']
+        string_list = config['gg-docs']['strings']
         
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -46,16 +47,18 @@ if __name__ == '__main__':
         
         df_link = pd.read_csv(url_list)
         
-        for desc, url in zip(df_link['description'], df_link['url']):
+        while True:
+            for desc, url in zip(df_link['description'], df_link['url']):
 
-            filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+                filename = f'{desc}_{time.time_ns()}'
+                file_path = os.path.join(pcapstore_path, filename)
+                # Save ssl key to file
+                os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            # Load docs
-            logging.info(f'Starting capture docs to {file_path}')
-            docs = GDocsPageLoader(profile_path=profile_path)
+                # Load docs
+                logging.info(f'Starting capture docs to {file_path}')
+                docs = GDocsPageLoader(profile_path=profile_path)
+                docs.load(url)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
@@ -71,9 +74,9 @@ if __name__ == '__main__':
             docs.strings = ['']
             docs.editor()
 
-            # Turn off capture and driver
-            capture.terminate()
-            docs.close_driver()
+                # Turn off capture and driver
+                capture.terminate()
+                docs.close_driver()
 
     except KeyboardInterrupt:
         docs.close_driver()
