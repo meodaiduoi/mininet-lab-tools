@@ -1,0 +1,8 @@
+numpy
+pytube
+selenium
+pandas
+tomli
+fastapi
+python-multipart
+uvicorn
