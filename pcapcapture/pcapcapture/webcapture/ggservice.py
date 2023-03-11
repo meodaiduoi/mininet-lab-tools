@@ -350,6 +350,17 @@ class GPhotosPageLoader(PageLoader):
         else:
             logging.error('Not a valid google photos url')
 
-    # def download(self) -> None:
-    #     self._driver.find_element(By.CSS_SELECTOR, "[aria-label='More options']").click()
-    #     self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Download - Shift+D']").click()
+class GmailPageLoader(PageLoader):
+    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
+                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+        super(GmailPageLoader, self).__init__((By.CLASS_NAME, 'V3 aam'), timeout,
+                                                profile_path, preferences, addons)
+        self.start_driver()
+        if url:
+            self.load(url)
+
+    def load(self, url):
+        if 'mail.google.com' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid gmail url')

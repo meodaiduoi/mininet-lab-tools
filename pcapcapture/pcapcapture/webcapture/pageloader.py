@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 import time
@@ -96,6 +96,27 @@ class PageLoader():
             if new_height == last_height:
                 break
             last_height = new_height
+            
+    def arrow_click(self, arrow):
+        try:
+            if arrow == 'DOWN':
+                self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.DOWN)
+            else:
+                logging.error('Check to word')
+            if arrow == 'UP':
+                self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.UP)
+            else:
+                logging.error('Check to word')
+            if arrow == 'LEFT':
+                self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.LEFT)
+            else:
+                logging.error('Check to word')
+            if arrow == 'RIGHT':
+                self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.RIGHT)
+            else:
+                logging.error('Check to word')
+        except AttributeError:
+            logging.error('Required to load() first')
 
     def close_driver(self, quit=False):
         try:

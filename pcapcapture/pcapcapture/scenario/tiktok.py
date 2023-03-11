@@ -4,6 +4,7 @@ import sys, os
 import pandas as pd
 import time
 import logging
+import random
 
 try:
     with open('config.toml', 'rb') as f:
@@ -20,7 +21,7 @@ except FileNotFoundError:
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ecomservice import TiktokLoader
+from webcapture.social import TiktokLoader
 from webcapture.utils import *
         
 if __name__ == '__main__':
@@ -59,6 +60,16 @@ if __name__ == '__main__':
             # Load tiktok page and start capture
             capture.capture(interface, f'{file_path}.pcap')
             tiktok.load(url)
+            
+            start_time = time.time()
+            timer = 0
+    
+            tiktok.play()
+            # Load about 20-30 vid change url
+            while tiktok.player_state != 0 and timer == 30:
+                tiktok.arrow_click('DOWN')
+                time.sleep(1)
+                timer = time.time() - start_time
 
             # Turn off capture and driver
             capture.terminate()

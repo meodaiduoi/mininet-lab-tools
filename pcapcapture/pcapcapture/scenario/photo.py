@@ -4,6 +4,7 @@ import sys, os
 import logging
 import pandas as pd
 import time
+import random
 
 try:
     with open('config.toml', 'rb') as f:
@@ -60,9 +61,12 @@ if __name__ == '__main__':
             # Start capture
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
-
-            # Interact with Gphoto
-            photo.download()
+            photo.scroll_slowly_to_bottom(random.randint(300,400), random.randrange(1,2))
+            
+            # Select any images (random)
+            # Next about 200 images and finish capture
+            # Load new album and scroll
+        
 
             # Finish capture
             capture.terminate()
