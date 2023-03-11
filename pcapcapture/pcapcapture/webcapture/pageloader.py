@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
@@ -96,6 +97,16 @@ class PageLoader():
             if new_height == last_height:
                 break
             last_height = new_height
+            
+    def send_key(self, key):
+        if key == 'Down':
+            self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.DOWN)
+        if key == 'Up':
+            self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.UP)
+        if key == 'Left':
+            self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.LEFT)
+        if key == 'Right':
+            self._driver.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.RIGHT)
 
     def close_driver(self, quit=False):
         try:
