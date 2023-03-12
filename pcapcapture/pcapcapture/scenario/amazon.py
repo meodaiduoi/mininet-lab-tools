@@ -67,8 +67,8 @@ if __name__ == '__main__':
                 logging.info(f'Loading: {no_of_page}: {desc} - {url}')
                 # Interact with amazon
                 amazon.load(url)
-                amazon.scroll_slowly_to_bottom(random.randint(300,650),
-                                                random.randrange(1,4))
+                amazon.scroll_slowly_to_bottom(random.randint(400,650),
+                                                random.randrange(1,2))
 
             # Turn off capture and driver
             capture.terminate()

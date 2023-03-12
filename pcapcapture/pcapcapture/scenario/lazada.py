@@ -65,8 +65,8 @@ if __name__ == '__main__':
                 logging.info(f'Loading: {no_of_page}: {desc} - {url}')
                 # Interact with lazada
                 lazada.load(url)
-                lazada.scroll_slowly_to_bottom(random.randint(300,650),
-                                                random.randrange(1,4))
+                lazada.scroll_slowly_to_bottom(random.randint(400,650),
+                                                random.randrange(1,2))
 
             # Turn off capture and driver
             capture.terminate()
