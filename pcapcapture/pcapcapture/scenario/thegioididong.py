@@ -24,7 +24,7 @@ except FileNotFoundError:
     os._exit(1)
 
 # Code start from here
-from webcapture.pcapcapture import *
+from webcapture.pcapcapture import AsyncHTTPTrafficCapture
 from webcapture.ecomservice import TGDDLoader
 from webcapture.utils import *
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         df_link = pd.read_csv(url_list)
 
         while True:
-            capture = HTTPTrafficCapture()
+            capture = AsyncHTTPTrafficCapture()
             filename = f'Thegioididiong_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
