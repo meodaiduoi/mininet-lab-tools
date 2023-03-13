@@ -5,8 +5,8 @@ import logging
 import time
 
 QUIC_DECODE_AS = '"udp.port==443,quic"'
-WEB_FILTER = '"(quic or udp.port==443) or ((http or http2 or tls.app_data) and tcp.payload and (tcp.port==443 or tcp.port==80))"'
-HTTP_FILTER = '"(http or http2 or tls.app_data) and tcp.payload and (tcp.port==443 or tcp.port==80)"'
+WEB_FILTER = '"(quic or udp.port==443) or ((http or http2 or (tls.app_data and not tls.handshake)) and tcp.payload and (tcp.port==443 or tcp.port==80))"'
+HTTP_FILTER = '"(http or http2 or (tls.app_data and not tls.handshake)) and tcp.payload and (tcp.port==443 or tcp.port==80)"'
 class PcapCapture:
     '''
     PcapCapture is a class that uses tshark to capture packets from an interface
