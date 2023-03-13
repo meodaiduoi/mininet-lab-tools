@@ -25,6 +25,10 @@ strings = ['Khi', 'nhắc', 'lối', 'văn chương', 'khát khao', 'hướng', 
 url_list = './common-res/docs.csv'
 
 [gg-photos]
+url_list = './common-res/photos.csv'
+
+[gmail]
+
 
 [gg-drive]
 url_list = './common-res/gdrive.csv'
