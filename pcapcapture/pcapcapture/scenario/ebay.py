@@ -11,7 +11,7 @@ try:
         config = tomli.load(f)
         interface = config['enviroment']['interface']
         store_path = config['enviroment']['store_path']
-        profile_path = config['enviroment']['profile_path']
+        profile_path = config['enviroment']['nohttp3_profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['ebay']['url_list']
         min_page = config['ebay']['min_page']
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         df_link = pd.read_csv(url_list)
 
         while True:
-            capture = AsyncWebTrafficCapture()
+            capture = AsyncHTTPTrafficCapture()
             filename = f'Ebay_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
