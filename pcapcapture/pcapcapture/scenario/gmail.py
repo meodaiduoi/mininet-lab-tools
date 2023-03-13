@@ -13,7 +13,7 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
-        # url_list = config['gmail']['url_list']
+        url_list = config['gmail']['url_list']
 
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -38,6 +38,22 @@ if __name__ == '__main__':
         logging.basicConfig(filename=os.path.join(pcapstore_path, f'Gmail_{time.time_ns()}.log'), 
                             level=log_level, format="%(asctime)s %(message)s")
 
+        capture = AsyncQUICTrafficCapture()
+        filename = f'Gmail_{time.time_ns()}'
+        file_path = os.path.join(pcapstore_path, filename)
+        # Save ssl key to file
+        os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+
+        # Init driver and capture object
+        gmail = GmailPageLoader(profile_path=profile_path)
+        capture.capture(interface, f'{file_path}.pcap')
+
+        # Soan thu
+        # Nhap thong tin
+        # Gui
+
+        capture.terminate()
+        gmail.close_driver()
     
 
     except KeyboardInterrupt:
