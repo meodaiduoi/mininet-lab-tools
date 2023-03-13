@@ -24,7 +24,7 @@ except FileNotFoundError:
     os._exit(1)
 
 # Code start from here
-from webcapture.pcapcapture import *
+from webcapture.pcapcapture import AsyncHTTPTrafficCapture
 from webcapture.ecomservice import TGDDLoader
 from webcapture.utils import *
 
@@ -51,14 +51,14 @@ if __name__ == '__main__':
         df_link = pd.read_csv(url_list)
 
         while True:
-            capture = HTTPTrafficCapture()
+            capture = AsyncHTTPTrafficCapture()
             filename = f'Thegioididiong_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load Thegioididong and start capture
-            thegioididong = TGDDLoader()
+            thegioididong = TGDDLoader(profile_path=profile_path)
             capture.capture(interface, f'{file_path}.pcap')
 
             for no_of_page in range(random.randint(min_page, max_page)):
