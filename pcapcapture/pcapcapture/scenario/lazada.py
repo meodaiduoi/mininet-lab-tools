@@ -50,7 +50,7 @@ if __name__ == '__main__':
         df_link = pd.read_csv(url_list)
 
         while True:
-            capture = HTTPTrafficCapture()
+            capture = AsyncHTTPTrafficCapture()
             filename = f'Lazada_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
