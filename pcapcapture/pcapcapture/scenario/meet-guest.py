@@ -17,8 +17,9 @@ except FileNotFoundError:
     exit(1)
 
 # Code start from here
-from webcapture.pcapcapture import *
+from webcapture.pcapcapture import AsyncQUICTrafficCapture
 from webcapture.ggservice import GMeetGuest
+import logging
 
 if __name__ == '__main__':
     try:
