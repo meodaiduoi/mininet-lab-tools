@@ -271,7 +271,7 @@ def main():
 
     # Create logger
     file_handler = logging.FileHandler(
-        filename=f'log/{args.ip}_{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.log'
+        filename=f'log/{args.ip}:{args.port}_{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}.log'
     )
     stdout_handler = logging.StreamHandler(stream=sys.stdout)
     handlers = [file_handler, stdout_handler]
