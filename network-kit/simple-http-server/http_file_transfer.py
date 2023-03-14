@@ -17,7 +17,7 @@ REQUEST_TIMEOUT = 5
 
 
 # Utility functions
-def generate_big_file(filename, size=100) -> str:
+def generate_big_file(filename, size: int = 100) -> str:
     """
     Create random file with name and
     size in unit MB
