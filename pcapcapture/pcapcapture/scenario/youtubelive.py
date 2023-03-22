@@ -66,13 +66,13 @@ if __name__ == '__main__':
                 # Interact with youtube
                 start_time = time.time()
                 timer = 0
-                skip_count = 0
+                error_count = 0
                 while ylive.player_state != 0 and timer <= duration:
                     ylive.play()
                     if random.randint(1, 100) == 1: ylive.fast_forward(1)
                     if ylive.player_state == -1:
-                        skip_count += 1
-                        if skip_count >= 5:
+                        error_count += 1
+                        if error_count >= 5:
                             capture.terminate()
                             capture.clean_up()
                             capture = None

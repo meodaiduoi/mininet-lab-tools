@@ -3,7 +3,6 @@ import tomli
 import sys, os
 import logging
 import pandas as pd
-
 import time
 
 try:
@@ -29,7 +28,7 @@ if __name__ == '__main__':
     '''
     Folder structure:
     /{protocol: QUIC/WEB}/{Service: Youtube,Drive,etc}/{File: Youtube_{timestamp}.pcap}:
-                                                   .../SSLKEYLOG/Youtube_{timestamp}.log
+                                          =EXTRACT_PKT_PER_FLOW         .../SSLKEYLOG/Youtube_{timestamp}.log
     '''
     # Create folder to store output
     pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Youtube')
@@ -70,12 +69,22 @@ if __name__ == '__main__':
 
             # Interact with youtube
             youtube_player.play()
+            error_count = 0
             while youtube_player.player_state != 0:
                 youtube_player.fast_forward(1)
-                time.sleep(2)
+                if youtube_player.player_state == -1:
+                    error_count += 1
+                    if error_count >= 4:
+                        capture.terminate()
+                        capture.clean_up()
+                        capture = None
+                        break
+                time.sleep(5)
 
             # Finish capture
-            capture.terminate()
+            if capture:
+                capture.terminate()
+                capture.clean_up()
             youtube_player.close_driver()
 
     except KeyboardInterrupt:
