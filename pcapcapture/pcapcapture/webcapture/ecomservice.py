@@ -52,7 +52,7 @@ class EbayLoader(PageLoader):
             self.load(url)
 
     def load(self, url):
-        if 'ebay.com' in url:
+        if 'ebay' in url:
             super().load(url)
         else:
             logging.error('Not a valid ebay url')
