@@ -204,7 +204,7 @@ async def download(size: int = 100):
 
 
 class ResponeTimeTask(BaseModel):
-    ip: str | None = '0.0.0.0'
+    ip: str | None = "0.0.0.0"
     port: int | None = 8000
 
 
