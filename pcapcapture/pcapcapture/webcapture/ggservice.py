@@ -24,13 +24,13 @@ class YoutubePlayer(PageLoader):
     url: A youtube url to load
     delay: Time to wait for the video to load
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
-    addons: A list of paths to the addons to be added to the firefox profile
+   extensions: A list of paths to theextensions to be added to the firefox profile
     '''
     def __init__(self, url: str=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+                 preferences: list[(str, str)]=None, extensions: list[str]=None):
         super(YoutubePlayer, self).__init__((By.CLASS_NAME, 'html5-main-video'),
                                             timeout, profile_path,
-                                            preferences, addons)
+                                            preferences,extensions)
         self.start_driver()
         if url:
             self.load(url)
@@ -101,10 +101,10 @@ class YoutubePlayer(PageLoader):
 
 class YoutubePlaylistFetch(PageLoader):
     def __init__(self, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+                 preferences: list[(str, str)]=None, extensions: list[str]=None):
         super(YoutubePlaylistFetch, self).__init__((By.CLASS_NAME, 'yt-core-image'),
                                                    timeout, profile_path,
-                                                   preferences, addons)
+                                                   preferences,extensions)
         self.url_list = None
 
     # Don't required webdriver due to access via api
@@ -136,38 +136,15 @@ class YoutubePlaylistFetch(PageLoader):
 
 class GMeetHost(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+                 preferences: list[(str, str)]=None,extensions: list[str]=None):
         # !TODO: Change the locator to homepage of meet
         super(GMeetHost, self).__init__((By.CLASS_NAME, 'google-material-icons'),
                                         timeout, profile_path,
-                                        preferences, addons)
+                                        preferences,extensions)
 
         self.start_driver()
         if url:
             self.load(url)
-
-    def user(self, name, passwrd):
-        self.name = name
-        self.passwrd = passwrd
-
-    def signin(self):
-        try:
-            # Click button sign-in
-            self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
-
-            # Input user account
-            username = self._driver.find_element(By.ID, 'identifierId')
-            username.send_keys(self.name)
-            nextButton = self._driver.find_element(By.ID, 'identifierNext')
-            nextButton.click()
-
-            # Input user password
-            password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-            password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-            signInButton = self._driver.find_element(By.ID,'passwordNext')
-            signInButton.click()
-        except AttributeError as e:
-            logging.error('Required to user() first')
 
     def code_meet(self, code):
         # Create code meet before
@@ -208,38 +185,13 @@ class GMeetHost(PageLoader):
 
 class GMeetGuest(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+                 preferences: list[(str, str)]=None,extensions: list[str]=None):
         super(GMeetGuest, self).__init__((By.CLASS_NAME, 'google-material-icons'), timeout,
-                                         profile_path, preferences, addons)
+                                         profile_path, preferences,extensions)
 
         self.start_driver()
         if url:
             self.load(url)
-
-    # !DEPRECATED: Load through profile_path
-    # def user(self, name, passwrd):
-    #     self.name = name
-    #     self.passwrd = passwrd
-
-    # !DEPRECATED: Load through profile_path
-    # def signin(self):
-    #     try:
-    #         # Click button sign-in
-    #         self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
-
-    #         # Input user account
-    #         username = self._driver.find_element(By.ID, 'identifierId')
-    #         username.send_keys(self.name)
-    #         nextButton = self._driver.find_element(By.ID, 'identifierNext')
-    #         nextButton.click()
-
-    #         # Input user password
-    #         password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-    #         password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-    #         signInButton = self._driver.find_element(By.ID,'passwordNext')
-    #         signInButton.click()
-    #     except AttributeError:
-    #         logging.error('Required to user() first')
 
     def input_code(self, code):
         try:
@@ -276,7 +228,7 @@ class GDriveDownloader(PageLoader):
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     '''
     def __init__(self, url: str=None, download_folder: str='./temp', timeout: int=20,
-                 profile_path: str=None, preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+                 profile_path: str=None, preferences: list[(str, str)]=None, extensions: list[str]=None):
         # check if it is absolute path or relative path
         if not os.path.isabs(download_folder):
             download_folder = f'{os.getcwd()}/{download_folder}'
@@ -291,7 +243,7 @@ class GDriveDownloader(PageLoader):
                                                [('browser.download.folderList', 2),
                                                 ('browser.download.dir', f'{download_folder}'),
                                                 ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')],
-                                                addons)
+                                               extensions)
 
         self.download_folder = download_folder
         self.start_driver()
@@ -314,9 +266,9 @@ class GDriveDownloader(PageLoader):
 
 class GDocsPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+                 preferences: list[(str, str)]=None,extensions: list[str]=None):
         super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "jfk-tooltip-contentId"), timeout,
-                                              profile_path, preferences, addons)
+                                              profile_path, preferences,extensions)
         self.start_driver()
         if url:
             self.load(url)
@@ -337,9 +289,9 @@ class GDocsPageLoader(PageLoader):
 
 class GPhotosPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+                 preferences: list[(str, str)]=[], extensions: list[str]=[]):
         super(GPhotosPageLoader, self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout,
-                                                profile_path, preferences, addons)
+                                                profile_path, preferences,extensions)
         self.start_driver()
         if url:
             self.load(url)
@@ -352,9 +304,9 @@ class GPhotosPageLoader(PageLoader):
 
 class GmailPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
+                 preferences: list[(str, str)]=[], extensions: list[str]=[]):
         super(GmailPageLoader, self).__init__((By.CLASS_NAME, 'V3 aam'), timeout,
-                                                profile_path, preferences, addons)
+                                                profile_path, preferences,extensions)
         self.start_driver()
         if url:
             self.load(url)

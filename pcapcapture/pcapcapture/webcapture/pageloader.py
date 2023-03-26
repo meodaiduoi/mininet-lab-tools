@@ -18,24 +18,24 @@ class PageLoader():
     addons: A list of paths to the addons to be added to the firefox profile
     '''
     def __init__(self, locator=None, timeout: int=3,
-                 profile_path: str=None, preferences=None, addons=None):
+                 profile_path: str=None, 
+                 preferences: list[(str, str)]=[], 
+                 extensions: list[str]=[]):
         self.locator = locator
         self.delay = timeout
         self.profile_path = profile_path
         self.preferences = preferences # [(preference_name, preference_value),../]
-        self.extension = addons # [addon_paths]
+        self.extensions = extensions # [addon_paths]
         self._driver = None
 
     def start_driver(self):
         self.firefox_profile = FirefoxProfile()
         if self.profile_path:
             self.firefox_profile = FirefoxProfile(self.profile_path)
-        if self.preferences:
-            for preference in self.preferences:
-                self.firefox_profile.set_preference(preference[0], preference[1])
-        if self.extension:
-            self.firefox_profile.add_extension(self.extension)        
-
+        for preference in self.preferences:
+            self.firefox_profile.set_preference(preference[0], preference[1])
+        for extension in self.extensions:
+            self.firefox_profile.add_extension(extension)        
         self._driver = webdriver.Firefox(self.firefox_profile)
 
     def load(self, url):
@@ -58,11 +58,6 @@ class PageLoader():
             self.close_driver()
             logging.critical(f'fatal error: {e}')
             raise e
-        
-    # def new_tab(self):
-    #     self._driver.execute_script("window.open('');")
-    #     chwd = self._driver.window_handles
-    #     self._driver.switch_to.window(chwd[-1])
 
     @property
     def current_height(self):
@@ -132,10 +127,10 @@ class SimplePageLoader(PageLoader):
     SimplePageLoader class is used to load a webpage.
     '''
     def __init__(self, url=None, timeout=20,
-                 profile_path=None, preferences=None,
-                 addons=None):
+                 profile_path=None, preferences=[],
+                 extensions=[]):
         super().__init__(timeout=timeout, profile_path=profile_path,
-                         preferences=preferences, addons=addons)
+                         preferences=preferences, extensions=extensions)
         self.start_driver()
         if url:
             self.load(url)
