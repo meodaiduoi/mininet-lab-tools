@@ -19,7 +19,7 @@ class PageLoader():
     '''
     def __init__(self, locator=None, timeout: int=3,
                  profile_path: str=None, 
-                 preferences: list[(str, str)]=[], 
+                 preferences: list[tuple[str, str]]=[], 
                  extensions: list[str]=[]):
         self.locator = locator
         self.delay = timeout

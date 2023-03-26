@@ -27,7 +27,7 @@ class YoutubePlayer(PageLoader):
    extensions: A list of paths to theextensions to be added to the firefox profile
     '''
     def __init__(self, url: str=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=None, extensions: list[str]=None):
+                 preferences: list[tuple[str, str]]=[], extensions: list[str]=[]):
         super(YoutubePlayer, self).__init__((By.CLASS_NAME, 'html5-main-video'),
                                             timeout, profile_path,
                                             preferences,extensions)
@@ -101,7 +101,7 @@ class YoutubePlayer(PageLoader):
 
 class YoutubePlaylistFetch(PageLoader):
     def __init__(self, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=None, extensions: list[str]=None):
+                 preferences: list[tuple[str, str]]=[], extensions: list[str]=[]):
         super(YoutubePlaylistFetch, self).__init__((By.CLASS_NAME, 'yt-core-image'),
                                                    timeout, profile_path,
                                                    preferences,extensions)
@@ -136,7 +136,7 @@ class YoutubePlaylistFetch(PageLoader):
 
 class GMeetHost(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=None,extensions: list[str]=None):
+                 preferences: list[tuple[str, str]]=None,extensions: list[str]=None):
         # !TODO: Change the locator to homepage of meet
         super(GMeetHost, self).__init__((By.CLASS_NAME, 'google-material-icons'),
                                         timeout, profile_path,
@@ -185,7 +185,7 @@ class GMeetHost(PageLoader):
 
 class GMeetGuest(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=None,extensions: list[str]=None):
+                 preferences: list[tuple[str, str]]=None,extensions: list[str]=None):
         super(GMeetGuest, self).__init__((By.CLASS_NAME, 'google-material-icons'), timeout,
                                          profile_path, preferences,extensions)
 
@@ -228,7 +228,7 @@ class GDriveDownloader(PageLoader):
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     '''
     def __init__(self, url: str=None, download_folder: str='./temp', timeout: int=20,
-                 profile_path: str=None, preferences: list[(str, str)]=None, extensions: list[str]=None):
+                 profile_path: str=None, preferences: list[tuple[str, str]]=[], extensions: list[str]=[]):
         # check if it is absolute path or relative path
         if not os.path.isabs(download_folder):
             download_folder = f'{os.getcwd()}/{download_folder}'
@@ -266,7 +266,7 @@ class GDriveDownloader(PageLoader):
 
 class GDocsPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=None,extensions: list[str]=None):
+                 preferences: list[tuple[str, str]]=[],extensions: list[str]=[]):
         super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "jfk-tooltip-contentId"), timeout,
                                               profile_path, preferences,extensions)
         self.start_driver()
@@ -289,7 +289,7 @@ class GDocsPageLoader(PageLoader):
 
 class GPhotosPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=[], extensions: list[str]=[]):
+                 preferences: list[tuple[str, str]]=[], extensions: list[str]=[]):
         super(GPhotosPageLoader, self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout,
                                                 profile_path, preferences,extensions)
         self.start_driver()
@@ -304,7 +304,7 @@ class GPhotosPageLoader(PageLoader):
 
 class GmailPageLoader(PageLoader):
     def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[(str, str)]=[], extensions: list[str]=[]):
+                 preferences: list[tuple[str, str]]=[], extensions: list[str]=[]):
         super(GmailPageLoader, self).__init__((By.CLASS_NAME, 'V3 aam'), timeout,
                                                 profile_path, preferences,extensions)
         self.start_driver()
