@@ -49,7 +49,7 @@ max_page = 150
 [shopee]
 url_list = './common-res/shopee.csv'
 min_page = 25
-max_page = 100
+max_page = 150
 
 [alibaba]
 url_list = './common-res/alibaba.csv'
