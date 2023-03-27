@@ -16,3 +16,4 @@
 **/*.log
 **/*.pyc
 **/__pycache__/
+**/temp_part/
