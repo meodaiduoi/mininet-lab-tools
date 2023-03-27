@@ -57,7 +57,7 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Init driver and capture object
-            shopee = ShopeeLoader(profile_path=profile_path)
+            shopee = ShopeeLoader(profile_path=profile_path, delay=40)
             capture.capture(interface, f'{file_path}.pcap')
 
             for no_of_page in range(random.randint(min_page, max_page)):
@@ -65,7 +65,7 @@ if __name__ == '__main__':
                 logging.info(f'Loading: {no_of_page}: {desc} - {url}')
                 # Interact with shopee
                 shopee.load(url)
-                shopee.scroll_slowly_to_bottom(random.randint(400,650),
+                shopee.scroll_slowly_to_bottom(random.randint(500,650),
                                                 random.randrange(1,2))
 
             # Turn off capture and driver
