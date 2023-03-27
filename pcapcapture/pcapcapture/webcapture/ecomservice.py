@@ -98,3 +98,18 @@ class LazadaLoader(PageLoader):
             super().load(url)
         else:
             logging.error('Not a valid lazada url')
+
+class AlibabaLoader(PageLoader):
+    def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=[], extensions=[]):
+        # fix find the footer
+        super(AlibabaLoader, self).__init__((By.TAG_NAME, "div"),
+                                           timeout, profile_path, preferences, extensions)
+        self.start_driver()
+        if url:
+            self.load(url)
+
+    def load(self, url):
+        if 'alibaba.com' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid alibaba url')

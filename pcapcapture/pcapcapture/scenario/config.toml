@@ -51,8 +51,8 @@ url_list = './common-res/shopee.csv'
 min_page = 25
 max_page = 100
 
-[lazada]
-url_list = './common-res/lazada.csv'
+[alibaba]
+url_list = './common-res/alibaba.csv'
 min_page = 25
 max_page = 150
 
