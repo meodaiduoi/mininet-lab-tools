@@ -10,7 +10,8 @@ import os
 import logging
 
 from webcapture.pageloader import PageLoader
- 
+
+
 class AmazonLoader(PageLoader):
     '''
     AmazonLoader class is used to load a amazon service and wait for the page to load completely.
@@ -19,8 +20,17 @@ class AmazonLoader(PageLoader):
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     extensions: A list of paths to the extensions to be added to the firefox profile
     '''
-    def __init__(self, url=None, delay=20, profile_path: str=None, preferences=[], extensions=[]):
-        super(AmazonLoader, self).__init__((By.ID, "nav-xshop"), delay, profile_path, preferences, extensions)
+
+    def __init__(self,
+                 url=None,
+                 delay=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
+        super(AmazonLoader,
+              self).__init__((By.ID, "nav-xshop"), delay, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -31,9 +41,19 @@ class AmazonLoader(PageLoader):
         else:
             logging.error('Not a valid amazon url')
 
+
 class ShopeeLoader(PageLoader):
-    def __init__(self, url=None, delay=20, profile_path: str=None, preferences=[], extensions=[]):
-        super(ShopeeLoader, self).__init__((By.TAG_NAME, 'footer'), delay, profile_path, preferences, extensions)
+
+    def __init__(self,
+                 url=None,
+                 delay=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
+        super(ShopeeLoader,
+              self).__init__((By.TAG_NAME, 'footer'), delay, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -44,9 +64,19 @@ class ShopeeLoader(PageLoader):
         else:
             logging.error('Not a valid shopee url')
 
+
 class EbayLoader(PageLoader):
-    def __init__(self, url=None, delay=20, profile_path: str=None, preferences=[], extensions=[]):
-        super(EbayLoader, self).__init__((By.TAG_NAME, "footer"), delay, profile_path, preferences, extensions)
+
+    def __init__(self,
+                 url=None,
+                 delay=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
+        super(EbayLoader,
+              self).__init__((By.TAG_NAME, "footer"), delay, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -57,9 +87,19 @@ class EbayLoader(PageLoader):
         else:
             logging.error('Not a valid ebay url')
 
+
 class TGDDLoader(PageLoader):
-    def __init__(self, url=None, delay=20, profile_path: str=None, preferences=[], extensions=[]):
-        super(TGDDLoader, self).__init__((By.TAG_NAME, "footer"), delay, profile_path, preferences, extensions)
+
+    def __init__(self,
+                 url=None,
+                 delay=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
+        super(TGDDLoader,
+              self).__init__((By.TAG_NAME, "footer"), delay, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -70,9 +110,19 @@ class TGDDLoader(PageLoader):
         else:
             logging.error('Not a valid thegioididong url')
 
+
 class TikiLoader(PageLoader):
-    def __init__(self, url=None, delay=20, profile_path: str=None, preferences=[], extensions=[]):
-        super(TikiLoader, self).__init__((By.TAG_NAME, "footer"), delay, profile_path, preferences, extensions)
+
+    def __init__(self,
+                 url=None,
+                 delay=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
+        super(TikiLoader,
+              self).__init__((By.TAG_NAME, "footer"), delay, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -83,12 +133,21 @@ class TikiLoader(PageLoader):
         else:
             logging.error('Not a valid tiki url')
 
+
 # Remove duo to agressive captcha
 class LazadaLoader(PageLoader):
-    def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=[], extensions=[]):
+
+    def __init__(self,
+                 url=None,
+                 timeout=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
         # fix find the footer
-        super(LazadaLoader, self).__init__((By.TAG_NAME, "div"),
-                                           timeout, profile_path, preferences, extensions)
+        super(LazadaLoader,
+              self).__init__((By.TAG_NAME, "div"), timeout, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -99,11 +158,20 @@ class LazadaLoader(PageLoader):
         else:
             logging.error('Not a valid lazada url')
 
+
 class AlibabaLoader(PageLoader):
-    def __init__(self, url=None, timeout=20, profile_path: str=None, preferences=[], extensions=[]):
+
+    def __init__(self,
+                 url=None,
+                 timeout=20,
+                 profile_path: str = None,
+                 preferences=[],
+                 extensions=[],
+                 **kwargs):
         # fix find the footer
-        super(AlibabaLoader, self).__init__((By.TAG_NAME, "div"),
-                                           timeout, profile_path, preferences, extensions)
+        super(AlibabaLoader,
+              self).__init__((By.TAG_NAME, "div"), timeout, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)

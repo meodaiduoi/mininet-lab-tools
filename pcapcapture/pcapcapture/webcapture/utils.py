@@ -38,25 +38,25 @@ def mkdir_by_path(path):
 #     os.system('sudo modprobe -r snd-aloop')
 
 # https://narok.io/creating-a-virtual-webcam-on-linux/
-def init_virtual_cam(device_id: int=10, card_label=f'Default Cam') -> bool:
-    if os.path.exists(f'/dev/video{device_id}'):
-        os.system(f'sudo modprobe v4l2loopback \
-                   video_nr={device_id} max_buffers=2 \
-                   exclusive_caps=1 card_label="{card_label}"')
-    return True
+# def init_virtual_cam(device_id: int=10, card_label=f'Default Cam') -> bool:
+#     if os.path.exists(f'/dev/video{device_id}'):
+#         os.system(f'sudo modprobe v4l2loopback \
+#                    video_nr={device_id} max_buffers=2 \
+#                    exclusive_caps=1 card_label="{card_label}"')
+#     return True
 
-def rm_all_virtual_cam() -> bool:
-    os.system('sudo modprobe -r v4l2loopback')
-    return True
+# def rm_all_virtual_cam() -> bool:
+#     os.system('sudo modprobe -r v4l2loopback')
+#     return True
 
-def init_virtual_mic() -> bool:
-    os.system('pactl load-module module-null-sink sink_name="virtual_speaker" sink_properties=device.description="virtual_speaker"')
-    os.system('pactl load-module module-remap-source master="virtual_speaker.monitor" source_name="virtual_mic" source_properties=device.description="virtual_mic"')
-    return True
+# def init_virtual_mic() -> bool:
+#     os.system('pactl load-module module-null-sink sink_name="virtual_speaker" sink_properties=device.description="virtual_speaker"')
+#     os.system('pactl load-module module-remap-source master="virtual_speaker.monitor" source_name="virtual_mic" source_properties=device.description="virtual_mic"')
+#     return True
 
-def rm_virtual_mic() -> bool:
-    os.system('')
-    return True
+# def rm_virtual_mic() -> bool:
+#     os.system('')
+#     return True
 
 
 
@@ -80,6 +80,8 @@ class FFMPEGVideoStream:
         audio_process = subprocess.Popen('PULSE_SINK=virtual_speaker ffmpeg -i myfile.mkv -f pulse "stream name"',
                                         shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
+        video_process_pid = video_process.pid
+        audio_process_pid = audio_process.pid
 
     def terminate(self):
         if self.process:
