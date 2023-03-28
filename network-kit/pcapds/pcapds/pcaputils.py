@@ -132,14 +132,10 @@ def stream_id_len(filename, export_summary_filename):
         stderr=subprocess.PIPE,
     ).communicate()
 
-    # Find the start of streams report - do not edit this string
-    start_index_report = (
-        result_tcp.decode("latin-1")
-        .split("\n")
-        .index(
-            "                                                           | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |"
-        )
-    )
+    start_index_report = [i for i, s in enumerate(
+        result_tcp.decode("latin-1").split("\n")
+        ) if "Frames  Bytes" in s][0]
+    
     start_index_report += 2
 
     tcp_stream_count = (
@@ -154,16 +150,15 @@ def stream_id_len(filename, export_summary_filename):
 
     with open(f"{export_summary_filename}_summary.csv", "w") as txt_file:
         txt_file.write(
-            "A_ip,A_port,B_ip,B_port,A->B_pkt,A->B_byt,B->A_pkt,B->A_byt,\
-            total_pkt,total_byt,relative_start,duration\n")
+            "l4_proto;A,B,A<-B_frame;A<-B_byte;A->B_frame;A->B_byte;total_frame;total_byte;relative_start;duration\n")
         for result in result_tcp:
             result = [x for x in result.split(" ") if x != ""]
-            line = f'tcp,{result[0].split(":")[0]},{result[0].split(":")[1]},{result[2].split(":")[0]},{result[2].split(":")[1]},{result[3]},{result[4]},{result[5]},{result[6]},{result[7]},{result[8]},{result[9]},{result[10]}'
-            txt_file.write(f"{line} \n")
+            line = f'tcp;{result[0]};{result[2]};{result[3]};{result[4]} {result[5]};{result[6]};{result[7]} {result[8]};{result[9]};{result[10]} {result[11]};{result[12]};{result[13]}'
+            txt_file.write(f"{line}\n")
         for result in result_udp:
             result = [x for x in result.split(" ") if x != ""]
-            line = f'udp,{result[0].split(":")[0]},{result[0].split(":")[1]},{result[2].split(":")[0]},{result[2].split(":")[1]},{result[3]},{result[4]},{result[5]},{result[6]},{result[7]},{result[8]},{result[9]},{result[10]}'
-            txt_file.write(f"{line} \n")
+            line = f'udp;{result[0]};{result[2]};{result[3]};{result[4]} {result[5]};{result[6]};{result[7]} {result[8]};{result[9]};{result[10]} {result[11]};{result[12]};{result[13]}'
+            txt_file.write(f"{line}\n")
     return tcp_stream_count, udp_stream_count
 
 def worker_extractor(pcap_filepath: str, temp_path: str, 
@@ -186,6 +181,6 @@ def worker_extractor(pcap_filepath: str, temp_path: str,
     return [start_stream_id, end_stream_id], temp_filename
 
 
-# def worker_summary(filepath: str, filename: str):
-#     stream_id_len(filepath, filename)
-#     return filename
+def worker_summary(filepath: str, export_summary_filename: str):
+    stream_id_len(filepath, export_summary_filename)
+    return filepath, export_summary_filename
