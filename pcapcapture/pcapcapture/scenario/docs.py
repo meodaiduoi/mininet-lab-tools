@@ -60,16 +60,16 @@ if __name__ == '__main__':
                 docs = GDocsPageLoader(profile_path=profile_path)
                 docs.load(url)
 
-            # Start capture
-            capture = AsyncQUICTrafficCapture()
-            capture.capture(interface, f'{file_path}.pcap')
-            
-            docs.strings = string_list
-            docs.editor()
+                # Start capture
+                capture = AsyncQUICTrafficCapture()
+                capture.capture(interface, f'{file_path}.pcap')
+                
+                docs.strings = string_list
+                docs.editor()
 
-            # Turn off capture and driver
-            capture.terminate()
-            docs.close_driver()
+                # Turn off capture and driver
+                capture.terminate()
+                docs.close_driver()
 
     except KeyboardInterrupt:
         docs.close_driver()
