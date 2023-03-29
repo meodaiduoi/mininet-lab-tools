@@ -33,24 +33,15 @@ if __name__ == '__main__':
         # Save ssl key to file
         os.environ['SSLKEYLOGFILE'] = './output/Host_sslkey_{timestamp}.log'
 
-        # Load signin host
-        host = GMeetHost("")
-        host.user("account","passwrd")
-        host.signin()
 
-        # Join meeting
-        host.code_meet("")
-        host.input_code()
-        host.join_meeting()
 
         # Start capture
         capture = AsyncQUICTrafficCapture()
         capture.capture(interface, './output/Host_{timestamp}.pcap')
 
-
         # Turn off capture and driver
         capture.terminate()
-        host.close_driver()
+        gmeet_host.close_driver()
 
     except KeyboardInterrupt:
         logging.error('Keyboard Inter')

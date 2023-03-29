@@ -1,4 +1,3 @@
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -18,19 +17,27 @@ from pytube import Playlist
 
 from webcapture.pageloader import PageLoader
 
+
 class YoutubePlayer(PageLoader):
     '''
     YoutubePlayer class is used to load a youtube video and wait for the video to load completely.
     url: A youtube url to load
     delay: Time to wait for the video to load
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
-    addons: A list of paths to the addons to be added to the firefox profile
+   extensions: A list of paths to theextensions to be added to the firefox profile
     '''
-    def __init__(self, url: str=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
-        super(YoutubePlayer, self).__init__((By.CLASS_NAME, 'html5-main-video'),
-                                            timeout, profile_path,
-                                            preferences, addons)
+
+    def __init__(self,
+                 url: str = None,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super(YoutubePlayer,
+              self).__init__((By.CLASS_NAME, 'html5-main-video'), timeout,
+                             profile_path, preferences, extensions,
+                             **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -53,7 +60,7 @@ class YoutubePlayer(PageLoader):
         3: Unready
         '''
         state_dict = {
-           -1: 'Unstarted or Advertisement is playing',
+            -1: 'Unstarted or Advertisement is playing',
             0: 'Ended',
             1: 'Playing',
             2: 'Paused',
@@ -61,7 +68,8 @@ class YoutubePlayer(PageLoader):
         }
         try:
             state = self._driver.execute_script(
-                "return document.getElementById('movie_player').getPlayerState()")
+                "return document.getElementById('movie_player').getPlayerState()"
+            )
             logging.info(f'Player state: {state_dict[state]}')
             return state
         except AttributeError:
@@ -72,7 +80,7 @@ class YoutubePlayer(PageLoader):
             logging.error('Player is already playing')
             return
         try:
-            self._driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
+            self._driver.find_element(By.CLASS_NAME, 'ytp-play-button').click()
             logging.info('Player is playing')
         except AttributeError:
             logging.error('Required to load() first')
@@ -80,7 +88,8 @@ class YoutubePlayer(PageLoader):
     def pause(self):
         if self.player_state == 1:
             try:
-                self._driver.find_element(By.CLASS_NAME,'ytp-play-button').click()
+                self._driver.find_element(By.CLASS_NAME,
+                                          'ytp-play-button').click()
                 logging.info('Player is paused')
             except AttributeError:
                 logging.error('Required to load() first')
@@ -93,18 +102,25 @@ class YoutubePlayer(PageLoader):
         times: Number of times to press the right arrow key (default: 1) with each time being 5 seconds
         '''
         try:
-            self._driver.find_element(
-                By.CLASS_NAME,'html5-main-video').send_keys(Keys.RIGHT * times)
+            self._driver.find_element(By.CLASS_NAME,
+                                      'html5-main-video').send_keys(
+                                          Keys.RIGHT * times)
         except AttributeError:
             logging.error('Required to load() first')
 
 
 class YoutubePlaylistFetch(PageLoader):
-    def __init__(self, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
-        super(YoutubePlaylistFetch, self).__init__((By.CLASS_NAME, 'yt-core-image'),
-                                                   timeout, profile_path,
-                                                   preferences, addons)
+
+    def __init__(self,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super(YoutubePlaylistFetch,
+              self).__init__((By.CLASS_NAME, 'yt-core-image'), timeout,
+                             profile_path, preferences, extensions,
+                             **kwargs)
         self.url_list = None
 
     # Don't required webdriver due to access via api
@@ -121,9 +137,9 @@ class YoutubePlaylistFetch(PageLoader):
         )
 
         self.scroll_slowly_to_bottom(speed, delay)
-        content = self._driver.find_element(By.CSS_SELECTOR,"#contents")
-        all_url = content.find_elements(
-            By.CSS_SELECTOR,".yt-simple-endpoint#thumbnail")
+        content = self._driver.find_element(By.CSS_SELECTOR, "#contents")
+        all_url = content.find_elements(By.CSS_SELECTOR,
+                                        ".yt-simple-endpoint#thumbnail")
 
         url_list = []
         for url in all_url:
@@ -134,66 +150,53 @@ class YoutubePlaylistFetch(PageLoader):
         self.url_list = url_list
         return self.url_list
 
+
 class GMeetHost(PageLoader):
-    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+
+    def __init__(self,
+                 camera_id: int,
+                 microphone_id: int,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = None,
+                 extensions: list[str] = None,
+                 **kwargs):
+        
         # !TODO: Change the locator to homepage of meet
-        super(GMeetHost, self).__init__((By.CLASS_NAME, 'google-material-icons'),
-                                        timeout, profile_path,
-                                        preferences, addons)
+        self.preferences = preferences + [
+            ('media.navigator.permission.disabled', True),
+            ('permissions.default.microphone', camera_id),
+            ('permissions.default.camera', microphone_id)
+        ]
+        
+        self.is_host = None
+
+        super(GMeetHost,
+              self).__init__((By.CLASS_NAME, 'google-material-icons'), timeout,
+                             profile_path, preferences, extensions,
+                             **kwargs)
 
         self.start_driver()
-        if url:
-            self.load(url)
+    
+    def create_meetting(self):
+        self.is_host = True
+        self.load('https://meet.google.com/')
 
-    def user(self, name, passwrd):
-        self.name = name
-        self.passwrd = passwrd
-
-    def signin(self):
-        try:
-            # Click button sign-in
-            self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
-
-            # Input user account
-            username = self._driver.find_element(By.ID, 'identifierId')
-            username.send_keys(self.name)
-            nextButton = self._driver.find_element(By.ID, 'identifierNext')
-            nextButton.click()
-
-            # Input user password
-            password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-            password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-            signInButton = self._driver.find_element(By.ID,'passwordNext')
-            signInButton.click()
-        except AttributeError as e:
-            logging.error('Required to user() first')
-
-    def code_meet(self, code):
-        # Create code meet before
-        self.code = code
-
-    def input_code(self):
-        try:
-            # find the element for entering meeting code
-            code_input = self._driver.find_element(By.ID, "i6")
-
-            # enter the meeting code
-            code_input.send_keys(self.code)
-
-            # press enter key
-            code_input.send_keys(Keys.RETURN)
-        except AttributeError as e:
-            logging.error('Required to code_meet() first')
-
-    def join_meeting(self):
+        pass    
+    
+    def join_meeting(self, url_invite):
         # find the element for joining the meeting
+        self.is_host = False
+        self.load(url_invite)
+
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='Qx7uuf']").click()
 
     def accept_guest(self):
         # Host Invite
-        if self._driver.find_element(By.CSS_SELECTOR, "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
-            self._driver.find_element(By.CSS_SELECTOR, "[data-mdc-dialog-action='accept']").click()
+        if self._driver.find_element(By.CSS_SELECTOR,
+                                     "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
+            self._driver.find_element(
+                By.CSS_SELECTOR, "[data-mdc-dialog-action='accept']").click()
         else:
             print("Continues")
 
@@ -201,71 +204,13 @@ class GMeetHost(PageLoader):
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
 
     def btn_camera(self):
-        self._driver.find_element(By.CSS_SELECTOR, "[jsaction='Az4Fr:Jv50ub']").click()
+        self._driver.find_element(By.CSS_SELECTOR,
+                                  "[jsaction='Az4Fr:Jv50ub']").click()
 
     def btn_mic(self):
-        self._driver.find_element(By.CSS_SELECTOR, "[jsaction='Az4Fr:Jv50ub']").click()
+        self._driver.find_element(By.CSS_SELECTOR,
+                                  "[jsaction='Az4Fr:Jv50ub']").click()
 
-class GMeetGuest(PageLoader):
-    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
-        super(GMeetGuest, self).__init__((By.CLASS_NAME, 'google-material-icons'), timeout,
-                                         profile_path, preferences, addons)
-
-        self.start_driver()
-        if url:
-            self.load(url)
-
-    # !DEPRECATED: Load through profile_path
-    # def user(self, name, passwrd):
-    #     self.name = name
-    #     self.passwrd = passwrd
-
-    # !DEPRECATED: Load through profile_path
-    # def signin(self):
-    #     try:
-    #         # Click button sign-in
-    #         self._driver.find_element(By.CLASS_NAME, "glue-header__link ").click()
-
-    #         # Input user account
-    #         username = self._driver.find_element(By.ID, 'identifierId')
-    #         username.send_keys(self.name)
-    #         nextButton = self._driver.find_element(By.ID, 'identifierNext')
-    #         nextButton.click()
-
-    #         # Input user password
-    #         password = self._driver.find_element(By.CSS_SELECTOR, "[aria-label='Enter your password']")
-    #         password.send_keys(Keys.BACK_SPACE*20, self.passwrd)
-    #         signInButton = self._driver.find_element(By.ID,'passwordNext')
-    #         signInButton.click()
-    #     except AttributeError:
-    #         logging.error('Required to user() first')
-
-    def input_code(self, code):
-        try:
-            # find the element for entering meeting code
-            code_input = self._driver.find_element(By.ID, "i6")
-
-            # enter the meeting code
-            code_input.send_keys(code)
-
-            # press enter key
-            code_input.send_keys(Keys.RETURN)
-        except AttributeError:
-            logging.error('Required to code_meet() first')
-
-    def join_meeting(self):
-        # find the element for joining the meeting
-        self._driver.find_element(By.CSS_SELECTOR, "[jsname='Qx7uuf']").click()
-
-    def leave_meeting(self):
-        self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
-
-    def btn_camera(self):
-        self._driver.find_element(By.CSS_SELECTOR, "[jsaction='Az4Fr:Jv50ub']").click()
-
-    def btn_mic(self):
-        self._driver.find_element(By.CSS_SELECTOR, "[jsaction='Az4Fr:Jv50ub']").click()
 
 class GDriveDownloader(PageLoader):
     '''
@@ -275,8 +220,15 @@ class GDriveDownloader(PageLoader):
     timeout: Time to wait for the page to load
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
     '''
-    def __init__(self, url: str=None, download_folder: str='./temp', timeout: int=20,
-                 profile_path: str=None, preferences: list[tuple[str, str]]=None, addons: list[str]=None):
+
+    def __init__(self,
+                 url: str = None,
+                 download_folder: str = './temp',
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [], 
+                 **kwargs):
         # check if it is absolute path or relative path
         if not os.path.isabs(download_folder):
             download_folder = f'{os.getcwd()}/{download_folder}'
@@ -287,11 +239,13 @@ class GDriveDownloader(PageLoader):
         if not os.path.exists(download_folder):
             os.makedirs(download_folder)
 
-        super(GDriveDownloader, self).__init__((By.ID, 'uc-download-link'), timeout, profile_path,
-                                               [('browser.download.folderList', 2),
-                                                ('browser.download.dir', f'{download_folder}'),
-                                                ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')],
-                                                addons)
+        super(GDriveDownloader, self).__init__(
+            (By.ID, 'uc-download-link'), timeout, profile_path,
+            [('browser.download.folderList', 2),
+             ('browser.download.dir', f'{download_folder}'),
+             ('browser.helperApps.neverAsk.saveToDisk',
+              'application/octet-stream')], extensions,
+            **kwargs)
 
         self.download_folder = download_folder
         self.start_driver()
@@ -312,11 +266,20 @@ class GDriveDownloader(PageLoader):
         for file in os.listdir(self.download_folder):
             os.remove(f"{self.download_folder}/{file}")
 
+
 class GDocsPageLoader(PageLoader):
-    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None, addons: list[str]=None):
-        super(GDocsPageLoader, self).__init__((By.CLASS_NAME, "jfk-tooltip-contentId"), timeout,
-                                              profile_path, preferences, addons)
+
+    def __init__(self,
+                 url=None,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super(GDocsPageLoader,
+              self).__init__((By.CLASS_NAME, "jfk-tooltip-contentId"), timeout,
+                             profile_path, preferences, extensions, 
+                             **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -331,15 +294,22 @@ class GDocsPageLoader(PageLoader):
     def editor(self):
         edit = self._driver.find_element(By.TAG_NAME, "canvas")
         
-        for i in range(0, random.randint(100, len(self.strings))):
+        for i in range(0, random.randint(550, len(self.strings))):
             ActionChains(self._driver).move_to_element(edit).click(edit).send_keys(self.strings[i] + " ").perform()
-            time.sleep(random.randrange(1,2))
+            time.sleep(random.randrange(0,1))
 
 class GPhotosPageLoader(PageLoader):
-    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
-        super(GPhotosPageLoader, self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout,
-                                                profile_path, preferences, addons)
+
+    def __init__(self,
+                 url=None,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super(GPhotosPageLoader,
+              self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -350,11 +320,19 @@ class GPhotosPageLoader(PageLoader):
         else:
             logging.error('Not a valid google photos url')
 
+
 class GmailPageLoader(PageLoader):
-    def __init__(self, url=None, timeout: int=20, profile_path: str=None,
-                 preferences: list[tuple[str, str]]=None,  addons: list[str]=None):
-        super(GmailPageLoader, self).__init__((By.CLASS_NAME, 'V3 aam'), timeout,
-                                                profile_path, preferences, addons)
+
+    def __init__(self,
+                 url=None,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super(GmailPageLoader,
+              self).__init__((By.CLASS_NAME, 'V3 aam'), timeout, profile_path,
+                             preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
