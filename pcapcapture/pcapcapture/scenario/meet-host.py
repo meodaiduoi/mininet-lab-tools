@@ -25,7 +25,7 @@ def main():
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ggservice import GMeetHost
+from webcapture.ggservice import GMeet
 
 if __name__ == '__main__':
     try:

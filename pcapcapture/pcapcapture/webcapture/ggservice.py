@@ -1,12 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
 
 import os
@@ -16,7 +13,7 @@ import re
 from pytube import Playlist
 
 from webcapture.pageloader import PageLoader
-
+from webcapture.utils import *
 
 class YoutubePlayer(PageLoader):
     '''
@@ -36,8 +33,7 @@ class YoutubePlayer(PageLoader):
                  **kwargs):
         super(YoutubePlayer,
               self).__init__((By.CLASS_NAME, 'html5-main-video'), timeout,
-                             profile_path, preferences, extensions,
-                             **kwargs)
+                             profile_path, preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -119,8 +115,7 @@ class YoutubePlaylistFetch(PageLoader):
                  **kwargs):
         super(YoutubePlaylistFetch,
               self).__init__((By.CLASS_NAME, 'yt-core-image'), timeout,
-                             profile_path, preferences, extensions,
-                             **kwargs)
+                             profile_path, preferences, extensions, **kwargs)
         self.url_list = None
 
     # Don't required webdriver due to access via api
@@ -151,54 +146,28 @@ class YoutubePlaylistFetch(PageLoader):
         return self.url_list
 
 
-class GMeetHost(PageLoader):
+class GMeet(PageLoader):
 
     def __init__(self,
                  camera_id: int,
                  microphone_id: int,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = None,
-                 extensions: list[str] = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
                  **kwargs):
-        
+
         # !TODO: Change the locator to homepage of meet
         self.preferences = preferences + [
             ('media.navigator.permission.disabled', True),
             ('permissions.default.microphone', camera_id),
             ('permissions.default.camera', microphone_id)
         ]
-        
+
         self.is_host = None
-
-        super(GMeetHost,
-              self).__init__((By.CLASS_NAME, 'google-material-icons'), timeout,
-                             profile_path, preferences, extensions,
-                             **kwargs)
-
+        super(GMeet, self).__init__(timeout, profile_path, preferences,
+                                    extensions, **kwargs)
         self.start_driver()
-    
-    def create_meetting(self):
-        self.is_host = True
-        self.load('https://meet.google.com/')
-
-        pass    
-    
-    def join_meeting(self, url_invite):
-        # find the element for joining the meeting
-        self.is_host = False
-        self.load(url_invite)
-
-        self._driver.find_element(By.CSS_SELECTOR, "[jsname='Qx7uuf']").click()
-
-    def accept_guest(self):
-        # Host Invite
-        if self._driver.find_element(By.CSS_SELECTOR,
-                                     "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
-            self._driver.find_element(
-                By.CSS_SELECTOR, "[data-mdc-dialog-action='accept']").click()
-        else:
-            print("Continues")
 
     def leave_meeting(self):
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
@@ -210,6 +179,88 @@ class GMeetHost(PageLoader):
     def btn_mic(self):
         self._driver.find_element(By.CSS_SELECTOR,
                                   "[jsaction='Az4Fr:Jv50ub']").click()
+
+
+class GMeetHost(GMeet):
+    def __init__(self, camera_id: int, microphone_id: int, timeout: int = 20, profile_path: str = None, preferences: list[tuple[str, str]] = [], extensions: list[str] = [], **kwargs):
+        super().__init__(camera_id, microphone_id, timeout, profile_path, preferences, extensions, **kwargs)
+
+    def create_meetting(self) -> str:
+        if self.is_host is None or True:
+            self.is_host = True
+            self.load('https://meet.google.com/',
+                      locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
+            self._driver.find_element(
+                By.XPATH,
+                "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[1]/div/button/span"
+            ).click()
+            self._driver.implicitly_wait(2)
+            self._driver.find_element(
+                By.XPATH,
+                "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[2]/div/ul/li[2]"
+            ).click()
+            self._driver.implicitly_wait(2)
+            for _ in range(5):
+                time.sleep(5)
+                try:
+                    if self._driver.find_element(
+                            By.XPATH,
+                            '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
+                    ):
+                        self._driver.find_element(
+                            By.XPATH,
+                            '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
+                        ).click()
+                    logging.info('Meeting created')
+                    return self._driver.current_url
+                except ElementNotInteractableException or NoSuchElementException:
+                    pass
+            logging.error('Unable to create meetting')
+            return ''
+
+    def accept_guest(self, retry=5) -> bool:
+        for _ in range(retry):
+            time.sleep(5)
+            try:
+                if self._driver.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]') or :
+                    self._driver.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]').click()
+                    logging.info("Accepted guest")
+                    return True
+                if self._driver.find_element(By.CSS_SELECTOR, "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
+                    self._driver.find_element(By.CSS_SELECTOR, "[data-mdc-dialog-action='accept']").click()
+                    logging.info("Accepted guest")
+                    return True
+            except ElementNotInteractableException or NoSuchElementException:
+                pass
+        logging.error("Unable to accept guest")
+        return False
+
+        
+class GMeetGuest(GMeet):
+    def __init__(self, camera_id: int, microphone_id: int, timeout: int = 20, profile_path: str = None, preferences: list[tuple[str, str]] = [], extensions: list[str] = [], **kwargs):
+        super().__init__(camera_id, microphone_id, timeout, profile_path, preferences, extensions, **kwargs)
+        
+    def join_meeting(self, url_invite, retry=5) -> bool:
+        # find the element for joining the meeting
+        self.is_host = False
+        self.load(url_invite, locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
+        for _ in range(retry):
+            time.sleep(5)
+            try:
+                if self._driver.find_element(
+                        By.XPATH,
+                        "/html/body/div[1]/c-wiz/div/div/div[13]/div[3]/div/div[1]/div[4]/div/div/div[2]/div/div[2]/div[1]/div[1]/button"
+                ):
+                    self._driver.find_element(
+                        By.XPATH,
+                        "/html/body/div[1]/c-wiz/div/div/div[13]/div[3]/div/div[1]/div[4]/div/div/div[2]/div/div[2]/div[1]/div[1]/button"
+                    ).click()
+                    logging.info("Joined the meeting")
+                    return True
+            except ElementNotInteractableException or NoSuchElementException:
+                pass
+        logging.error("Unable to join the meeting")
+        return False
 
 
 class GDriveDownloader(PageLoader):
@@ -227,25 +278,19 @@ class GDriveDownloader(PageLoader):
                  timeout: int = 20,
                  profile_path: str = None,
                  preferences: list[tuple[str, str]] = [],
-                 extensions: list[str] = [], 
+                 extensions: list[str] = [],
                  **kwargs):
+        
         # check if it is absolute path or relative path
-        if not os.path.isabs(download_folder):
-            download_folder = f'{os.getcwd()}/{download_folder}'
-        if not download_folder.endswith('/'):
-            download_folder = f'{download_folder}/'
-
-        # check if download folder exists
-        if not os.path.exists(download_folder):
-            os.makedirs(download_folder)
-
+        mkdir_by_path(mkpath_abs(download_folder))
+        
+        self.preferences += preferences + [('browser.download.folderList', 2), 
+                                           ('browser.download.dir', f'{download_folder}'), 
+                                           ('browser.helperApps.neverAsk.saveToDisk',  'application/octet-stream')]
+        
         super(GDriveDownloader, self).__init__(
             (By.ID, 'uc-download-link'), timeout, profile_path,
-            [('browser.download.folderList', 2),
-             ('browser.download.dir', f'{download_folder}'),
-             ('browser.helperApps.neverAsk.saveToDisk',
-              'application/octet-stream')], extensions,
-            **kwargs)
+            preferences, extensions, **kwargs)
 
         self.download_folder = download_folder
         self.start_driver()
@@ -278,8 +323,7 @@ class GDocsPageLoader(PageLoader):
                  **kwargs):
         super(GDocsPageLoader,
               self).__init__((By.CLASS_NAME, "jfk-tooltip-contentId"), timeout,
-                             profile_path, preferences, extensions, 
-                             **kwargs)
+                             profile_path, preferences, extensions, **kwargs)
         self.start_driver()
         if url:
             self.load(url)
@@ -293,10 +337,12 @@ class GDocsPageLoader(PageLoader):
 
     def editor(self):
         edit = self._driver.find_element(By.TAG_NAME, "canvas")
-        
+
         for i in range(0, random.randint(550, len(self.strings))):
-            ActionChains(self._driver).move_to_element(edit).click(edit).send_keys(self.strings[i] + " ").perform()
-            time.sleep(random.randrange(0,1))
+            ActionChains(self._driver).move_to_element(edit).click(
+                edit).send_keys(self.strings[i] + " ").perform()
+            time.sleep(random.randrange(0, 1))
+
 
 class GPhotosPageLoader(PageLoader):
 
