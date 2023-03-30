@@ -186,37 +186,35 @@ class GMeetHost(GMeet):
         super().__init__(camera_id, microphone_id, timeout, profile_path, preferences, extensions, **kwargs)
 
     def create_meetting(self) -> str:
-        if self.is_host is None or True:
-            self.is_host = True
-            self.load('https://meet.google.com/',
-                      locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
-            self._driver.find_element(
-                By.XPATH,
-                "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[1]/div/button/span"
-            ).click()
-            self._driver.implicitly_wait(2)
-            self._driver.find_element(
-                By.XPATH,
-                "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[2]/div/ul/li[2]"
-            ).click()
-            self._driver.implicitly_wait(2)
-            for _ in range(5):
-                time.sleep(5)
-                try:
-                    if self._driver.find_element(
-                            By.XPATH,
-                            '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
-                    ):
-                        self._driver.find_element(
-                            By.XPATH,
-                            '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
-                        ).click()
-                    logging.info('Meeting created')
-                    return self._driver.current_url
-                except ElementNotInteractableException or NoSuchElementException:
-                    pass
-            logging.error('Unable to create meetting')
-            return ''
+        self.load('https://meet.google.com/',
+                    locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
+        self._driver.find_element(
+            By.XPATH,
+            "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[1]/div/button/span"
+        ).click()
+        self._driver.implicitly_wait(2)
+        self._driver.find_element(
+            By.XPATH,
+            "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[2]/div/ul/li[2]"
+        ).click()
+        self._driver.implicitly_wait(2)
+        for _ in range(5):
+            time.sleep(5)
+            try:
+                if self._driver.find_element(
+                        By.XPATH,
+                        '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
+                ):
+                    self._driver.find_element(
+                        By.XPATH,
+                        '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
+                    ).click()
+                logging.info('Meeting created')
+                return self._driver.current_url
+            except ElementNotInteractableException or NoSuchElementException:
+                pass
+        logging.error('Unable to create meetting')
+        return ''
 
     def accept_guest(self, retry=5) -> bool:
         for _ in range(retry):
@@ -285,7 +283,8 @@ class GDriveDownloader(PageLoader):
         mkdir_by_path(mkpath_abs(download_folder))
         
         self.preferences += preferences + [('browser.download.folderList', 2), 
-                                           ('browser.download.dir', f'{download_folder}'), 
+                                           ('browser.download.dir', download_folder'),
+                                           ("browser.download.manager.showWhenStarting", False), 
                                            ('browser.helperApps.neverAsk.saveToDisk',  'application/octet-stream')]
         
         super(GDriveDownloader, self).__init__(
