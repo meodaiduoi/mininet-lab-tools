@@ -21,7 +21,7 @@ class YoutubePlayer(PageLoader):
     url: A youtube url to load
     delay: Time to wait for the video to load
     preferences: A list of tuples of (preference_name, preference_value) to set in the firefox profile
-   extensions: A list of paths to theextensions to be added to the firefox profile
+    extensions: A list of paths to theextensions to be added to the firefox profile
     '''
 
     def __init__(self,
