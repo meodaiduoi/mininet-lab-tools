@@ -19,7 +19,7 @@ class PageLoader():
     addons: A list of paths to the addons to be added to the firefox profile
     '''
 
-    def __init__(self, locator=None, timeout: int=3,
+    def __init__(self, locator=None, timeout: int=20,
                  profile_path: str=None, 
                  preferences: list[tuple[str, str]]=[], 
                  extensions: list[str]=[],
@@ -49,7 +49,9 @@ class PageLoader():
             self.firefox_profile.add_extension(extension)
         self._driver = webdriver.Firefox(self.firefox_profile)
 
-    def load(self, url):
+    def load(self, url, locator=None):
+        if locator:
+            self.locator = locator
         try:
             self._driver.get(url)
             if self.locator:
@@ -171,5 +173,6 @@ class SimplePageLoader(PageLoader):
         if url:
             self.load(url)
 
-    def load(self, url):
-        super().load(url)
+    @property
+    def driver(self):
+        return self._driver
