@@ -283,9 +283,9 @@ class GDriveDownloader(PageLoader):
         mkdir_by_path(mkpath_abs(download_folder))
         
         self.preferences += preferences + [('browser.download.folderList', 2), 
-                                           ('browser.download.dir', download_folder'),
-                                           ("browser.download.manager.showWhenStarting", False), 
-                                           ('browser.helperApps.neverAsk.saveToDisk',  'application/octet-stream')]
+                                           ('browser.download.dir', 'download_folder'),
+                                           ('browser.download.manager.showWhenStarting', False), 
+                                           ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')]
         
         super(GDriveDownloader, self).__init__(
             (By.ID, 'uc-download-link'), timeout, profile_path,
