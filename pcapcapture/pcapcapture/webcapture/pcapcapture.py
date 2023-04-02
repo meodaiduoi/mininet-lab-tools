@@ -7,6 +7,8 @@ import time
 QUIC_DECODE_AS = '"udp.port==443,quic"'
 WEB_FILTER = '"(quic or udp.port==443) or ((http or http2 or (tls.app_data and not tls.handshake)) and tcp.payload and (tcp.port==443 or tcp.port==80))"'
 HTTP_FILTER = '"(http or http2 or (tls.app_data and not tls.handshake)) and tcp.payload and (tcp.port==443 or tcp.port==80)"'
+
+
 class PcapCapture:
     '''
     PcapCapture is a class that uses tshark to capture packets from an interface
@@ -15,15 +17,17 @@ class PcapCapture:
     filter: A string of the format to filter packets
     autostop: A string of the format "duration:60" to stop capturing after 60 seconds
     '''
-    def __init__(self, decode_as=None,
-                 filter=None, autostop='duration:5'):
+
+    def __init__(self, decode_as=None, filter=None, autostop='duration:5'):
 
         self.autostop = autostop
         self.filter = filter
         self.decode_as = decode_as
         self.autostop = autostop
 
-    def capture(self, interface: str=None, pcap_filename: str=f'capture_{time.time_ns()}.pcap'):
+    def capture(self,
+                interface: str = None,
+                pcap_filename: str = f'capture_{time.time_ns()}.pcap'):
         '''
         Invoke tshark to capture packets from an interface and save them to a pcap file
         interface: The interface to capture packets from
@@ -31,23 +35,27 @@ class PcapCapture:
         '''
         self.interface = interface
         self.pcap_filename = pcap_filename
-        
+
         tshark_capture_cmd = f'tshark -w {self.pcap_filename}_temp'
-        if self.interface and not (self.interface == 'None' or self.interface == ''):
+        if self.interface and not (self.interface == 'None'
+                                   or self.interface == ''):
             tshark_capture_cmd += f' -i {self.interface}'
         if self.autostop:
             tshark_capture_cmd += f' -a {self.autostop}'
 
-        logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
-        result = subprocess.Popen(tshark_capture_cmd, shell=True,
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        logging.info(
+            f'Capturing packets on {interface} to {self.pcap_filename}')
+        result = subprocess.Popen(tshark_capture_cmd,
+                                  shell=True,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE).communicate()
 
         result_out = result[0].decode('latin-1')
         result_err = result[1].decode('latin-1')
         logging.info(result_out)
         if result_err:
             logging.error(result_err)
-        
+
         self._apply_filter()
 
     def _apply_filter(self):
@@ -58,8 +66,10 @@ class PcapCapture:
             if self.filter:
                 tshark_filter_cmd += f' -Y {self.filter}'
 
-            result = subprocess.Popen(tshark_filter_cmd, shell=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            result = subprocess.Popen(tshark_filter_cmd,
+                                      shell=True,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE).communicate()
 
             os.remove(f'{self.pcap_filename}_temp')
 
@@ -81,7 +91,9 @@ class PcapCapture:
         if os.path.exists(f'{self.pcap_filename}'):
             os.remove(f'{self.pcap_filename}')
 
+
 class AsyncPcapCapture(PcapCapture):
+
     def __init__(self, decode_as=None, filter=None):
         '''
             Allow asynchronous capture allow user interaction while capturing
@@ -91,7 +103,9 @@ class AsyncPcapCapture(PcapCapture):
         super().__init__(decode_as, filter, None)
         self.process = None
 
-    def capture(self, interface: str=None, pcap_filename: str=f'capture_{time.time_ns()}.pcap'):
+    def capture(self,
+                interface: str = None,
+                pcap_filename: str = f'capture_{time.time_ns()}.pcap'):
         if self.process:
             logging.error('Already capturing')
             return
@@ -99,19 +113,25 @@ class AsyncPcapCapture(PcapCapture):
         self.interface = interface
         self.pcap_filename = pcap_filename
         tshark_capture_cmd = f'tshark -w {self.pcap_filename}_temp'
-        if self.interface and not (self.interface == 'None' or self.interface == ''):
+        if self.interface and not (self.interface == 'None'
+                                   or self.interface == ''):
             tshark_capture_cmd += f' -i {self.interface}'
         if self.autostop:
             tshark_capture_cmd += f' -a {self.autostop}'
 
-        logging.info(f'Capturing packets on {interface} to {self.pcap_filename}')
-        self.process = subprocess.Popen(tshark_capture_cmd, shell=True,
-                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        logging.info(
+            f'Capturing packets on {interface} to {self.pcap_filename}')
+        self.process = subprocess.Popen(tshark_capture_cmd,
+                                        shell=True,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
 
     def terminate(self):
         if self.process:
             result = subprocess.Popen(f'pgrep -P {self.process.pid}',
-                                      shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+                                      shell=True,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE).communicate()
             parent_pid = int(result[0].decode('latin-1').split('\n')[0])
             os.kill(parent_pid, signal.SIGTERM)
             return_code = self.process.wait()
@@ -127,34 +147,44 @@ class AsyncPcapCapture(PcapCapture):
         else:
             logging.error('No process to terminate')
 
+
 class QUICTrafficCapture(PcapCapture):
     '''
     Capture QUIC traffic on a given interface
     autostop: autostop condition
     '''
+
     def __init__(self, autostop='duration:10'):
-        super().__init__(QUIC_DECODE_AS, 'quic',
-                         autostop)
+        super().__init__(QUIC_DECODE_AS, 'quic', autostop)
+
 
 class HTTPTrafficCapture(PcapCapture):
+
     def __init__(self):
         super().__init__(filter=HTTP_FILTER)
 
+
 class WebTrafficCapture(PcapCapture):
+
     def __init__(self, autostop='duration:60'):
         super().__init__(decode_as=QUIC_DECODE_AS,
                          filter=WEB_FILTER,
                          autostop=autostop)
 
+
 class AsyncQUICTrafficCapture(AsyncPcapCapture):
+
     def __init__(self):
         super().__init__(QUIC_DECODE_AS, 'quic')
 
+
 class AsyncHTTPTrafficCapture(AsyncPcapCapture):
+
     def __init__(self):
         super().__init__(filter=HTTP_FILTER)
 
+
 class AsyncWebTrafficCapture(AsyncPcapCapture):
+
     def __init__(self):
-        super().__init__(decode_as=QUIC_DECODE_AS,
-                         filter=WEB_FILTER)
+        super().__init__(decode_as=QUIC_DECODE_AS, filter=WEB_FILTER)

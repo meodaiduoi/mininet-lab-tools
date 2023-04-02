@@ -57,7 +57,7 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load alibaba
-            alibaba = AlibabaLoader(profile_path=profile_path)
+            alibaba = AlibabaLoader(disable_cache=True, disable_http3=True)
             capture.capture(interface, f'{file_path}.pcap')
 
             for no_of_page in range(random.randint(min_page, max_page)):
