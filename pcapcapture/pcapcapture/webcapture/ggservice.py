@@ -339,10 +339,10 @@ class GDocsPageLoader(PageLoader):
     def editor(self):
         edit = self._driver.find_element(By.TAG_NAME, "canvas")
 
-        for i in range(0, random.randint(550, len(self.strings))):
+        for i in range(0, random.randint(600, len(self.strings))):
             ActionChains(self._driver).move_to_element(edit).click(
                 edit).send_keys(self.strings[i] + " ").perform()
-            time.sleep(random.randrange(0, 1))
+            time.sleep(random.randrange(1, 2))
 
 
 class GPhotosPageLoader(PageLoader):
