@@ -389,3 +389,19 @@ class GmailPageLoader(PageLoader):
             super().load(url)
         else:
             logging.error('Not a valid gmail url')
+
+    def send_mail(self, email: str, context: str, message: str):
+        try:
+            # Click compose button
+            self._driver.find_element(By.CSS_SELECTOR, '.T-I.J-J5-Ji.T-I-KE.L3').click()
+            
+            # Enter email address, content, message
+            self._driver.find_element(By.NAME, 'to').send_keys(email)
+            self._driver.find_element(By.NAME, 'subjectbox').send_keys(context)
+            self._driver.find_element(By.CSS_SELECTOR, '.Am.Al.editable.LW-avf').send_keys(message)
+
+            # Click send email
+            self._driver.find_element(By.CSS_SELECTOR, '.T-I.J-J5-Ji.aoO.T-I-atl.L3').click()
+        except AttributeError:
+            logging.error('Required to load() first')
+        
