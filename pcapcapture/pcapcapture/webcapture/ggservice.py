@@ -220,11 +220,13 @@ class GMeetHost(GMeet):
         for _ in range(retry):
             time.sleep(5)
             try:
-                if self._driver.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]') or :
+                if self._driver.find_element(
+                    By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]'):
                     self._driver.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]').click()
                     logging.info("Accepted guest")
                     return True
-                if self._driver.find_element(By.CSS_SELECTOR, "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
+                if self._driver.find_element(
+                    By.CSS_SELECTOR, "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
                     self._driver.find_element(By.CSS_SELECTOR, "[data-mdc-dialog-action='accept']").click()
                     logging.info("Accepted guest")
                     return True
@@ -337,10 +339,10 @@ class GDocsPageLoader(PageLoader):
     def editor(self):
         edit = self._driver.find_element(By.TAG_NAME, "canvas")
 
-        for i in range(0, random.randint(550, len(self.strings))):
+        for i in range(0, random.randint(600, len(self.strings))):
             ActionChains(self._driver).move_to_element(edit).click(
                 edit).send_keys(self.strings[i] + " ").perform()
-            time.sleep(random.randrange(0, 1))
+            time.sleep(random.randrange(1, 2))
 
 
 class GPhotosPageLoader(PageLoader):
