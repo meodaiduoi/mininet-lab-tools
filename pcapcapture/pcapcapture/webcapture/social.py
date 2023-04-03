@@ -35,8 +35,18 @@ class TiktokLoader(PageLoader):
 
 
 class Facebook(PageLoader):
-    pass
+    def __init__(self, url=None, timeout: int = 20, profile_path: str = None, preferences: list[tuple[str, str]] = ..., extensions: list[str] = ..., **kwargs):
+        super().__init__((By.CSS_SELECTOR, 'svg.x9f619'), timeout, profile_path, preferences, extensions, **kwargs)
+        
+        self.start_driver()
+        if url:
+            self.load(url)
+    
+    def load(self, url):
+        if 'facebook.com/watch/' in url:
+            super().load(url)
+        else:
+            logging.error('Not a valid facebook url')
 
-
-class Instagram(PageLoader):
-    pass
+# class Instagram(PageLoader):
+#     pass
