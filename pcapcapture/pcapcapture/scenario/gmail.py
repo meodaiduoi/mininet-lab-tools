@@ -48,9 +48,7 @@ if __name__ == '__main__':
         gmail = GmailPageLoader(profile_path=profile_path)
         capture.capture(interface, f'{file_path}.pcap')
 
-        # Soan thu
-        # Nhap thong tin
-        # Gui
+        gmail.send_mail('','','')
 
         capture.terminate()
         gmail.close_driver()

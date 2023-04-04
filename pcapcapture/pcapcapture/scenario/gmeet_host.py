@@ -37,13 +37,14 @@ if __name__ == '__main__':
         logging.basicConfig(filename=os.path.join(pcapstore_path, f'GMeetHost_{time.time_ns()}.log'), 
                             level=log_level, format="%(asctime)s %(message)s")
 
-        while True:
-            capture = AsyncQUICTrafficCapture()
-            filename = f'GMeetHost_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+    
+        capture = AsyncQUICTrafficCapture()
+        filename = f'GMeetHost_{time.time_ns()}'
+        file_path = os.path.join(pcapstore_path, filename)
+        # Save ssl key to file
+        os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
+<<<<<<< HEAD:pcapcapture/pcapcapture/scenario/gmeet_host.py
             # Load meethost
             mhost = GMeetHost()
             capture.capture(interface, f'{file_path}.pcap')
@@ -58,12 +59,28 @@ if __name__ == '__main__':
             # Turn off capture and driver
             capture.terminate()
             mhost.close_driver()
+=======
+        # Load meethost
+        meethost = GMeetHost(0,0,50.0)
+        capture.capture(interface, f'{file_path}.pcap')
+
+        meethost.create_meetting()
+
+        if meethost.accept_guest() == True:
+            meethost.accept_guest()
+        else:
+            logging.error('no member join')
+
+        # Turn off capture and driver
+        capture.terminate()
+        meethost.close_driver()
+>>>>>>> 54f9c38017972a625ef466adfe50944c052b257f:pcapcapture/pcapcapture/scenario/meet-host.py
 
     except KeyboardInterrupt:
         mhost.close_driver()
         capture.terminate()
         capture.clean_up()
-        # logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
+        logging.error(f'Keyboard Interrupt at: and {file_path}')
         sys.exit(0)
 
     except Exception as e:

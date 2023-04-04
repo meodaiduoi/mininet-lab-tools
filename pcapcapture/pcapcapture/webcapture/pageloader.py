@@ -110,7 +110,7 @@ class PageLoader():
 
         except TimeoutException:
             logging.error("Loading took too much time!")
-            self.close_driver()
+            self._driver.refresh()
         except AttributeError as e:
             logging.error('Required to start_driver() first')
         except Exception as e:

@@ -71,6 +71,9 @@ url_list = './common-res/ebay.csv'
 min_page = 25
 max_page = 150
 
+[facebook]
+url_list = './common-res/facebook.csv'
+
 [tiktok]
 url_list = './common-res/tiktok.csv'
 
