@@ -16,18 +16,21 @@ def ls_file_in_current_folder(path):
 def ls_folder_in_current_folder(path):
     return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
 
-def mkpath_abs(path):
+def mkpath_abs(path) -> str:
     # return os.path.abspath(os.path.expanduser(path))
     if not os.path.isabs(path):
         path = os.path.abspath(os.path.expanduser(path))
-    return  path
+    return path
 
-def mkdir_by_path(path):
+def mkdir_by_path(path) -> str:
     try:
         if not os.path.exists(path):
             os.makedirs(path)
+            logging.info(f'Created directory: {path}')
+            return path
     except NotADirectoryError:
         logging.error(f'Not a directory: {path} or already exists as a file')
+        return ''
 
 # def init_virutal_microphone():
 #     # Load v4l2loopback module

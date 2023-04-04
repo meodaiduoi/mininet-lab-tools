@@ -17,6 +17,7 @@ from pytube import Playlist
 from webcapture.pageloader import PageLoader
 from webcapture.utils import *
 
+
 class YoutubePlayer(PageLoader):
     '''
     YoutubePlayer class is used to load a youtube video and wait for the video to load completely.
@@ -184,12 +185,21 @@ class GMeet(PageLoader):
 
 
 class GMeetHost(GMeet):
-    def __init__(self, camera_id: int, microphone_id: int, timeout: int = 20, profile_path: str = None, preferences: list[tuple[str, str]] = [], extensions: list[str] = [], **kwargs):
-        super().__init__(camera_id, microphone_id, timeout, profile_path, preferences, extensions, **kwargs)
+
+    def __init__(self,
+                 camera_id: int,
+                 microphone_id: int,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super().__init__(camera_id, microphone_id, timeout, profile_path,
+                         preferences, extensions, **kwargs)
 
     def create_meetting(self) -> str:
         self.load('https://meet.google.com/',
-                    locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
+                  locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
         self._driver.find_element(
             By.XPATH,
             "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[1]/div/button/span"
@@ -223,13 +233,21 @@ class GMeetHost(GMeet):
             time.sleep(5)
             try:
                 if self._driver.find_element(
-                    By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]'):
-                    self._driver.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]').click()
+                        By.XPATH,
+                        '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]'
+                ):
+                    self._driver.find_element(
+                        By.XPATH,
+                        '/html/body/div[1]/div[3]/div[2]/div/div[2]/div/div[2]/button[2]'
+                    ).click()
                     logging.info("Accepted guest")
                     return True
                 if self._driver.find_element(
-                    By.CSS_SELECTOR, "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
-                    self._driver.find_element(By.CSS_SELECTOR, "[data-mdc-dialog-action='accept']").click()
+                        By.CSS_SELECTOR,
+                        "[class='VfPpkd-BFbNVe-bF1uUb NZp2ef']"):
+                    self._driver.find_element(
+                        By.CSS_SELECTOR,
+                        "[data-mdc-dialog-action='accept']").click()
                     logging.info("Accepted guest")
                     return True
             except ElementNotInteractableException or NoSuchElementException:
@@ -237,11 +255,20 @@ class GMeetHost(GMeet):
         logging.error("Unable to accept guest")
         return False
 
-        
+
 class GMeetGuest(GMeet):
-    def __init__(self, camera_id: int, microphone_id: int, timeout: int = 20, profile_path: str = None, preferences: list[tuple[str, str]] = [], extensions: list[str] = [], **kwargs):
-        super().__init__(camera_id, microphone_id, timeout, profile_path, preferences, extensions, **kwargs)
-        
+
+    def __init__(self,
+                 camera_id: int,
+                 microphone_id: int,
+                 timeout: int = 20,
+                 profile_path: str = None,
+                 preferences: list[tuple[str, str]] = [],
+                 extensions: list[str] = [],
+                 **kwargs):
+        super().__init__(camera_id, microphone_id, timeout, profile_path,
+                         preferences, extensions, **kwargs)
+
     def join_meeting(self, url_invite, retry=5) -> bool:
         # find the element for joining the meeting
         self.is_host = False
@@ -282,61 +309,86 @@ class GDriveDownloader(PageLoader):
                  preferences: list[tuple[str, str]] = [],
                  extensions: list[str] = [],
                  **kwargs):
-        
+
         # check if it is absolute path or relative path
-        mkdir_by_path(mkpath_abs(download_folder))
-        
-        self.preferences = preferences.extend[('browser.link.open_newwindow', 1),
-                                              ('browser.download.folderList', 2), 
-                                              ('browser.download.dir', 'download_folder'),
-                                              ('browser.download.manager.showWhenStarting', False), 
-                                              ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')]
-        
-        super(GDriveDownloader, self).__init__(
-            None, timeout, profile_path,
-            preferences, extensions, **kwargs
-        )
+        self.download_folder = mkdir_by_path(mkpath_abs(download_folder))
+        self.preferences = preferences.extend[(
+            'browser.link.open_newwindow',
+            1), ('browser.download.folderList',
+                 2), ('browser.download.dir', 'download_folder'), (
+                     'browser.download.manager.showWhenStarting',
+                     False), ('browser.helperApps.neverAsk.saveToDisk',
+                              'application/octet-stream')]
+
+        super(GDriveDownloader,
+              self).__init__(None, timeout, profile_path, preferences,
+                             extensions, **kwargs)
 
         self.filesize: tuple[float, str] = None
         self.filename: str = None
-        
+
         self.download_folder = download_folder
         self.start_driver()
         if url:
             self.load(url)
 
-
-    
     def load(self, url) -> None:
         if 'drive.google.com' in url:
-            super().load(url,(By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe'))
-            self._driver.find_element(By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe').click()            
+            super().load(
+                url, (By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe'))
+            self._driver.find_element(
+                By.CSS_SELECTOR,
+                '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe').click()
             try:
                 WebDriverWait(self._driver, self.timeout).until(
-                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.uc-name-size')))
-                
-                file_info = self._driver.find_element(By.CSS_SELECTOR, '.uc-name-size').text   
-                self.filesize = re.compile(r'\((\d+)([A-Z]+)\)').findall(file_info)[0]
-                self.filename = re.compile(r'(.*)\s\(').findall(file_info)[0]         
+                    EC.presence_of_all_elements_located(
+                        (By.CSS_SELECTOR, '.uc-name-size')))
+
+                file_info = self._driver.find_element(By.CSS_SELECTOR,
+                                                      '.uc-name-size').text
+                self.filesize = re.compile(r'\((\d+)([A-Z]+)\)').findall(
+                    file_info)[0]
+                value, unit = re.compile(r'(.*)\s\(').findall(file_info)[0]
+                self.filesize = (float(value), unit)
             except TimeoutException or NoSuchElementException:
-                logging.error('Unable to get file info or file is not available')
+                logging.error(
+                    'Unable to get file info or file is not available')
                 return
         else:
             logging.error('Not a valid google drive url')
 
     @property
-    def is_finished(self) -> bool:
-        pass
-    
+    def finished(self) -> bool:
+        '''
+        Check if the download is finished file size is greater than or equal to the file size in the url
+        return: True if the download is finished else False
+        '''
+        if self.filesize:
+            file_size = os.path.getsize(
+                f"{self.download_folder}/{self.filename}")
+            if self.filesize[1] == 'GB':
+                if file_size >= self.filesize[0] * 1024 * 1024 * 1024:
+                    return True
+            if self.filesize[1] == 'MB':
+                if file_size >= self.filesize[0] * 1024 * 1024:
+                    return True
+            elif self.filesize[1] == 'KB':
+                if file_size >= self.filesize[0] * 1024:
+                    return True
+            elif self.filesize[1] == 'B':
+                if file_size >= self.filesize[0]:
+                    return True
+        return False
+
     def download(self) -> str:
         try:
             self._driver.find_element(By.ID, 'uc-download-link').click()
         except NoSuchElementException:
-            logging.error('Unable to find download button')    
+            logging.error('Unable to find download button')
 
     def clean_download(self) -> None:
         # delete all files in download folder
-        for file in os.listdir(self.download_folder):
+        for file in ls_file_in_current_folder(self.download_folder):
             os.remove(f"{self.download_folder}/{file}")
 
 
@@ -420,15 +472,17 @@ class GmailPageLoader(PageLoader):
     def send_mail(self, email: str, context: str, message: str):
         try:
             # Click compose button
-            self._driver.find_element(By.CSS_SELECTOR, '.T-I.J-J5-Ji.T-I-KE.L3').click()
-            
+            self._driver.find_element(By.CSS_SELECTOR,
+                                      '.T-I.J-J5-Ji.T-I-KE.L3').click()
+
             # Enter email address, content, message
             self._driver.find_element(By.NAME, 'to').send_keys(email)
             self._driver.find_element(By.NAME, 'subjectbox').send_keys(context)
-            self._driver.find_element(By.CSS_SELECTOR, '.Am.Al.editable.LW-avf').send_keys(message)
+            self._driver.find_element(
+                By.CSS_SELECTOR, '.Am.Al.editable.LW-avf').send_keys(message)
 
             # Click send email
-            self._driver.find_element(By.CSS_SELECTOR, '.T-I.J-J5-Ji.aoO.T-I-atl.L3').click()
+            self._driver.find_element(By.CSS_SELECTOR,
+                                      '.T-I.J-J5-Ji.aoO.T-I-atl.L3').click()
         except AttributeError:
             logging.error('Required to load() first')
-        
