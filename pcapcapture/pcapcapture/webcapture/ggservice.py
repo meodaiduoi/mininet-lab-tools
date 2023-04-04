@@ -312,13 +312,13 @@ class GDriveDownloader(PageLoader):
 
         # check if it is absolute path or relative path
         self.download_folder = mkdir_by_path(mkpath_abs(download_folder))
-        self.preferences = preferences.extend[(
-            'browser.link.open_newwindow',
-            1), ('browser.download.folderList',
-                 2), ('browser.download.dir', 'download_folder'), (
-                     'browser.download.manager.showWhenStarting',
-                     False), ('browser.helperApps.neverAsk.saveToDisk',
-                              'application/octet-stream')]
+        self.preferences = preferences.extend[
+            ('browser.link.open_newwindow',1),
+            ('browser.download.folderList',2),
+            ('browser.download.dir', 'download_folder'),
+            ('browser.download.manager.showWhenStarting',False),
+            ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
+        ]
 
         super(GDriveDownloader,
               self).__init__(None, timeout, profile_path, preferences,

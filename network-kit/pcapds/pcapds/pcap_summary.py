@@ -43,10 +43,10 @@ def main():
             logging.info(f"Sumarizing {pcap_filepath} to {export_summarypath}")
 
         for task in concurrent.futures.as_completed(tasks):
-            result = task.result()   
+            result = task.result()
             logging.info(f'Finished sumarizing: {result[1]}')
 
-        
+
 if __name__ == "__main__":
     try:
         try:
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         except tomli.TOMLDecodeError:
             logging.critical("Decoding error TOML file.")
             sys.exit(1)
-        
+
         parser = arg.ArgumentParser()
         parser.add_argument("-o", "--overide", default=0, type=int)
         args = parser.parse_args()
