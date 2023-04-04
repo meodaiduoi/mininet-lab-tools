@@ -4,8 +4,12 @@ import re, functools
 import numpy as np
 import pandas as pd
 
-def ls_file_in_current_folder(path) -> list[str]:
-    return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+def ls_file_in_current_folder(path, except_ext: list[str]=[]) -> list[str]:
+    if except_ext:
+        return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and os.path.splitext(f)[1] not in except_ext]
+    else:
+        return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+    # return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 
 def ls_folder_in_current_folder(path) -> list[str]:
     return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
@@ -33,6 +37,19 @@ def ls_subfolders(rootdir) -> list[str]:
         for name in files:
             sub_folders_n_files.append(os.path.join(path, name))
     return sorted(sub_folders_n_files)
+
+# if ext is empty, return all files
+def ls_subfolders_ext(rootdir, ext: list[str] = []) -> list[str]:
+    sub_folders_n_files = []
+    for path, _, files in os.walk(rootdir):
+        for name in files:
+            if ext:
+                if os.path.splitext(name)[1] in ext:
+                    sub_folders_n_files.append(os.path.join(path, name))
+            else:
+                sub_folders_n_files.append(os.path.join(path, name))
+    return sorted(sub_folders_n_files)
+
 
 def ls_protocol(file):
     result, err = subprocess.Popen(

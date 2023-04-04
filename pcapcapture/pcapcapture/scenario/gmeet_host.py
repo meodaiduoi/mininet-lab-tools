@@ -1,4 +1,3 @@
-import pyvirtualcam as pvc
 import tomli
 import sys, os
 import logging
@@ -6,6 +5,7 @@ import pandas as pd
 import numpy as np
 import time
 import random
+import requests as rq
 
 try:
     with open('config.toml', 'rb') as f:
@@ -19,14 +19,6 @@ try:
 except FileNotFoundError:
     logging.critical('Config file not found')
     os._exit(1)
-
-def main():
-    with pvc.Camera(width=640, height=480, fps=20) as cam:
-        print(f'Using virtual camera: {cam.device}')
-        while True:
-            frame = cam.frames_sent
-            cam.send(np.zeros((480, 640, 4), np.uint8))
-            print(f'Sent frame {frame}')
 
 # Code start from here
 from webcapture.pcapcapture import *
@@ -53,29 +45,29 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load meethost
-            meethost = GMeetHost()
+            mhost = GMeetHost()
             capture.capture(interface, f'{file_path}.pcap')
 
-            meethost.create_meetting()
+            mhost.create_meetting()
 
-            if meethost.accept_guest() == True:
-                meethost.accept_guest()
+            if mhost.accept_guest() == True:
+                mhost.accept_guest()
             else:
                 logging.error('no member join')
 
             # Turn off capture and driver
             capture.terminate()
-            meethost.close_driver()
+            mhost.close_driver()
 
     except KeyboardInterrupt:
-        meethost.close_driver()
+        mhost.close_driver()
         capture.terminate()
         capture.clean_up()
         # logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
         sys.exit(0)
 
     except Exception as e:
-        meethost.close_driver()
+        mhost.close_driver()
         capture.terminate()
         capture.clean_up()
         # logging.critical(f'Error at: {url} and {file_path}')

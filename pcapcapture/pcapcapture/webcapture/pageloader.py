@@ -31,7 +31,7 @@ class PageLoader():
                  extensions: list[str] = [],
                  **kwargs):
         self.locator = locator
-        self.delay = timeout
+        self.timeout = timeout
         self.profile_path = profile_path
         self.preferences = preferences  # [(preference_name, preference_value),../]
         self.extensions = extensions  # [addon_paths]
@@ -39,43 +39,43 @@ class PageLoader():
 
         self.options: list[str] = kwargs.get('options', [])
 
-        if screen_size := kwargs.get('screen_size', [(1280, 720)]):
-            # check screen_size is vaild and not negative
-            if isinstance(screen_size, list) and \
-               (len(screen_size) <= 2 or len(screen_size) >= 1) \
-               and all(isinstance(x, int) for x in screen_size) and all(x > 0 for x in screen_size):
+        # Temporaly disable screen size randomization
+        # if screen_size := kwargs.get('screen_size', [(1280, 720)]):
+        #     # check screen_size is vaild and not negative
+        #     if isinstance(screen_size, list) and \
+        #        (len(screen_size) <= 2 or len(screen_size) >= 1) \
+        #        and all(isinstance(x, int) for x in screen_size) and all(x > 0 for x in screen_size):
 
-                if len(screen_size) > 1:
-                    # make screensize random in range:
-                    self.options += [
-                        f'--width={random.randint(screen_size[0], screen_size[1])}',
-                        f'--height={random.randint(screen_size[0], screen_size[1])}'
-                    ]
-                if len(screen_size) == 1:
-                    self.options += [
-                        f'--width={screen_size[0]}',
-                        f'--height={screen_size[1]}'
-                    ]
-                # !TODO: make logging also print random
-                logging.info(f'screen_size set to {screen_size}')
+        #         if len(screen_size) > 1:
+        #             # make screensize random in range:
+        #             self.options += [
+        #                 f'--width={random.randint(screen_size[0], screen_size[1])}',
+        #                 f'--height={random.randint(screen_size[0], screen_size[1])}'
+        #             ]
+        #         if len(screen_size) == 1:
+        #             self.options += [
+        #                 f'--width={screen_size[0]}',
+        #                 f'--height={screen_size[1]}'
+        #             ]
+        #         # !TODO: make logging also print random
+        #         logging.info(f'screen_size set to {screen_size}')
 
-            else:
-                logging.error('screen_size must be a list of 2 integers')
+        #     else:
+        #         logging.error('screen_size must be a list of 2 integers')
 
         if kwargs.get('disable_cache', False):
-            self.preferences += [('browser.cache.disk.enable', False),
-                                 ('browser.cache.memory.enable', False),
-                                 ('browser.cache.offline.enable', False),
-                                 ('network.cookie.cookieBehavior', 5)]
+            self.preferences.extend([('browser.cache.disk.enable', False),
+                                     ('browser.cache.memory.enable', False),
+                                     ('browser.cache.offline.enable', False),
+                                     ('network.cookie.cookieBehavior', 5)])
 
         if kwargs.get('disable_http3', False):
-            self.preferences += [('network.http.http3.enable', False)]
+            self.preferences.extend(('network.http.http3.enable', False))
 
         if kwargs.get('fake_useragent', False):
-            self.preferences += [('general.useragent.override',
-                                  UserAgent().random)("dom.webdriver.enabled",
-                                                      False),
-                                 ('useAutomationExtension', False)]
+            self.preferences.extend([('general.useragent.override', UserAgent().random),
+                                     ("dom.webdriver.enabled", False),
+                                     ('useAutomationExtension', False)])
 
     def start_driver(self):
         self.firefox_profile = FirefoxProfile()
@@ -88,6 +88,10 @@ class PageLoader():
             self.firefox_profile.add_extension(extension)
         for option in self.options:
             self.firefox_option.add_argument(option)
+        logging.debug(f'Firefox profile: {self.firefox_profile.path}')
+        logging.debug(f'Firefox options: {self.options}')
+        logging.debug(f'Firefox preferences: {self.preferences}')
+        logging.debug(f'Firefox extensions: {self.extensions}')
         self._driver = Firefox(self.firefox_profile,
                                options=self.firefox_option)
 
@@ -97,10 +101,10 @@ class PageLoader():
         try:
             self._driver.get(url)
             if self.locator:
-                WebDriverWait(self._driver, self.delay).until(
+                WebDriverWait(self._driver, self.timeout).until(
                     EC.presence_of_element_located(self.locator))
             if not self.locator:
-                WebDriverWait(self._driver, self.delay).until(
+                WebDriverWait(self._driver, self.timeout).until(
                     EC.presence_of_element_located((By.TAG_NAME, 'html')))
             logging.info("Page is ready!")
 

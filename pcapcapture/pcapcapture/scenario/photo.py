@@ -62,26 +62,21 @@ if __name__ == '__main__':
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
             
-            try:
-                times = 0
-                if desc == 'Image':
-                    photo.arrow_click('RIGHT')
-                    time.sleep(random.randint(2,3))
-                    times = times + 1
-                    if times == random.randint(50, 100):
-                        capture.terminate()
-                        photo.close_driver()
-            except:
-                logging.error(f'Error at: {url}')
-                
-            try:
-                if desc == 'Album':
-                    photo.scroll_slowly_to_bottom(random.randint(300,400), random.randrange(1,2))
+            times = 0
+            if desc == 'Image':
+                photo.arrow_click('RIGHT')
+                time.sleep(random.randint(2,3))
+                times = times + 1
+                if times == random.randint(50, 100):
                     capture.terminate()
                     photo.close_driver()
-            except:
-                logging.error(f'Error at: {url}')
-
+            
+            if desc == 'Album':
+                photo.scroll_slowly_to_bottom(random.randint(300,400), random.randrange(1,2))
+                capture.terminate()
+                photo.close_driver()
+            
+                
             # Select any images (random)
             # Next about 200 images and finish capture
             # Load new album and scroll

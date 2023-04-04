@@ -30,7 +30,7 @@ def main():
     if not os.path.exists(temp_path):
         os.makedirs(temp_path)
 
-    for pcap_filepath in ls_subfolders(PCAP_PATH):
+    for pcap_filepath in ls_subfolders_ext(pcap_path, '.pcap'):
         # create export path        
         export_filepath = os.path.splitext(os.path.join(export_path, pcap_filepath[len(pcap_path)+1:]))[0]
         export_filename = os.path.basename(export_filepath)

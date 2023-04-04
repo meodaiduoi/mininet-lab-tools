@@ -1,5 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
@@ -284,28 +286,53 @@ class GDriveDownloader(PageLoader):
         # check if it is absolute path or relative path
         mkdir_by_path(mkpath_abs(download_folder))
         
-        self.preferences += preferences + [('browser.download.folderList', 2), 
-                                           ('browser.download.dir', 'download_folder'),
-                                           ('browser.download.manager.showWhenStarting', False), 
-                                           ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')]
+        self.preferences = preferences.extend[('browser.link.open_newwindow', 1),
+                                              ('browser.download.folderList', 2), 
+                                              ('browser.download.dir', 'download_folder'),
+                                              ('browser.download.manager.showWhenStarting', False), 
+                                              ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')]
         
         super(GDriveDownloader, self).__init__(
-            (By.ID, 'uc-download-link'), timeout, profile_path,
-            preferences, extensions, **kwargs)
+            None, timeout, profile_path,
+            preferences, extensions, **kwargs
+        )
 
+        self.filesize: tuple[float, str] = None
+        self.filename: str = None
+        
         self.download_folder = download_folder
         self.start_driver()
         if url:
             self.load(url)
 
+
+    
     def load(self, url) -> None:
         if 'drive.google.com' in url:
-            super().load(url)
+            super().load(url,(By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe'))
+            self._driver.find_element(By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe').click()            
+            try:
+                WebDriverWait(self._driver, self.timeout).until(
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.uc-name-size')))
+                
+                file_info = self._driver.find_element(By.CSS_SELECTOR, '.uc-name-size').text   
+                self.filesize = re.compile(r'\((\d+)([A-Z]+)\)').findall(file_info)[0]
+                self.filename = re.compile(r'(.*)\s\(').findall(file_info)[0]         
+            except TimeoutException or NoSuchElementException:
+                logging.error('Unable to get file info or file is not available')
+                return
         else:
             logging.error('Not a valid google drive url')
 
-    def download(self) -> None:
-        self._driver.find_element(By.ID, 'uc-download-link').click()
+    @property
+    def is_finished(self) -> bool:
+        pass
+    
+    def download(self) -> str:
+        try:
+            self._driver.find_element(By.ID, 'uc-download-link').click()
+        except NoSuchElementException:
+            logging.error('Unable to find download button')    
 
     def clean_download(self) -> None:
         # delete all files in download folder
