@@ -1,7 +1,7 @@
 # move interface to enviroment
 [enviroment]
 interface = '' # Default to main
-store_path = '~/Desktop/test'
+store_path = '~/Desktop/rawpcap'
 profile_path = '/home/onos/Desktop/selenium-user' 
 nohttp3_profile_path = '/home/onos/Desktop/selenium-user-nohttp3'
 
