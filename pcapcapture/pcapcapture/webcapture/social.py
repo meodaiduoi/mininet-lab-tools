@@ -68,7 +68,7 @@ class FacebookVideo(PageLoader):
             super().load(url, (By.CSS_SELECTOR, 'svg.x9f619'))
         if ('facebook.com' and 'video') in url:
             self.page_type = 'video'
-            super().load(url, (By.CSS_SELECTOR, "div[data-testid='video_player'"))
+            super().load(url, (By.CSS_SELECTOR, "i.x14yjl9h > div:nth-child(1) > i:nth-child(1)"))
             self._video_play()
         else:
             logging.error('Not a valid facebook url')
@@ -76,8 +76,8 @@ class FacebookVideo(PageLoader):
     def _video_play(self):
         try:
             self._driver.find_element(
-                (By.XPATH), 
-                '/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[1]/div[1]/div/div/div[1]/div/div/div/div/div/div/div[2]/div/div[2]'
+                (By.CSS_SELECTOR), 
+                'i.x14yjl9h > div:nth-child(1) > i:nth-child(1)'
             ).click()
         except AttributeError or ElementNotInteractableException or ElementClickInterceptedException or NoSuchElementException:
             logging.error("Video unplayable")
