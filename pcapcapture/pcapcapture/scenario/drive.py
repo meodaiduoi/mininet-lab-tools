@@ -65,11 +65,14 @@ if __name__ == '__main__':
 
             # Interact with Drive
             drive.download()
-            drive.clean_download()
+            drive.finished()
 
             # Turn off capture and driver
             capture.terminate()
             drive.close_driver()
+
+            # Remove file download
+            drive.clean_download()
 
     except KeyboardInterrupt:
         drive.close_driver()
