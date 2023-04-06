@@ -101,6 +101,43 @@ class FacebookVideo(PageLoader):
         except AttributeError or ElementNotInteractableException or ElementClickInterceptedException or NoSuchElementException:
             logging.error("Video unplayable")
     
+    @property
+    def buffer_progress(self):
+        '''
+        Return the video bufferring progress as a float between 0 and 1
+        '''
+        try:
+            if self.page_type == 'video':
+                buffer = self._driver.find_element(By.CSS_SELECTOR, '.x17j41np').get_attribute('style')
+                return float(buffer.split(':')[1].split('%')[0]) / 100
+            if self.page_type == 'watch':
+                buffer =  self._driver.find_element(
+                    By.CSS_SELECTOR, 
+                    'div.x1d8287x:nth-child(4) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)').get_attribute('style')
+            return float(buffer.split(':')[1].split('%')[0]) / 100
+        except NoSuchElementException:
+            logging.error('No video')
+        except AttributeError:
+            logging.error('Required to load() first')
+    
+    @property
+    def current_video_progress(self):
+        '''
+        Returns the current video progress as a float between 0 and 1
+        '''
+        try:
+            if self.page_type == 'video':
+                progress = self._driver.find_element(By.CSS_SELECTOR, '.x1evw4sf').get_attribute('style')
+            if self.page_type == 'watch':
+                progress = self._driver.find_element(
+                    By.CSS_SELECTOR, 
+                    'div.x1d8287x:nth-child(4) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)').get_attribute('style')
+            return float(progress.split(':')[1].split('%')[0]) / 100
+        except NoSuchElementException:
+            logging.error('No video')
+        except AttributeError:
+            logging.error('Required to load() first')
+    
     def fast_forward(self):
         self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
         
