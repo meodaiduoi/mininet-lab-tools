@@ -39,8 +39,11 @@ class TiktokLoader(PageLoader):
         else:
             logging.error('Not a valid tiktok url')
             
-    def send_down_key(self):
-        self._driver.find_element(By.ID, 'main-content-video_detail').send_keys(Keys.DOWN)
+    def next_video(self):
+        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.DOWN)
+
+    def previous_video(self):
+        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.UP)
 
     @property
     def captcha_block(self):
@@ -97,7 +100,16 @@ class FacebookVideo(PageLoader):
             ).click()
         except AttributeError or ElementNotInteractableException or ElementClickInterceptedException or NoSuchElementException:
             logging.error("Video unplayable")
-            
+    
+    def fast_forward(self):
+        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
+        
+    def rewind(self):
+        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.LEFT)
+    
+    def play_or_pause(self):
+        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.SPACE)
+    
     # def _video_play(self):
     #     try:
     #         if self._driver.find_element(
