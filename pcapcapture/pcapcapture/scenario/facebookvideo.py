@@ -44,11 +44,11 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
 
             capture = AsyncQUICTrafficCapture()
-            filename = f'{desc}_{time.time_ns()}'
+            filename = f'{desc}'
             filepath = os.path.join(pcapstore_path, filename)
             
             if os.path.exists(f'{filepath}.pcap'):
-                logging.warning(f'File {filepath} already exist')
+                logging.warning(f'File {filepath}.pcap already exist, skipping...')
                 continue
             
             # Save ssl key to file
@@ -56,14 +56,16 @@ if __name__ == '__main__':
 
             # Load facebook
             logging.info(f'Starting capture {url} to {filepath}.pcap')
-            facebook = FacebookVideo(disable_cache=True, profile_path=profile_path)
+            facebook = FacebookVideo(disable_cache=True, 
+                                     profile_path=profile_path
+                                     fake_useragent=True)
 
             facebook.load(url)
             capture.capture(interface, f'{filepath}.pcap')
 
             while facebook.buffer_progress < 0.95:
                 facebook.fast_forward()
-                time.sleep(3)
+                time.sleep(2)
                 if facebook.video_progress > 0.95:
                     break
                 

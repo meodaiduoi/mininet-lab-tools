@@ -77,6 +77,8 @@ url_list = './common-res/facebook.csv'
 
 [tiktok]
 url_list = './common-res/tiktok.csv'
+min_page = 20
+max_page = 35
 
 [helloworld-capture]
 url_list = './common-res/youtube.csv'

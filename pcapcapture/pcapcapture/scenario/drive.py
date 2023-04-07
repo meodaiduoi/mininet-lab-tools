@@ -55,7 +55,7 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
             
             if os.path.exists(f'{filepath}.pcap'):
-                logging.warning(f'File {filepath} already exist')
+                logging.warning(f'File {filepath}.pcap already exist, skipping...')
                 continue
             
             # Load drive 

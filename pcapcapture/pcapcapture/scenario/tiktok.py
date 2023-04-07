@@ -13,7 +13,10 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
+        
         url_list = config['tiktok']['url_list']
+        min_page = config['tiktok']['min_page']
+        max_page = config['tiktok']['max_page']
         sys.path.insert(1, '../' )
 except FileNotFoundError:
     print('Config file not found')
@@ -48,30 +51,32 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
 
             filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
+            filepath = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Init driver and capture object
-            logging.info(f'Starting capture {url} to {file_path}')
-            tiktok = TiktokLoader(profile_path=profile_path)
-            capture = AsyncHTTPTrafficCapture()
+            logging.info(f'Starting capture {url} to {filepath}.pcap')
+            tiktok = TiktokLoader(url, profile_path=profile_path, fake_useragent=True)
+            
+            while True:
+                if tiktok.captcha_block:
+                    input('Please solve captcha and press enter to continue')    
+                else:
+                    break
 
             # Load tiktok page and start capture
-            capture.capture(interface, f'{file_path}.pcap')
-            tiktok.load(url)
-            
-            # start_time = time.time()
-            # timer = 0
+            capture = AsyncHTTPTrafficCapture()
+            tiktok.next_video()
+            capture.capture(interface, f'{filepath}.pcap')
     
-            tiktok.play()
             # Load about 20-30 vid change url
-            for i in range(20):
-                tiktok.arrow_click('DOWN')
-                time.sleep(20)
-
-            # timer = time.time() - start_time
-
+            for i in range(random.randint(min_page, max_page)):
+                tiktok.next_video()
+                if tiktok.captcha_block:
+                    break
+                time.sleep(random.randint(10, 30))
+                
             # Turn off capture and driver
             capture.terminate()
             tiktok.close_driver()
@@ -80,12 +85,12 @@ if __name__ == '__main__':
         tiktok.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
+        logging.error(f'Keyboard Interrupt at: {url} and {filepath}')
         sys.exit(0)
 
     except Exception as e:
         tiktok.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.critical(f'Error at: {url} and {file_path}')
+        logging.critical(f'Error at: {url} and {filepath}')
         raise e
