@@ -29,13 +29,13 @@ from webcapture.utils import *
 if __name__ == '__main__':
     try:
         # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Facebook') 
-        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'WEB', 'Facebook', 'SSLKEYLOG')
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'FacebookVideo') 
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'FacebookVideo', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
 
         # Create logger
-        logging.basicConfig(filename=os.path.join(pcapstore_path, f'Facebook_{time.time_ns()}.log'), 
+        logging.basicConfig(filename=os.path.join(pcapstore_path, f'FacebookVideo_{time.time_ns()}.log'), 
                             level=log_level, format="%(asctime)s %(message)s")
 
         # Load link from csv file
@@ -43,36 +43,44 @@ if __name__ == '__main__':
 
         for desc, url in zip(df_link['description'], df_link['url']):
 
-            # capture = AsyncQUICTrafficCapture()
+            capture = AsyncQUICTrafficCapture()
             filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
+            filepath = os.path.join(pcapstore_path, filename)
+            
+            if os.path.exists(f'{filepath}.pcap'):
+                logging.warning(f'File {filepath} already exist')
+                continue
+            
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load facebook
-            logging.info(f'Starting capture {url} to {file_path}')
+            logging.info(f'Starting capture {url} to {filepath}.pcap')
             facebook = FacebookVideo(disable_cache=True, profile_path=profile_path)
 
             facebook.load(url)
-            # capture.capture(interface, f'{file_path}.pcap')
+            capture.capture(interface, f'{filepath}.pcap')
 
-            time.sleep(120)
-            # facebook.play()
-
+            while facebook.buffer_progress < 0.95:
+                facebook.fast_forward()
+                if facebook.video_progress > 0.95:
+                    break
+                time.sleep(3)
+                
             # Turn off capture and driver
-            # capture.terminate()
+            capture.terminate()
             facebook.close_driver()
 
     except KeyboardInterrupt:
         facebook.close_driver()
-        # capture.terminate()
-        # capture.clean_up()
-        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
+        capture.terminate()
+        capture.clean_up()
+        logging.error(f'Keyboard Interrupt at: {url} and {filepath}')
         sys.exit(0)
 
     except Exception as e:
         facebook.close_driver()
-        # capture.terminate()
-        # capture.clean_up()
-        logging.critical(f'Error at: {url} and {file_path}')
+        capture.terminate()
+        capture.clean_up()
+        logging.critical(f'Error at: {url} and {filepath}')
         raise e

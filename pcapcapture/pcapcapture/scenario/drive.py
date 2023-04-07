@@ -13,6 +13,7 @@ try:
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['gg-drive']['url_list']
+        timeout = config['gg-drive']['timeout']
         
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -44,29 +45,36 @@ if __name__ == '__main__':
             handlers=handlers
         )
 
-
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
             
             filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
+            filepath = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-
+            
+            if os.path.exists(f'{filepath}.pcap'):
+                logging.warning(f'File {filepath} already exist')
+                continue
+            
             # Load drive 
-            logging.info(f'Starting capture {url} to {file_path}')
+            logging.info(f'Starting capture {url} to {filepath}.pcap')
             drive = GDriveDownloader(profile_path=profile_path)
             drive.load(url)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
-            capture.capture(interface, f'{file_path}.pcap')
+            capture.capture(interface, f'{filepath}.pcap')
 
             # Interact with Drive
             drive.download()
-            drive.finished()
-
+            
+            # TODO: make timeout scale with filesize
+            
+            while True and not drive.finished and timeout > 0:
+                time.sleep(5)
+                timeout -= 5
             # Turn off capture and driver
             capture.terminate()
             drive.close_driver()
@@ -78,12 +86,12 @@ if __name__ == '__main__':
         drive.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
+        logging.error(f'Keyboard Interrupt at: {url} and {filepath}')
         sys.exit(0)
 
     except Exception as e:
         drive.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.critical(f'Error at: {url} and {file_path}')
+        logging.critical(f'Error at: {url} and {filepath}')
         raise e

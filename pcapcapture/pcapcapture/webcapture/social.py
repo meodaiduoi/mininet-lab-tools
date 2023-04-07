@@ -121,7 +121,7 @@ class FacebookVideo(PageLoader):
             logging.error('Required to load() first')
     
     @property
-    def current_video_progress(self):
+    def video_progress(self):
         '''
         Returns the current video progress as a float between 0 and 1
         '''

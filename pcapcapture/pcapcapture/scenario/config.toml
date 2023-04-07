@@ -32,6 +32,7 @@ url_list = './common-res/photos.csv'
 
 [gg-drive]
 url_list = './common-res/gdrive.csv'
+timeout = 1000
 
 [youtube]
 url_list = './common-res/youtube.csv'
