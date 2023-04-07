@@ -63,9 +63,9 @@ if __name__ == '__main__':
 
             while facebook.buffer_progress < 0.95:
                 facebook.fast_forward()
+                time.sleep(3)
                 if facebook.video_progress > 0.95:
                     break
-                time.sleep(3)
                 
             # Turn off capture and driver
             capture.terminate()
