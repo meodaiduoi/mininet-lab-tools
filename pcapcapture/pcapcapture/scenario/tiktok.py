@@ -58,7 +58,8 @@ if __name__ == '__main__':
             # Init driver and capture object
             logging.info(f'Starting capture {url} to {filepath}.pcap')
             tiktok = TiktokLoader(url, profile_path=profile_path, fake_useragent=True)
-            
+             
+            # Check if captcha block
             while True:
                 if tiktok.captcha_block:
                     input('Please solve captcha and press enter to continue')    
@@ -73,6 +74,7 @@ if __name__ == '__main__':
             # Load about 20-30 vid change url
             for i in range(random.randint(min_page, max_page)):
                 tiktok.next_video()
+                # exit if captcha block
                 if tiktok.captcha_block:
                     break
                 time.sleep(random.randint(10, 30))

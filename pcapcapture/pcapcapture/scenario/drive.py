@@ -54,6 +54,7 @@ if __name__ == '__main__':
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
             
+            # Check if file already exist
             if os.path.exists(f'{filepath}.pcap'):
                 logging.warning(f'File {filepath}.pcap already exist, skipping...')
                 continue
@@ -67,14 +68,15 @@ if __name__ == '__main__':
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{filepath}.pcap')
 
-            # Interact with Drive
+            # Download file
             drive.download()
             
             # TODO: make timeout scale with filesize
-            
             while True and not drive.finished and timeout > 0:
                 time.sleep(5)
                 timeout -= 5
+                logging.info(f'Waiting for download to finish, Timeout: {timeout} seconds left')
+
             # Turn off capture and driver
             capture.terminate()
             drive.close_driver()

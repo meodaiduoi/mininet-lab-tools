@@ -334,11 +334,12 @@ class GDriveDownloader(PageLoader):
 
     def load(self, url) -> None:
         if 'drive.google.com' in url:
-            super().load(
-                url, (By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe'))
+            super().load(url, (By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe'))
+            
             self._driver.find_element(
                 By.CSS_SELECTOR,
                 '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe').click()
+            
             try:
                 WebDriverWait(self._driver, self.timeout).until(
                     EC.presence_of_all_elements_located(
@@ -350,6 +351,7 @@ class GDriveDownloader(PageLoader):
                     file_info)[0]
                 value, unit = re.compile(r'(.*)\s\(').findall(file_info)[0]
                 self.filesize = (float(value), unit)
+            
             except TimeoutException or NoSuchElementException:
                 logging.error(
                     'Unable to get file info or file is not available')
