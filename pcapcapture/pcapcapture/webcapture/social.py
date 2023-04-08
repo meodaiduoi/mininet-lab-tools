@@ -139,14 +139,23 @@ class FacebookVideo(PageLoader):
             logging.error('Required to load() first')
     
     def fast_forward(self):
-        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
+        if self.page_type == 'video':
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
+        else: 
+            logging.error('not implemented for watch pages')
         
     def rewind(self):
-        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.LEFT)
+        if self.page_type == 'video':
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.LEFT)
+        else: 
+            logging.error('not implemented for watch pages')
     
     def play_or_pause(self):
-        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.SPACE)
-    
+        if self.page_type == 'video':
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.SPACE)
+        else: 
+            logging.error('not implemented for watch pages')
+
     # def _video_play(self):
     #     try:
     #         if self._driver.find_element(

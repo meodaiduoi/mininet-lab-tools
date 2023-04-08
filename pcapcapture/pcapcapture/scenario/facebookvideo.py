@@ -57,33 +57,33 @@ if __name__ == '__main__':
 
             # Load facebook
             logging.info(f'Starting capture {url} to {filepath}.pcap')
-            facebook = FacebookVideo(disable_cache=True, 
-                                     profile_path=profile_path,
-                                     fake_useragent=True)
+            fbvid = FacebookVideo(disable_cache=True, 
+                                  profile_path=profile_path,
+                                  fake_useragent=True)
 
-            facebook.load(url)
+            fbvid.load(url)
             capture.capture(interface, f'{filepath}.pcap')
 
             # Track progress of current video
-            while facebook.buffer_progress < 0.95:
-                facebook.fast_forward()
+            while fbvid.buffer_progress < 0.95:
+                fbvid.fast_forward()
                 time.sleep(2)
-                if facebook.video_progress > 0.95:
+                if fbvid.video_progress > 0.95:
                     break
                 
             # Turn off capture and driver
             capture.terminate()
-            facebook.close_driver()
+            fbvid.close_driver()
 
     except KeyboardInterrupt:
-        facebook.close_driver()
+        fbvid.close_driver()
         capture.terminate()
         capture.clean_up()
         logging.error(f'Keyboard Interrupt at: {url} and {filepath}')
         sys.exit(0)
 
     except Exception as e:
-        facebook.close_driver()
+        fbvid.close_driver()
         capture.terminate()
         capture.clean_up()
         logging.critical(f'Error at: {url} and {filepath}')
