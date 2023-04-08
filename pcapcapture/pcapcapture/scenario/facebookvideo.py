@@ -58,10 +58,11 @@ if __name__ == '__main__':
             # Load facebook
             logging.info(f'Starting capture {url} to {filepath}.pcap')
             fbvid = FacebookVideo(disable_cache=True, 
-                                  profile_path=profile_path,
-                                  fake_useragent=True)
+                                     profile_path=profile_path,
+                                    )
 
             fbvid.load(url)
+            time.sleep(2)
             capture.capture(interface, f'{filepath}.pcap')
 
             # Track progress of current video
