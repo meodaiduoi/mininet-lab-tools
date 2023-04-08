@@ -27,7 +27,7 @@ def mkdir_by_path(path) -> str:
         if not os.path.exists(path):
             os.makedirs(path)
             logging.info(f'Created directory: {path}')
-            return path
+        return path
     except NotADirectoryError:
         logging.error(f'Not a directory: {path} or already exists as a file')
         return ''

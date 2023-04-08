@@ -27,7 +27,7 @@ class PageLoader():
                  locator=None,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         self.locator = locator

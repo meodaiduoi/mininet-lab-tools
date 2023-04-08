@@ -31,7 +31,7 @@ class YoutubePlayer(PageLoader):
                  url: str = None,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super(YoutubePlayer,
@@ -113,7 +113,7 @@ class YoutubePlaylistFetch(PageLoader):
     def __init__(self,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super(YoutubePlaylistFetch,
@@ -156,16 +156,15 @@ class GMeet(PageLoader):
                  microphone_id: int,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
 
         # !TODO: Change the locator to homepage of meet
-        self.preferences = preferences + [
+        preferences.extend([
             ('media.navigator.permission.disabled', True),
             ('permissions.default.microphone', camera_id),
-            ('permissions.default.camera', microphone_id)
-        ]
+            ('permissions.default.camera', microphone_id)])
 
         self.is_host = None
         super(GMeet, self).__init__(timeout, profile_path, preferences,
@@ -191,7 +190,7 @@ class GMeetHost(GMeet):
                  microphone_id: int,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super().__init__(camera_id, microphone_id, timeout, profile_path,
@@ -263,7 +262,7 @@ class GMeetGuest(GMeet):
                  microphone_id: int,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super().__init__(camera_id, microphone_id, timeout, profile_path,
@@ -306,39 +305,46 @@ class GDriveDownloader(PageLoader):
                  download_folder: str = './temp',
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
 
         # check if it is absolute path or relative path
         self.download_folder = mkdir_by_path(mkpath_abs(download_folder))
-        self.preferences = preferences.extend[
-            ('browser.link.open_newwindow',1),
-            ('browser.download.folderList',2),
-            ('browser.download.dir', 'download_folder'),
-            ('browser.download.manager.showWhenStarting',False),
-            ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')
-        ]
+        preferences.extend([
+            ('browser.link.open_newwindow', 1),
+            ('browser.download.folderList', 2),
+            ('browser.download.dir', f'{self.download_folder}'),
+            ('browser.download.manager.showWhenStarting', False),
+            ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')])
 
-        super(GDriveDownloader,
-              self).__init__(None, timeout, profile_path, preferences,
-                             extensions, **kwargs)
+        print(self.download_folder)
+        super(GDriveDownloader, self).__init__(
+            None, timeout, profile_path, preferences,
+            extensions, **kwargs)
 
         self.filesize: tuple[float, str] = None
         self.filename: str = None
 
-        self.download_folder = download_folder
         self.start_driver()
         if url:
             self.load(url)
 
     def load(self, url) -> None:
         if 'drive.google.com' in url:
-            super().load(url, (By.CSS_SELECTOR, '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe'))
+            super().load(url, (By.CSS_SELECTOR, '.ndfHFb-c4YZDc-Wrql6b-qMHh7d'))
             
-            self._driver.find_element(
+            # if is video file
+            if len(download_btn := self._driver.find_elements(
                 By.CSS_SELECTOR,
-                '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe').click()
+                '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe')) > 0:
+                download_btn[0].click()
+            
+            # if big file
+            if len(download_btn := self._driver.find_elements(
+                By.CSS_SELECTOR, 
+                'div.ndfHFb-c4YZDc-C7uZwb-LgbsSe:nth-child(3)')) > 0:
+                download_btn[0].click()
             
             try:
                 WebDriverWait(self._driver, self.timeout).until(
@@ -347,9 +353,8 @@ class GDriveDownloader(PageLoader):
 
                 file_info = self._driver.find_element(By.CSS_SELECTOR,
                                                       '.uc-name-size').text
-                self.filesize = re.compile(r'\((\d+)([A-Z]+)\)').findall(
-                    file_info)[0]
-                value, unit = re.compile(r'(.*)\s\(').findall(file_info)[0]
+                value, unit = re.compile(r'\((\d+)([A-Z]+)\)').findall(file_info)[0]
+                self.filename = re.compile(r'(.*)\s\(').findall(file_info)[0]
                 self.filesize = (float(value), unit)
             
             except TimeoutException or NoSuchElementException:
@@ -364,22 +369,23 @@ class GDriveDownloader(PageLoader):
         '''
         Check if the download is finished file size is greater than or equal to the file size in the url
         return: True if the download is finished else False
+        currently only support for GB and MB filesize
         '''
         if self.filesize:
             file_size = os.path.getsize(
                 f"{self.download_folder}/{self.filename}")
-            if self.filesize[1] == 'GB':
+            if self.filesize[1] == 'G':
                 if file_size >= self.filesize[0] * 1024 * 1024 * 1024:
                     return True
-            if self.filesize[1] == 'MB':
+            if self.filesize[1] == 'M':
                 if file_size >= self.filesize[0] * 1024 * 1024:
                     return True
-            elif self.filesize[1] == 'KB':
-                if file_size >= self.filesize[0] * 1024:
-                    return True
-            elif self.filesize[1] == 'B':
-                if file_size >= self.filesize[0]:
-                    return True
+            # elif self.filesize[1] == 'KB':
+            #     if file_size >= self.filesize[0] * 1024:
+            #         return True
+            # elif self.filesize[1] == 'B':
+            #     if file_size >= self.filesize[0]:
+            #         return True
         return False
 
     def download(self) -> str:
@@ -400,7 +406,7 @@ class GDocsPageLoader(PageLoader):
                  url=None,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super(GDocsPageLoader,
@@ -432,7 +438,7 @@ class GPhotosPageLoader(PageLoader):
                  url=None,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super(GPhotosPageLoader,
@@ -455,7 +461,7 @@ class GmailPageLoader(PageLoader):
                  url=None,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super(GmailPageLoader,

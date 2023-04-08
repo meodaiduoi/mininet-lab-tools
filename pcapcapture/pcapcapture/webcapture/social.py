@@ -21,7 +21,7 @@ class TiktokLoader(PageLoader):
                  url=None,
                  timeout=20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super(TiktokLoader, self).__init__(
@@ -68,7 +68,7 @@ class FacebookVideo(PageLoader):
                  url=None,
                  timeout: int = 20,
                  profile_path: str = None,
-                 preferences: list[tuple[str, str]] = [],
+                 preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
         super().__init__(None, timeout,

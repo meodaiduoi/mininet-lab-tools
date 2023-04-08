@@ -61,38 +61,40 @@ if __name__ == '__main__':
             
             # Load drive 
             logging.info(f'Starting capture {url} to {filepath}.pcap')
-            drive = GDriveDownloader(profile_path=profile_path)
-            drive.load(url)
+            gdrive = GDriveDownloader(url, profile_path=profile_path)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{filepath}.pcap')
 
             # Download file
-            drive.download()
+            gdrive.download()
             
             # TODO: make timeout scale with filesize
-            while True and not drive.finished and timeout > 0:
+            while True and not gdrive.finished and timeout > 0:
                 time.sleep(5)
                 timeout -= 5
                 logging.info(f'Waiting for download to finish, Timeout: {timeout} seconds left')
 
+            # Remove file download
+            gdrive.clean_download()
+            
             # Turn off capture and driver
             capture.terminate()
-            drive.close_driver()
+            gdrive.close_driver()
 
-            # Remove file download
-            drive.clean_download()
 
     except KeyboardInterrupt:
-        drive.close_driver()
+        gdrive.clean_download()
+        gdrive.close_driver()
         capture.terminate()
         capture.clean_up()
         logging.error(f'Keyboard Interrupt at: {url} and {filepath}')
         sys.exit(0)
 
     except Exception as e:
-        drive.close_driver()
+        gdrive.clean_download()
+        gdrive.close_driver()
         capture.terminate()
         capture.clean_up()
         logging.critical(f'Error at: {url} and {filepath}')
