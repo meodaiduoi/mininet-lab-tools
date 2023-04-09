@@ -4,6 +4,7 @@ import sys, os
 import logging
 import pandas as pd
 import time
+import re
 
 try:
     with open('config.toml', 'rb') as f:
@@ -53,10 +54,13 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Load drive 
+            logging.info(f'Loading {desc} from {url}')
             gdrive = GDriveDownloader(url, temp_dir,
                                       profile_path=profile_path)
             
-            filename = f'{gdrive.filename}_{gdrive.filesize[0]}{gdrive.filesize[1]}'
+            #First parameter is the replacement, second parameter is your input string
+            gdrive_filename = re.sub('[^A-Za-z0-9]+', '_', gdrive.filename)
+            filename = f'{gdrive_filename}_{gdrive.filesize[0]}{gdrive.filesize[1]}'
             filepath = os.path.join(pcapstore_path, filename)
             
             # Save ssl key to file
@@ -77,10 +81,12 @@ if __name__ == '__main__':
             
             # TODO: make timeout scale with filesize
             timeout_countdown = timeout_dl
-            while True and not gdrive.finished and timeout_countdown > 0:
+            while not gdrive.finished and timeout_countdown > 0:
                 time.sleep(5)
                 timeout_countdown -= 5
                 logging.info(f'Waiting for download to finish, Timeout: {timeout_countdown} seconds left')
+                if timeout_countdown == 4900 and gdrive.finished == False:
+                    break
 
             # Remove file download
             gdrive.clean_download()
