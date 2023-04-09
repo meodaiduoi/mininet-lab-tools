@@ -14,7 +14,7 @@ try:
         log_level = config['enviroment']['log_level']
         url_list = config['gdrive']['url_list']
         temp_dir = config['gdrive']['temp_dir']
-        timeout_dl = config['gdrive']['timeout']
+        timeout_dl = config['gdrive']['timeout_dl']
         
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Load drive 
-            gdrive = GDriveDownloader(url, temp_dir, 
+            gdrive = GDriveDownloader(url, temp_dir,
                                       profile_path=profile_path)
             
             filename = f'{gdrive.filename}_{gdrive.filesize[0]}{gdrive.filesize[1]}'
