@@ -309,7 +309,6 @@ class GDriveDownloader(PageLoader):
                  extensions: list[str] = [],
                  **kwargs):
 
-        self.download_folder = download_folder
         # check if the download folder exists
         if not os.path.exists(download_folder):
             raise FileNotFoundError(f'Folder {download_folder} not found')
