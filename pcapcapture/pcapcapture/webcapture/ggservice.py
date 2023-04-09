@@ -309,8 +309,10 @@ class GDriveDownloader(PageLoader):
                  extensions: list[str] = [],
                  **kwargs):
 
-        # check if it is absolute path or relative path
-        self.download_folder = mkdir_by_path(mkpath_abs(download_folder))
+        # check if the download folder exists
+        if not os.path.exists(download_folder):
+            raise FileNotFoundError(f'Folder {download_folder} not found')
+            
         preferences.extend([
             ('browser.link.open_newwindow', 1),
             ('browser.download.folderList', 2),
@@ -318,7 +320,6 @@ class GDriveDownloader(PageLoader):
             ('browser.download.manager.showWhenStarting', False),
             ('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream')])
 
-        print(self.download_folder)
         super(GDriveDownloader, self).__init__(
             None, timeout, profile_path, preferences,
             extensions, **kwargs)

@@ -13,7 +13,8 @@ try:
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         url_list = config['gdrive']['url_list']
-        timeout = config['gdrive']['timeout']
+        temp_dir = config['gdrive']['temp_dir']
+        timeout_dl = config['gdrive']['timeout']
         
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -33,7 +34,7 @@ if __name__ == '__main__':
         sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Drive', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
-
+        temp_dir = mkdir_by_path(mkpath_abs(temp_dir))
         # Create logger
         file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Drive_{time.time_ns()}.log'))
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
@@ -51,6 +52,7 @@ if __name__ == '__main__':
             
             filename = f'{desc}'
             filepath = os.path.join(pcapstore_path, filename)
+            
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
             
@@ -61,7 +63,8 @@ if __name__ == '__main__':
             
             # Load drive 
             logging.info(f'Starting capture {url} to {filepath}.pcap')
-            gdrive = GDriveDownloader(url, profile_path=profile_path)
+            gdrive = GDriveDownloader(url, temp_dir, 
+                                      profile_path=profile_path)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
@@ -71,7 +74,7 @@ if __name__ == '__main__':
             gdrive.download()
             
             # TODO: make timeout scale with filesize
-            timeout_countdown = timeout
+            timeout_countdown = timeout_dl
             while True and not gdrive.finished and timeout_countdown > 0:
                 time.sleep(5)
                 timeout_countdown -= 5
