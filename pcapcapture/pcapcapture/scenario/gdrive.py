@@ -56,7 +56,7 @@ if __name__ == '__main__':
             gdrive = GDriveDownloader(url, temp_dir, 
                                       profile_path=profile_path)
             
-            filename = f'{gdrive.filename}_{gdrive.filesize}'
+            filename = f'{gdrive.filename}_{gdrive.filesize[0]}{gdrive.filesize[1]}'
             filepath = os.path.join(pcapstore_path, filename)
             
             # Save ssl key to file
