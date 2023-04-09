@@ -53,7 +53,7 @@ if __name__ == '__main__':
         for desc, url in zip(df_link['description'], df_link['url']):
             
             # Load drive 
-            gdrive = GDriveDownloader(url, temp_dir, 
+            gdrive = GDriveDownloader(url, temp_dir,
                                       profile_path=profile_path)
             
             filename = f'{gdrive.filename}_{gdrive.filesize[0]}{gdrive.filesize[1]}'
