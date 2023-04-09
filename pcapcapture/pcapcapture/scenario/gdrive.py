@@ -12,8 +12,8 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
-        url_list = config['gg-drive']['url_list']
-        timeout = config['gg-drive']['timeout']
+        url_list = config['gdrive']['url_list']
+        timeout = config['gdrive']['timeout']
         
         # To load module from parent folder
         sys.path.insert(1, '../' )
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
             
-            filename = f'{desc}_{time.time_ns()}'
+            filename = f'{desc}'
             filepath = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
@@ -71,10 +71,11 @@ if __name__ == '__main__':
             gdrive.download()
             
             # TODO: make timeout scale with filesize
-            while True and not gdrive.finished and timeout > 0:
+            timeout_countdown = timeout
+            while True and not gdrive.finished and timeout_countdown > 0:
                 time.sleep(5)
-                timeout -= 5
-                logging.info(f'Waiting for download to finish, Timeout: {timeout} seconds left')
+                timeout_countdown -= 5
+                logging.info(f'Waiting for download to finish, Timeout: {timeout_countdown} seconds left')
 
             # Remove file download
             gdrive.clean_download()

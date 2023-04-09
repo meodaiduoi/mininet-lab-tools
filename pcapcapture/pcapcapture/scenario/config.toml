@@ -30,9 +30,9 @@ url_list = './common-res/photos.csv'
 [gmail]
 
 
-[gg-drive]
+[gdrive]
 url_list = './common-res/drive.csv'
-timeout = 1000
+timeout = 5000
 
 [youtube]
 url_list = './common-res/youtube.csv'
