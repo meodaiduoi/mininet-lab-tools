@@ -14,7 +14,7 @@ try:
         log_level = config['enviroment']['log_level']
         url_list = config['gdrive']['url_list']
         temp_dir = config['gdrive']['temp_dir']
-        timeout_dl = config['gdrive']['timeout']
+        timeout_dl = config['gdrive']['timeout_dl']
         
         # To load module from parent folder
         sys.path.insert(1, '../' )

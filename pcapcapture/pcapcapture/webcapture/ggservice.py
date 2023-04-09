@@ -312,7 +312,9 @@ class GDriveDownloader(PageLoader):
         # check if the download folder exists
         if not os.path.exists(download_folder):
             raise FileNotFoundError(f'Folder {download_folder} not found')
-            
+        
+        self.download_folder = download_folder
+        
         preferences.extend([
             ('browser.link.open_newwindow', 1),
             ('browser.download.folderList', 2),
