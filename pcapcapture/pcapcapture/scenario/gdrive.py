@@ -32,9 +32,11 @@ if __name__ == '__main__':
         # Create folder to store output
         pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Drive') 
         sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'Drive', 'SSLKEYLOG')
+        
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
         temp_dir = mkdir_by_path(mkpath_abs(temp_dir))
+        
         # Create logger
         file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Drive_{time.time_ns()}.log'))
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
@@ -50,7 +52,11 @@ if __name__ == '__main__':
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
             
-            filename = f'{desc}'
+            # Load drive 
+            gdrive = GDriveDownloader(url, temp_dir, 
+                                      profile_path=profile_path)
+            
+            filename = f'{gdrive.filename}_{gdrive.filesize}'
             filepath = os.path.join(pcapstore_path, filename)
             
             # Save ssl key to file
@@ -61,12 +67,8 @@ if __name__ == '__main__':
                 logging.warning(f'File {filepath}.pcap already exist, skipping...')
                 continue
             
-            # Load drive 
-            logging.info(f'Starting capture {url} to {filepath}.pcap')
-            gdrive = GDriveDownloader(url, temp_dir, 
-                                      profile_path=profile_path)
-
             # Start capture
+            logging.info(f'Starting capture {url} to {filepath}.pcap')
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{filepath}.pcap')
 
