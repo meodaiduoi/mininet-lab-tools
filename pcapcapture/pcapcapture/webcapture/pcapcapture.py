@@ -18,13 +18,13 @@ class PcapCapture:
     autostop: A string of the format "duration:60" to stop capturing after 60 seconds
     '''
 
-    def __init__(self, decode_as=None, filter=None, autostop='duration:5', timeout=20):
+    def __init__(self, decode_as=None, filter=None, autostop='duration:5', **kwargs):
 
         self.autostop = autostop
         self.filter = filter
         self.decode_as = decode_as
         self.autostop = autostop
-        self.timeout = timeout
+        self.timeout = kwargs.get('timeout', 120)
 
     def capture(self,
                 interface: str = None,
@@ -122,13 +122,13 @@ class PcapCapture:
 
 class AsyncPcapCapture(PcapCapture):
 
-    def __init__(self, decode_as=None, filter=None):
+    def __init__(self, decode_as=None, filter=None, **kwargs):
         '''
             Allow asynchronous capture allow user interaction while capturing
             There can be only one capture object at a time
             Requires a call to terminate() to stop capturing
         '''
-        super().__init__(decode_as, filter, None)
+        super().__init__(decode_as, filter, None, **kwargs)
         self.process = None
 
     def capture(self,
@@ -202,17 +202,17 @@ class WebTrafficCapture(PcapCapture):
 
 class AsyncQUICTrafficCapture(AsyncPcapCapture):
 
-    def __init__(self):
-        super().__init__(QUIC_DECODE_AS, 'quic')
+    def __init__(self, **kwargs):
+        super().__init__(QUIC_DECODE_AS, 'quic', **kwargs)
 
 
 class AsyncHTTPTrafficCapture(AsyncPcapCapture):
 
-    def __init__(self):
-        super().__init__(filter=HTTP_FILTER)
+    def __init__(self, **kwargs):
+        super().__init__(filter=HTTP_FILTER, **kwargs)
 
 
 class AsyncWebTrafficCapture(AsyncPcapCapture):
 
-    def __init__(self):
-        super().__init__(decode_as=QUIC_DECODE_AS, filter=WEB_FILTER)
+    def __init__(self, **kwargs):
+        super().__init__(decode_as=QUIC_DECODE_AS, filter=WEB_FILTER, **kwargs)
