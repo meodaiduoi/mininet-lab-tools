@@ -6,7 +6,7 @@ from selenium.webdriver.common.keys import Keys
 
 from selenium.webdriver import Firefox, FirefoxOptions
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-
+from selenium.common.exceptions import WebDriverException, NoAlertPresentException
 import time
 import logging
 import random
@@ -192,12 +192,19 @@ class PageLoader():
         self._driver.execute_script(
             "window.indexedDB.deleteDatabase('sessionstorage');")
 
+    # TODO: add force quit mode
     def close_driver(self, quit=False):
         try:
             if quit:
                 self._driver.quit()
+                self._driver = None
+                return
             self._driver.close()
+            # try:
+            #     self._driver.switch_to.alert.accept()
+            # except NoAlertPresentException: pass
             self._driver = None
+            logging.info('Driver closed')
         except AttributeError:
             logging.error('Required to load() first')
 

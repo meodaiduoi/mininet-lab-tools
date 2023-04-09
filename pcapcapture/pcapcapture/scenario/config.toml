@@ -33,7 +33,7 @@ url_list = './common-res/photos.csv'
 [gdrive]
 url_list = './common-res/drive.csv'
 temp_dir = '/home/onos/Desktop/gdrive_temp'
-timeout_dl = 5000
+timeout_dl = 1500
 
 [youtube]
 url_list = './common-res/youtube.csv'

@@ -36,7 +36,6 @@ if __name__ == '__main__':
         
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
-        temp_dir = mkdir_by_path(mkpath_abs(temp_dir))
         
         # Create logger
         file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'Drive_{time.time_ns()}.log'))
@@ -48,7 +47,9 @@ if __name__ == '__main__':
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
-
+        
+        temp_dir = mkdir_by_path(mkpath_abs(temp_dir))
+        
         # Load link from csv file
         df_link = pd.read_csv(url_list)
         for desc, url in zip(df_link['description'], df_link['url']):
@@ -69,6 +70,7 @@ if __name__ == '__main__':
             # Check if file already exist
             if os.path.exists(f'{filepath}.pcap'):
                 logging.warning(f'File {filepath}.pcap already exist, skipping...')
+                gdrive.close_driver()
                 continue
             
             # Start capture
@@ -84,16 +86,15 @@ if __name__ == '__main__':
             while not gdrive.finished and timeout_countdown > 0:
                 time.sleep(5)
                 timeout_countdown -= 5
-                logging.info(f'Waiting for download to finish, Timeout: {timeout_countdown} seconds left')
-                if timeout_countdown == 4900 and gdrive.finished == False:
-                    break
-
-            # Remove file download
-            gdrive.clean_download()
-            
-            # Turn off capture and driver
+                logging.info(f'Download status is_finised: {gdrive.finished}, Timeout: {timeout_countdown} seconds left')
+            logging.info(f'Download {gdrive.filename} {gdrive.filesize} finished')
+                              
+            # Terminate capture
             capture.terminate()
-            gdrive.close_driver()
+            
+            # clean driver and close_driver
+            gdrive.clean_download()
+            gdrive.close_driver(quit=True)
 
 
     except KeyboardInterrupt:

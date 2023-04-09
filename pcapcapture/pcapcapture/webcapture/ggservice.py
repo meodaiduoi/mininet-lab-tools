@@ -368,27 +368,25 @@ class GDriveDownloader(PageLoader):
             logging.error('Not a valid google drive url')
 
     @property
-    def finished(self) -> bool:
+    def finished(self, threshold_ratio=0.85, max_download_filesize=-1) -> bool:
         '''
         Check if the download is finished file size is greater than or equal to the file size in the url
         return: True if the download is finished else False
         currently only support for GB and MB filesize
         '''
         if self.filesize:
-            file_size = os.path.getsize(
+            filesize_in_dir = os.path.getsize(
                 f"{self.download_folder}/{self.filename}")
-            if self.filesize[1] == 'G':
-                if file_size >= self.filesize[0] * 1024 * 1024 * 1024:
-                    return True
-            if self.filesize[1] == 'M':
-                if file_size >= self.filesize[0] * 1024 * 1024:
-                    return True
-            # elif self.filesize[1] == 'KB':
-            #     if file_size >= self.filesize[0] * 1024:
-            #         return True
-            # elif self.filesize[1] == 'B':
-            #     if file_size >= self.filesize[0]:
-            #         return True
+            
+            unit = {
+                'G': 1024 * 1024 * 1024,
+                'M': 1024 * 1024,
+            }
+            
+            filesize_mb = self.filesize[0] * unit[self.filesize[1]]
+            if ((filesize_mb > max_download_filesize and max_download_filesize != -1) or 
+                filesize_in_dir >= filesize_mb * threshold_ratio):
+                return True
         return False
 
     def download(self) -> str:
@@ -399,8 +397,9 @@ class GDriveDownloader(PageLoader):
 
     def clean_download(self) -> None:
         # delete all files in download folder
-        for file in ls_file_in_current_folder(self.download_folder):
-            os.remove(f"{self.download_folder}/{file}")
+        for file in ls_subfolders(self.download_folder):
+            logging.info(f"Deleting {file}")
+            os.remove(file)
 
 
 class GDocsPageLoader(PageLoader):
