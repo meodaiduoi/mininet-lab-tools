@@ -32,6 +32,7 @@ url_list = './common-res/photos.csv'
 
 [gdrive]
 url_list = './common-res/drive.csv'
+url_list2 = './common-res/drive2.csv'
 temp_dir = '/home/onos/Desktop/gdrive_temp'
 timeout_dl = 1500
 
