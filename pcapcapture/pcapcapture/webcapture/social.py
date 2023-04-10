@@ -87,7 +87,7 @@ class FacebookVideo(PageLoader):
                 super().load(url, (By.CSS_SELECTOR, 'svg.x9f619'))
             if 'video' in url:
                 self.page_type = 'video'
-                super().load(url, (By.CSS_SELECTOR, ".xal61yo > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)"))
+                super().load(url, (By.CSS_SELECTOR, ".x1gvwcb > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)"))
                 self._video_play()
         else:
             logging.error('Not a valid facebook url')
