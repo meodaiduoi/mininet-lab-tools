@@ -62,7 +62,7 @@ if __name__ == '__main__':
                                     )
 
             fbvid.load(url)
-            time.sleep(2)
+            time.sleep(3)
             capture.capture(interface, f'{filepath}.pcap')
 
             # Track progress of current video
