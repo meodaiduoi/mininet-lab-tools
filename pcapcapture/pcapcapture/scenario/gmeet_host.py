@@ -44,37 +44,20 @@ if __name__ == '__main__':
         # Save ssl key to file
         os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-<<<<<<< HEAD:pcapcapture/pcapcapture/scenario/gmeet_host.py
-            # Load meethost
-            mhost = GMeetHost()
-            capture.capture(interface, f'{file_path}.pcap')
-
-            mhost.create_meetting()
-
-            if mhost.accept_guest() == True:
-                mhost.accept_guest()
-            else:
-                logging.error('no member join')
-
-            # Turn off capture and driver
-            capture.terminate()
-            mhost.close_driver()
-=======
         # Load meethost
-        meethost = GMeetHost(0,0,50.0)
+        mhost = GMeetHost()
         capture.capture(interface, f'{file_path}.pcap')
 
-        meethost.create_meetting()
+        mhost.create_meetting()
 
-        if meethost.accept_guest() == True:
-            meethost.accept_guest()
+        if mhost.accept_guest() == True:
+            mhost.accept_guest()
         else:
             logging.error('no member join')
 
         # Turn off capture and driver
         capture.terminate()
-        meethost.close_driver()
->>>>>>> 54f9c38017972a625ef466adfe50944c052b257f:pcapcapture/pcapcapture/scenario/meet-host.py
+        mhost.close_driver()
 
     except KeyboardInterrupt:
         mhost.close_driver()

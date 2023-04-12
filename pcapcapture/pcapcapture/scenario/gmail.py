@@ -23,7 +23,7 @@ except FileNotFoundError:
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ggservice import GmailPageLoader
+from webcapture.ggservice import Gmail
 from webcapture.utils import *  
 
 if __name__ == '__main__':
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
         # Init driver and capture object
-        gmail = GmailPageLoader(profile_path=profile_path)
+        gmail = Gmail(profile_path=profile_path)
         capture.capture(interface, f'{file_path}.pcap')
 
         gmail.send_mail('','','')

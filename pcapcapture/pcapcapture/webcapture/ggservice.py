@@ -167,8 +167,11 @@ class GMeet(PageLoader):
             ('permissions.default.camera', microphone_id)])
 
         self.is_host = None
-        super(GMeet, self).__init__(timeout, profile_path, preferences,
-                                    extensions, **kwargs)
+        super(GMeet, self).__init__(
+            None,
+            timeout, profile_path, preferences,
+            extensions, **kwargs
+            )
         self.start_driver()
 
     def leave_meeting(self):
@@ -193,39 +196,42 @@ class GMeetHost(GMeet):
                  preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
-        super().__init__(camera_id, microphone_id, timeout, profile_path,
+        super(GMeetHost, self).__init__(camera_id, microphone_id, timeout, profile_path,
                          preferences, extensions, **kwargs)
 
-    def create_meetting(self) -> str:
+        self._create_meetting()
+
+    def _create_meetting(self) -> str:
         self.load('https://meet.google.com/',
-                  locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
-        self._driver.find_element(
-            By.XPATH,
-            "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[1]/div/button/span"
-        ).click()
-        self._driver.implicitly_wait(2)
-        self._driver.find_element(
-            By.XPATH,
-            "/html/body/c-wiz/div/div[2]/div/div[1]/div[3]/div/div[1]/div[2]/div/ul/li[2]"
-        ).click()
-        self._driver.implicitly_wait(2)
-        for _ in range(5):
-            time.sleep(5)
-            try:
-                if self._driver.find_element(
-                        By.XPATH,
-                        '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
-                ):
-                    self._driver.find_element(
-                        By.XPATH,
-                        '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
-                    ).click()
-                logging.info('Meeting created')
-                return self._driver.current_url
-            except ElementNotInteractableException or NoSuchElementException:
-                pass
-        logging.error('Unable to create meetting')
-        return ''
+                  locator=(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ")) # Create a new meeting button
+        try:
+            self._driver.find_element(
+                By.CSS_SELECTOR,
+                ".VfPpkd-LgbsSe-OWXEXe-k8QpJ"
+            ).click()
+            self._driver.find_element(
+                By.CSS_SELECTOR,
+                ".JS1Zae" # Start an instant meeting button
+            ).click()
+        # for _ in range(5):
+        #     time.sleep(5)
+        #     try:
+        #         if self._driver.find_element(
+        #                 By.XPATH,
+        #                 '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
+        #         ):
+        #             self._driver.find_element(
+        #                 By.XPATH,
+        #                 '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
+        #             ).click()
+        #         logging.info('Meeting created')
+        #         return self._driver.current_url
+        #     except ElementNotInteractableException or NoSuchElementException:
+        #         pass
+        except ElementNotInteractableException or NoSuchElementException:
+            logging.error('Unable to create meetting')
+            return ''
+        return self._driver.current_url
 
     def accept_guest(self, retry=5) -> bool:
         for _ in range(retry):
@@ -312,9 +318,9 @@ class GDriveDownloader(PageLoader):
         # check if the download folder exists
         if not os.path.exists(download_folder):
             raise FileNotFoundError(f'Folder {download_folder} not found')
-        
+
         self.download_folder = download_folder
-        
+
         preferences.extend([
             ('browser.link.open_newwindow', 1),
             ('browser.download.folderList', 2),
@@ -336,19 +342,19 @@ class GDriveDownloader(PageLoader):
     def load(self, url) -> None:
         if 'drive.google.com' in url:
             super().load(url, (By.CSS_SELECTOR, '.ndfHFb-c4YZDc-Wrql6b-qMHh7d'))
-            
+
             # if is video file
             if len(download_btn := self._driver.find_elements(
                 By.CSS_SELECTOR,
                 '.ndfHFb-c4YZDc-bN97Pc-nupQLb-LgbsSe')) > 0:
                 download_btn[0].click()
-            
+
             # if big file
             if len(download_btn := self._driver.find_elements(
-                By.CSS_SELECTOR, 
+                By.CSS_SELECTOR,
                 'div.ndfHFb-c4YZDc-C7uZwb-LgbsSe:nth-child(3)')) > 0:
                 download_btn[0].click()
-            
+
             try:
                 WebDriverWait(self._driver, self.timeout).until(
                     EC.presence_of_all_elements_located(
@@ -359,7 +365,7 @@ class GDriveDownloader(PageLoader):
                 value, unit = re.compile(r'\((\d+)([A-Z]+)\)').findall(file_info)[0]
                 self.filename = re.compile(r'(.*)\s\(').findall(file_info)[0]
                 self.filesize = (float(value), unit)
-            
+
             except TimeoutException or NoSuchElementException:
                 logging.error(
                     'Unable to get file info or file is not available')
@@ -377,14 +383,14 @@ class GDriveDownloader(PageLoader):
         if self.filesize:
             filesize_in_dir = os.path.getsize(
                 f"{self.download_folder}/{self.filename}")
-            
+
             unit = {
                 'G': 1024 * 1024 * 1024,
                 'M': 1024 * 1024,
             }
-            
+
             filesize_mb = self.filesize[0] * unit[self.filesize[1]]
-            if ((filesize_mb > max_download_filesize and max_download_filesize != -1) or 
+            if ((filesize_mb > max_download_filesize and max_download_filesize != -1) or
                 filesize_in_dir >= filesize_mb * threshold_ratio):
                 return True
         return False
@@ -434,7 +440,7 @@ class GDocsPageLoader(PageLoader):
             time.sleep(random.randrange(1, 2))
 
 
-class GPhotosPageLoader(PageLoader):
+class GPhoto(PageLoader):
 
     def __init__(self,
                  url=None,
@@ -443,9 +449,12 @@ class GPhotosPageLoader(PageLoader):
                  preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
-        super(GPhotosPageLoader,
+        super(GPhoto,
               self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout, profile_path,
                              preferences, extensions, **kwargs)
+
+        self.view_mode = None
+
         self.start_driver()
         if url:
             self.load(url)
@@ -453,11 +462,41 @@ class GPhotosPageLoader(PageLoader):
     def load(self, url):
         if 'photos.google.com' in url:
             super().load(url)
+            self.view_mode = 'normal'
         else:
             logging.error('Not a valid google photos url')
 
+    def inspect_image(self) -> bool:
+        '''
+        Click on the image to inspect
+        return: True if image is available else False
+        '''
+        if len(img_element := self._driver.find_elements(By.CLASS_NAME, 'RY3tic')) > 0:
+            img_element[0].click()
+            logging.info('Image is available')
+            self.view_mode = 'inspect'
+            return True
+        logging.error('Image is not available')
+        return False
 
-class GmailPageLoader(PageLoader):
+    def next_inspect_image(self) -> bool:
+        if self.view_mode == 'normal':
+            logging.error('Not in inspect mode')
+            return False
+
+        next_img_btn = self._driver.find_elements(
+                By.XPATH,
+                "//div[contains(@aria-label, 'View next photo')]"
+            )
+        if len(next_img_btn) == 0:
+            logging.error('No more image to inspect')
+            return False
+
+        for i in range(len(next_img_btn)):
+            self._driver.execute_script("arguments[0].click()", next_img_btn[i])
+        return True
+
+class Gmail(PageLoader):
 
     def __init__(self,
                  url=None,
@@ -466,7 +505,7 @@ class GmailPageLoader(PageLoader):
                  preferences: list[tuple[str, ...]] = [],
                  extensions: list[str] = [],
                  **kwargs):
-        super(GmailPageLoader,
+        super(Gmail,
               self).__init__((By.CLASS_NAME, 'V3 aam'), timeout, profile_path,
                              preferences, extensions, **kwargs)
         self.start_driver()

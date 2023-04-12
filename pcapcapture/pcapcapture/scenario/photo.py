@@ -23,7 +23,7 @@ except FileNotFoundError:
 
 # Code start from here
 from webcapture.pcapcapture import *
-from webcapture.ggservice import GPhotosPageLoader
+from webcapture.ggservice import GPhoto
 from webcapture.utils import *        
 
 if __name__ == '__main__':
@@ -55,35 +55,16 @@ if __name__ == '__main__':
 
             # Load photo
             logging.info(f'Starting capture {url} to {file_path}')
-            photo = GPhotosPageLoader(profile_path=profile_path)
+            photo = GPhoto(profile_path=profile_path)
             photo.load(url)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
             
-            times = 0
-            if desc == 'Image':
-                photo.arrow_click('RIGHT')
-                time.sleep(random.randint(2,3))
-                times = times + 1
-                if times == random.randint(50, 100):
-                    capture.terminate()
-                    photo.close_driver()
             
-            if desc == 'Album':
-                photo.scroll_slowly_to_bottom(random.randint(300,400), random.randrange(1,2))
-                capture.terminate()
-                photo.close_driver()
             
                 
-            # Select any images (random)
-            # Next about 200 images and finish capture
-            # Load new album and scroll
-    
-            # Finish capture
-            # capture.terminate()
-            # photo.close_driver()
 
     except KeyboardInterrupt:
         photo.close_driver()
