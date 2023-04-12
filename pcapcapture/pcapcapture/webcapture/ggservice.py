@@ -480,6 +480,10 @@ class GPhoto(PageLoader):
         return False
 
     def next_inspect_image(self) -> bool:
+        '''
+        Requires inspect_image to be called first
+        Next image in inspect mode
+        '''
         if self.view_mode == 'normal':
             logging.error('Not in inspect mode')
             return False
@@ -489,7 +493,7 @@ class GPhoto(PageLoader):
                 "//div[contains(@aria-label, 'View next photo')]"
             )
         if len(next_img_btn) == 0:
-            logging.error('No more image to inspect')
+            logging.error("Can't change image in inspect mode")
             return False
 
         for i in range(len(next_img_btn)):
