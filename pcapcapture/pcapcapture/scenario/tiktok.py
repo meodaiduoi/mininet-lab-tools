@@ -78,7 +78,7 @@ if __name__ == '__main__':
                 if tiktok.captcha_block:
                     logging.error(f'Captcha block at: {url} and {filepath}')
                     # break
-                time.sleep(random.randint(20, 60))
+                time.sleep(random.randint(35, 120))
                 
             # Turn off capture and driver
             capture.terminate()

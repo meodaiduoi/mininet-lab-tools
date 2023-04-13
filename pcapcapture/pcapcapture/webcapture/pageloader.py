@@ -156,30 +156,31 @@ class PageLoader():
                 break
             last_height = new_height
 
-    def arrow_click(self, arrow):
-        try:
-            if arrow == 'DOWN':
-                self._driver.find_element(By.CSS_SELECTOR,
-                                          "body").send_keys(Keys.DOWN)
-                logging.info('Clicked')
+    # DEPRECATED
+    # def arrow_click(self, arrow):
+    #     try:
+    #         if arrow == 'DOWN':
+    #             self._driver.find_element(By.CSS_SELECTOR,
+    #                                       "body").send_keys(Keys.DOWN)
+    #             logging.info('Clicked')
 
-            if arrow == 'UP':
-                self._driver.find_element(By.CSS_SELECTOR,
-                                          "body").send_keys(Keys.UP)
-                logging.info('Clicked')
+    #         if arrow == 'UP':
+    #             self._driver.find_element(By.CSS_SELECTOR,
+    #                                       "body").send_keys(Keys.UP)
+    #             logging.info('Clicked')
 
-            if arrow == 'LEFT':
-                self._driver.find_element(By.CSS_SELECTOR,
-                                          "body").send_keys(Keys.LEFT)
-                logging.info('Clicked')
+    #         if arrow == 'LEFT':
+    #             self._driver.find_element(By.CSS_SELECTOR,
+    #                                       "body").send_keys(Keys.LEFT)
+    #             logging.info('Clicked')
 
-            if arrow == 'RIGHT':
-                self._driver.find_element(By.CSS_SELECTOR,
-                                          "body").send_keys(Keys.RIGHT)
-                logging.info('Clicked')
+    #         if arrow == 'RIGHT':
+    #             self._driver.find_element(By.CSS_SELECTOR,
+    #                                       "body").send_keys(Keys.RIGHT)
+    #             logging.info('Clicked')
 
-        except AttributeError:
-            logging.error('Required to load() first')
+    #     except AttributeError:
+    #         logging.error('Required to load() first')
 
     def clean_history(self):
         self._driver.delete_all_cookies()

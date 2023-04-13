@@ -80,7 +80,7 @@ def main():
                        -e "_ws.col.Protocol" -e "_ws.col.Length" -e "_ws.col.Info" -e tcp.payload \
                        -E header=n -E separator=, -E quote=d -E occurrence=f"""), 
             
-            ('udp', """-Y "(udp.stream>={start_stream_id} and udp.stream<={end_stream_id}) and quic" \
+            ('udp', """-Y "(udp.stream>={start_stream_id} and udp.stream<={end_stream_id}) and quic.remaining_payload" \
                        -T fields -e frame.time_epoch -e frame.number \
                        -e udp.stream -e ip.src -e udp.srcport -e ip.dst -e udp.dstport -e ip.proto \
                        -e "_ws.col.Protocol" -e "_ws.col.Length" -e "_ws.col.Info" -e quic.remaining_payload \
