@@ -72,15 +72,17 @@ if __name__ == '__main__':
             capture.capture(interface, f'{filepath}.pcap')
     
             # Load about 100-200 vid change url
-            for i in range(random.randint(min_page, max_page)):
-                if tiktok.playtime_remaining <= 2:
-                    tiktok.next_video()
-                tiktok.fast_forward()
-                
-                if tiktok.captcha_block:
-                    logging.error(f'Captcha block at: {url} and {filepath}')
-                    # break
-                time.sleep(random.randint(1, 3))                
+            for _ in range(random.randint(min_page, max_page)):
+                while True:
+                    if tiktok.playtime_remaining <= 2:
+                        tiktok.next_video()
+                        break
+                    tiktok.fast_forward()
+                    
+                    if tiktok.captcha_block:
+                        logging.error(f'Captcha block at: {url} and {filepath}')
+                        # break
+                    time.sleep(random.randint(1, 3))                
             
             # Turn off capture and driver
             capture.terminate()
