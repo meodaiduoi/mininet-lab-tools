@@ -450,7 +450,7 @@ class GPhoto(PageLoader):
                  extensions: list[str] = [],
                  **kwargs):
         super(GPhoto,
-              self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout, profile_path,
+              self).__init__((By.CLASS_NAME, 'RY3tic'), timeout, profile_path,
                              preferences, extensions, **kwargs)
 
         self.view_mode = None
@@ -479,26 +479,27 @@ class GPhoto(PageLoader):
         logging.error('Image is not available')
         return False
 
-    def next_inspect_image(self) -> bool:
-        '''
-        Requires inspect_image to be called first
-        Next image in inspect mode
-        '''
-        if self.view_mode == 'normal':
-            logging.error('Not in inspect mode')
-            return False
+    # TODO: REIMPLEMENT THIS
+    # def next_inspect_image(self) -> bool:
+    #     '''
+    #     Requires inspect_image to be called first
+    #     Next image in inspect mode
+    #     '''
+    #     if self.view_mode == 'normal':
+    #         logging.error('Not in inspect mode')
+    #         return False
 
-        next_img_btn = self._driver.find_elements(
-                By.XPATH,
-                "//div[contains(@aria-label, 'View next photo')]"
-            )
-        if len(next_img_btn) == 0:
-            logging.error("Can't change image in inspect mode")
-            return False
+    #     next_img_btn = self._driver.find_elements(
+    #             By.XPATH,
+    #             "//div[contains(@aria-label, 'View next photo')]"
+    #         )
+    #     if len(next_img_btn) == 0:
+    #         logging.error("Can't change image in inspect mode")
+    #         return False
 
-        for i in range(len(next_img_btn)):
-            self._driver.execute_script("arguments[0].click()", next_img_btn[i])
-        return True
+    #     for i in range(len(next_img_btn)):
+    #         self._driver.execute_script("arguments[0].click()", next_img_btn[i])
+    #     return True
 
 class Gmail(PageLoader):
 
