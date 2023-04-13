@@ -47,34 +47,30 @@ if __name__ == '__main__':
         
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        for desc, url in zip(df_link['description'], df_link['url']):
-            filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+        while True:
+            for desc, url in zip(df_link['description'], df_link['url']):
+                filename = f'{desc}_{time.time_ns()}'
+                file_path = os.path.join(pcapstore_path, filename)
+                # Save ssl key to file
+                os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            # Load photo
-            logging.info(f'Starting capture {url} to {file_path}')
-            photo = GPhoto(profile_path=profile_path)
-            photo.load(url)
-            time.sleep(5)
-
-            # Start capture
-            capture = AsyncQUICTrafficCapture()
-            capture.capture(interface, f'{file_path}.pcap')
-
-            for i in range(random.randint(3,5)):
-                photo.arrow_click('RIGHT')
+                # Load photo
+                logging.info(f'Starting capture {url} to {file_path}')
+                photo = GPhoto(profile_path=profile_path)
+                photo.load(url)
                 time.sleep(2)
-            
 
-            capture.terminate()
-            photo.close_driver()
-            
-            
-            
+                # Start capture
+                capture = AsyncQUICTrafficCapture()
+                capture.capture(interface, f'{file_path}.pcap')
+
+                for i in range(random.randint(50,70)):
+                    photo.arrow_click('RIGHT')
+                    time.sleep(2)
                 
-
+                capture.terminate()
+                photo.close_driver()
+                
     except KeyboardInterrupt:
         photo.close_driver()
         capture.terminate()
