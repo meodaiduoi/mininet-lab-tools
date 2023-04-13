@@ -76,13 +76,6 @@ if __name__ == '__main__':
                         
                 capture.terminate()
                 photo.close_driver()
-
-                for i in range(random.randint(50,70)):
-                    photo.arrow_click('RIGHT')
-                    time.sleep(2)
-                
-                capture.terminate()
-                photo.close_driver()
                 
     except KeyboardInterrupt:
         photo.close_driver()
