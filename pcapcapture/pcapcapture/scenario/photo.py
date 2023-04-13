@@ -57,10 +57,19 @@ if __name__ == '__main__':
             logging.info(f'Starting capture {url} to {file_path}')
             photo = GPhoto(profile_path=profile_path)
             photo.load(url)
+            time.sleep(5)
 
             # Start capture
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
+
+            for i in range(random.randint(3,5)):
+                photo.arrow_click('RIGHT')
+                time.sleep(2)
+            
+
+            capture.terminate()
+            photo.close_driver()
             
             
             

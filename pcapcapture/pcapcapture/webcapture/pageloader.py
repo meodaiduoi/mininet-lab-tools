@@ -161,23 +161,23 @@ class PageLoader():
             if arrow == 'DOWN':
                 self._driver.find_element(By.CSS_SELECTOR,
                                           "body").send_keys(Keys.DOWN)
-            else:
-                logging.error('Check to word')
+                logging.info('Clicked')
+
             if arrow == 'UP':
                 self._driver.find_element(By.CSS_SELECTOR,
                                           "body").send_keys(Keys.UP)
-            else:
-                logging.error('Check to word')
+                logging.info('Clicked')
+
             if arrow == 'LEFT':
                 self._driver.find_element(By.CSS_SELECTOR,
                                           "body").send_keys(Keys.LEFT)
-            else:
-                logging.error('Check to word')
+                logging.info('Clicked')
+
             if arrow == 'RIGHT':
                 self._driver.find_element(By.CSS_SELECTOR,
                                           "body").send_keys(Keys.RIGHT)
-            else:
-                logging.error('Check to word')
+                logging.info('Clicked')
+
         except AttributeError:
             logging.error('Required to load() first')
 
