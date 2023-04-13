@@ -11,7 +11,7 @@ from selenium.webdriver.common.keys import Keys
 
 import time
 import logging
-
+from datetime import datetime
 from webcapture.pageloader import PageLoader
 
 
@@ -45,6 +45,40 @@ class TiktokLoader(PageLoader):
     def previous_video(self):
         self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.UP)
 
+    def _get_video_playtime(self):
+        '''
+        Get the current playtime and total playtime of the video
+        return a tuple of (current_playtime, total_playtime)
+        '''
+        playtime = self._driver.find_element(
+            By.XPATH, 
+            ("//div[contains(@class, 'DivSeekBarTimeContainer')]")
+        ).text
+        current_playtime, total_playtime = playtime.split(' / ')
+        current_playtime = datetime.strptime(current_playtime, '%M:%S')
+        total_playtime = datetime.strptime(total_playtime, '%M:%S')
+        return current_playtime, total_playtime
+    
+    def fast_forward(self):
+        '''
+        Fast forward the video by the specified number of seconds
+        '''
+        current_playtime, total_playtime = self._get_video_playtime()
+        if current_playtime >= total_playtime:
+            logging.error('Cannot fast forward past the end of the video')
+        else:
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
+    
+    def rewind(self):
+        '''
+        Rewind the video by the specified number of seconds
+        '''
+        current_playtime, _ = self._get_video_playtime()
+        if current_playtime < 0:
+            logging.error('Cannot rewind past the beginning of the video')
+        else:
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.LEFT)
+    
     @property
     def captcha_block(self):
         try:
@@ -53,15 +87,14 @@ class TiktokLoader(PageLoader):
         except NoSuchElementException:
             return False
 
-    # def check_video(self):
-    #     try:
-    #         self._driver.find_element(
-    #             By.CLASS_NAME,
-    #             "tiktok-7tjqm6-DivBlurBackground e11s2kul8").get_attribute('style')
-    #     except AttributeError:
-    #         logging.error('Required to load() first')
-
-
+    @property
+    def finised(self):
+        return self._get_video_playtime()[0] == self._get_video_playtime()[1]
+    
+    @property
+    def playtime_remaining(self):
+        return (self._get_video_playtime()[1] - self._get_video_playtime()[0]).total_seconds()
+    
 class FacebookVideo(PageLoader):
 
     def __init__(self,
