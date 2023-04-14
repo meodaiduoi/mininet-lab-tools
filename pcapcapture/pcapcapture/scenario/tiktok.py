@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 while True:
                     if tiktok.playtime_remaining <= 2:
                         tiktok.next_video()
-                        break
+                        # break
                     tiktok.fast_forward()
                     
                     if tiktok.captcha_block:
