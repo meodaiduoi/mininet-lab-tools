@@ -76,6 +76,7 @@ if __name__ == '__main__':
             for video_no in range(video_no_totoal := random.randint(min_page, max_page)):
                 logging.info(f'Video {video_no}/{video_no_totoal}')
                 while True:
+                    time.sleep(2)
                     if tiktok.playtime_remaining <= 2:
                         tiktok.next_video()
                         break
