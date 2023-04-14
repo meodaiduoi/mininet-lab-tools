@@ -39,48 +39,77 @@ class TiktokLoader(PageLoader):
         else:
             logging.error('Not a valid tiktok url')
             
-    def next_video(self):
-        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.DOWN)
+    def next_video(self) -> bool:
+        try:
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.DOWN)
+            return True
+        except NoSuchElementException:
+            logging.error('Cannot find video element change video')
+            return False
+        
+    def previous_video(self) -> bool:
+        try:
+            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.UP)
+            return True
+        except NoSuchElementException:
+            logging.error('Cannot find video element change video')
+            return False
 
-    def previous_video(self):
-        self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.UP)
-
-    def _get_video_playtime(self):
+    def _get_video_playtime(self) -> tuple[datetime, datetime]:
         '''
         Get the current playtime and total playtime of the video
         return a tuple of (current_playtime, total_playtime)
         '''
-        playtime = self._driver.find_element(
-            By.XPATH, 
-            ("//div[contains(@class, 'DivSeekBarTimeContainer')]")
-        ).text
-        current_playtime, total_playtime = playtime.split(' / ')
-        current_playtime = datetime.strptime(current_playtime, '%M:%S')
-        total_playtime = datetime.strptime(total_playtime, '%M:%S')
+        current_playtime, total_playtime = None, None
+        for attempt in range(5):
+            try:
+                playtime = self._driver.find_element(
+                    By.XPATH, 
+                    ("//div[contains(@class, 'DivSeekBarTimeContainer')]")
+                ).text
+                current_playtime, total_playtime = playtime.split(' / ')
+                current_playtime = datetime.strptime(current_playtime, '%M:%S')
+                total_playtime = datetime.strptime(total_playtime, '%M:%S')
+                break
+            except NoSuchElementException:
+                logging.error(f'Cannot find video playtime try: {attempt}')
+                time.sleep(3)
         return current_playtime, total_playtime
     
-    def fast_forward(self):
+    def fast_forward(self) -> bool:
         '''
         Fast forward the video by the specified number of seconds
         '''
         current_playtime, total_playtime = self._get_video_playtime()
         if current_playtime >= total_playtime:
             logging.error('Cannot fast forward past the end of the video')
+            return False
         else:
-            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
-    
-    def rewind(self):
+            try:
+                self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.RIGHT)
+                return True
+            except NoSuchElementException:
+                logging.error('Cannot find video element to fast forward')
+                return False
+
+    def rewind(self) -> bool:
         '''
         Rewind the video by the specified number of seconds
         '''
         current_playtime, _ = self._get_video_playtime()
         if current_playtime < 0:
             logging.error('Cannot rewind past the beginning of the video')
+            return False
         else:
-            self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.LEFT)
-    
+            try:
+                self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.LEFT)
+                return True
+            except NoSuchElementException:
+                logging.error('Cannot find video element to rewind')
+                return False
+                
     @property
-    def captcha_block(self):
+    def captcha_block(self) -> bool:
         try:
             if self._driver.find_element(By.CLASS_NAME, 'captcha_verify_container'):
                 return True
@@ -88,11 +117,11 @@ class TiktokLoader(PageLoader):
             return False
 
     @property
-    def finised(self):
+    def finised(self) -> bool:
         return self._get_video_playtime()[0] == self._get_video_playtime()[1]
     
     @property
-    def playtime_remaining(self):
+    def playtime_remaining(self) -> bool:
         return (self._get_video_playtime()[1] - self._get_video_playtime()[0]).total_seconds()
     
 class FacebookVideo(PageLoader):
