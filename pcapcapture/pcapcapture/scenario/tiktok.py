@@ -72,11 +72,13 @@ if __name__ == '__main__':
             capture.capture(interface, f'{filepath}.pcap')
     
             # Load about 100-200 vid change url
-            for _ in range(random.randint(min_page, max_page)):
+            logging.info(f'Capture {url} to {filepath}.pcap')
+            for video_no in range(video_no_totoal := random.randint(min_page, max_page)):
+                logging.info(f'Video {video_no}/{video_no_totoal}')
                 while True:
                     if tiktok.playtime_remaining <= 2:
                         tiktok.next_video()
-                        # break
+                        break
                     tiktok.fast_forward()
                     
                     if tiktok.captcha_block:
