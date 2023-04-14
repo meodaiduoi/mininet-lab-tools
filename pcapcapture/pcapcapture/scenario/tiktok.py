@@ -75,9 +75,8 @@ if __name__ == '__main__':
             for _ in range(random.randint(min_page, max_page)):
                 while True:
                     if tiktok.playtime_remaining <= 2:
-                        time.sleep(10)
                         tiktok.next_video()
-                        break
+                        # break
                     tiktok.fast_forward()
                     
                     if tiktok.captcha_block:
