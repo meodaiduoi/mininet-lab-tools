@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
             # Init driver and capture object
             logging.info(f'Starting capture {url} to {filepath}.pcap')
-            tiktok = TiktokLoader(url, profile_path=profile_path, fake_useragent=True)
+            tiktok = TiktokLoader(url, profile_path=profile_path, fake_useragent=True, disable_cache=True)
              
             # Check if captcha block
             while True:
@@ -78,7 +78,7 @@ if __name__ == '__main__':
                 logging.info(f'Video {video_no}/{video_no_totoal}')
             
                 while True:
-                    time.sleep(1)
+                    time.sleep(2)
                     if tiktok.playtime_remaining <= 2:
                         tiktok.next_video()
                         break
