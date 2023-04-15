@@ -73,10 +73,12 @@ if __name__ == '__main__':
     
             # Load about 100-200 vid change url
             logging.info(f'Capture {url} to {filepath}.pcap')
+            tiktok.mute_on()
             for video_no in range(video_no_totoal := random.randint(min_page, max_page)):
                 logging.info(f'Video {video_no}/{video_no_totoal}')
+            
                 while True:
-                    time.sleep(2)
+                    time.sleep(1)
                     if tiktok.playtime_remaining <= 2:
                         tiktok.next_video()
                         break
