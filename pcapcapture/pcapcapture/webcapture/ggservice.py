@@ -450,7 +450,7 @@ class GPhoto(PageLoader):
                  extensions: list[str] = [],
                  **kwargs):
         super(GPhoto,
-              self).__init__((By.CLASS_NAME, 'RY3tic'), timeout, profile_path,
+              self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout, profile_path,
                              preferences, extensions, **kwargs)
 
         self.view_mode = None

@@ -47,35 +47,40 @@ if __name__ == '__main__':
         
         # Load link from csv file
         df_link = pd.read_csv(url_list)
-        for desc, url, quantity in zip(df_link['description'], df_link['url'], df_link['quantity']):
-            filename = f'{desc}_{time.time_ns()}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+        while True:
+            for desc, url in zip(df_link['description'], df_link['url']):
+                filename = f'{desc}_{time.time_ns()}'
+                file_path = os.path.join(pcapstore_path, filename)
+                # Save ssl key to file
+                os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            for mode in ['normal', 'inspect']:
                 # Load photo
                 logging.info(f'Starting capture {url} to {file_path}')
-                photo = GPhoto(url, profile_path=profile_path)
+                photo = GPhoto(disable_cache=True, profile_path=profile_path)
                 photo.load(url)
+                time.sleep(2)
 
                 # Start capture
                 capture = AsyncQUICTrafficCapture()
-                capture.capture(interface, f'{file_path}_{mode}.pcap')
+                capture.capture(interface, f'{file_path}.pcap')
 
-                if mode == 'normal':
-                    photo.scroll_slowly_to_bottom(
-                        random.randint(400,650),
-                        random.randrange(0.75,1.3)
-                        )
-                if mode == 'inspect':
-                    if photo.inspect_image(): break
-                    for _ in range(quantity):
-                        if not photo.next_inspect_image():
-                            break
-                        
+                for i in range(random.randint(50,70)):
+                    photo.arrow_click('RIGHT')
+                    time.sleep(2)
+                
                 capture.terminate()
                 photo.close_driver()
+                
+                # if mode == 'normal':
+                #     photo.scroll_slowly_to_bottom(
+                #         random.randint(400,650),
+                #         random.randrange(0.75,1.3)
+                #         )
+                # if mode == 'inspect':
+                #     if photo.inspect_image(): break
+                #     for _ in range(quantity):
+                #         if not photo.next_inspect_image():
+                #             break
                 
     except KeyboardInterrupt:
         photo.close_driver()
