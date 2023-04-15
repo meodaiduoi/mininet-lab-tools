@@ -14,6 +14,7 @@ try:
         store_path = config['enviroment']['store_path']
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
+        media_path = config['enviroment']['media_path']
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:

@@ -82,5 +82,26 @@ url_list = './common-res/tiktok.csv'
 min_page = 100
 max_page = 150
 
+[gmeet_host]
+cam_id = 0
+mic_id = 0
+ffmpeg_cam_id = 10
+ffmpeg_mic_name = 'virtual_speaker'
+media_path = ''
+remote_ip = ''
+remote_port = '8000'
+number_of_meeting = 20
+min_duration = 300
+max_duration = 1500
+
+[gmeet_guest]
+cam_id = 0
+mic_id = 0
+ffmpeg_cam_id = 10
+ffmpeg_mic_name = 'virtual_speaker'
+media_path = ''
+ip = '0.0.0.0'
+port = '8000'
+
 [helloworld-capture]
 url_list = './common-res/youtube.csv'

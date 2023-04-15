@@ -39,6 +39,10 @@ class TiktokLoader(PageLoader):
         else:
             logging.error('Not a valid tiktok url')
             
+    def mute_on(self):
+        self._driver.find_element(By.XPATH, ("//div[contains(@class, 'DivVoiceControlContainer')]")).click()
+
+            
     def next_video(self) -> bool:
         try:
             self._driver.find_element(By.TAG_NAME, 'video').send_keys(Keys.DOWN)
