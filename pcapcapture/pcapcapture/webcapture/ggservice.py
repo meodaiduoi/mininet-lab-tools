@@ -178,12 +178,28 @@ class GMeet(PageLoader):
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
 
     def btn_camera(self):
-        self._driver.find_element(By.CSS_SELECTOR,
-                                  "[jsaction='Az4Fr:Jv50ub']").click()
-
+        try:
+            if self._driver.find_element(By.XPATH, 
+                                        '//div[@role="button"][@aria-label="Tắt máy ảnh (Ctrl + E)"]'):
+                logging.info('Camera is on')
+            else:
+                self._driver.find_element(By.XPATH,
+                                    '//div[@role="button"][@aria-label="Bật máy ảnh (Ctrl + E)"]').click()
+                logging.info('Turn on camera')
+        except AttributeError:
+            logging.error('No find camera button element')
+            
     def btn_mic(self):
-        self._driver.find_element(By.CSS_SELECTOR,
-                                  "[jsaction='Az4Fr:Jv50ub']").click()
+        try:
+            if self._driver.find_element(By.XPATH, 
+                                        '//div[@role="button"][@aria-label="Tắt micrô (Ctrl + D)"]'):
+                logging.info('Mic is on')
+            else:
+                self._driver.find_element(By.XPATH,
+                                    '//div[@role="button"][@aria-label="Bật micrô (Ctrl + D)"]').click()
+                logging.info('Turn on mic')
+        except AttributeError:
+            logging.error('No find mic button element')
 
 
 class GMeetHost(GMeet):
