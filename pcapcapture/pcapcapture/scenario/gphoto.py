@@ -82,7 +82,9 @@ if __name__ == '__main__':
                 
                 capture.terminate()
                 photo.close_driver()
-            
+                logging.info(f'Capture {url} to {filepath} completed')
+                
+                
     except KeyboardInterrupt:
         photo.close_driver()
         capture.terminate()
