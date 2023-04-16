@@ -466,7 +466,7 @@ class GPhoto(PageLoader):
                  extensions: list[str] = [],
                  **kwargs):
         super(GPhoto,
-              self).__init__((By.CLASS_NAME, 'BiCYpc'), timeout, profile_path,
+              self).__init__((By.CLASS_NAME, 'RY3tic'), timeout, profile_path,
                              preferences, extensions, **kwargs)
 
         self.view_mode = None
@@ -495,27 +495,53 @@ class GPhoto(PageLoader):
         logging.error('Image is not available')
         return False
 
-    # TODO: REIMPLEMENT THIS
-    # def next_inspect_image(self) -> bool:
-    #     '''
-    #     Requires inspect_image to be called first
-    #     Next image in inspect mode
-    #     '''
-    #     if self.view_mode == 'normal':
-    #         logging.error('Not in inspect mode')
-    #         return False
+    def _arrow_click(self, arrow):
+        try:
+            if arrow == 'DOWN':
+                self._driver.find_element(By.CSS_SELECTOR,
+                                          "body").send_keys(Keys.DOWN)
+                logging.info('Send key DOWN to body')
 
-    #     next_img_btn = self._driver.find_elements(
-    #             By.XPATH,
-    #             "//div[contains(@aria-label, 'View next photo')]"
-    #         )
-    #     if len(next_img_btn) == 0:
-    #         logging.error("Can't change image in inspect mode")
-    #         return False
+            if arrow == 'UP':
+                self._driver.find_element(By.CSS_SELECTOR,
+                                          "body").send_keys(Keys.UP)
+                logging.info('Send key UP to body')
 
-    #     for i in range(len(next_img_btn)):
-    #         self._driver.execute_script("arguments[0].click()", next_img_btn[i])
-    #     return True
+            if arrow == 'LEFT':
+                self._driver.find_element(By.CSS_SELECTOR,
+                                          "body").send_keys(Keys.LEFT)
+                logging.info('Send key Left to body')
+
+            if arrow == 'RIGHT':
+                self._driver.find_element(By.CSS_SELECTOR,
+                                          "body").send_keys(Keys.RIGHT)
+                logging.info('Send key Right to body')
+
+        except AttributeError:
+            logging.error('Required to load() first')
+
+    def next_inspect_image(self) -> bool:
+        '''
+        Requires inspect_image to be called first
+        Next image in inspect mode
+        '''
+        if self.view_mode == 'normal':
+            logging.error('Not in inspect mode')
+            return False
+
+        # next_img_btn = self._driver.find_elements(
+        #         By.XPATH,
+        #         "//div[contains(@aria-label, 'View next photo')]"
+        #     )
+        # if len(next_img_btn) == 0:
+        #     logging.error("Can't change image in inspect mode")
+        #     return False
+
+        # for i in range(len(next_img_btn)):
+        #     self._driver.execute_script("arguments[0].click()", next_img_btn[i])
+        
+        self._arrow_click('RIGHT')
+        return True
 
 class Gmail(PageLoader):
 
