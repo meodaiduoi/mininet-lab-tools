@@ -540,6 +540,7 @@ class GPhoto(PageLoader):
         # for i in range(len(next_img_btn)):
         #     self._driver.execute_script("arguments[0].click()", next_img_btn[i])
         
+        logging.info('Changing next image in inspect mode')
         self._arrow_click('RIGHT')
         return True
 
@@ -549,6 +550,7 @@ class GPhoto(PageLoader):
         Scroll slowly to bottom of page
         '''
         for _ in range(scroll_time):
+            logging.info('Scrolling slowly to bottom')
             self._driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             time.sleep(delay)
 

@@ -74,9 +74,14 @@ if __name__ == '__main__':
                     # Temporarily workaround for no pageheight issue
                     photo.scroll_slowly_to_bottom(70, 0.65)
                 if mode == 'inspect':
+                    time.sleep(10)
                     photo.inspect_image()
                     for _ in range(quantity):
                         photo.next_inspect_image()
+                        time.sleep(1.1)
+                
+                capture.terminate()
+                photo.close_driver()
             
     except KeyboardInterrupt:
         photo.close_driver()
