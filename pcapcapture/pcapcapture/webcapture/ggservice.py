@@ -543,6 +543,15 @@ class GPhoto(PageLoader):
         self._arrow_click('RIGHT')
         return True
 
+
+    def scroll_slowly_to_bottom(self, scroll_time: int = 3, delay: float = 1):
+        '''
+        Scroll slowly to bottom of page
+        '''
+        for _ in range(scroll_time):
+            self._driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
+            time.sleep(delay)
+
 class Gmail(PageLoader):
 
     def __init__(self,

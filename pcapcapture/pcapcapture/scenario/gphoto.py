@@ -71,11 +71,10 @@ if __name__ == '__main__':
                 capture.capture(interface, f'{filepath}.pcap')
 
                 if mode == 'normal':
-                    photo.scroll_slowly_to_bottom(
-                        random.randint(400,650),
-                        random.randrange(0.75,1.3)
-                        )
+                    # Temporarily workaround for no pageheight issue
+                    photo.scroll_slowly_to_bottom(70, 0.65)
                 if mode == 'inspect':
+                    photo.inspect_image()
                     for _ in range(quantity):
                         photo.next_inspect_image()
             
