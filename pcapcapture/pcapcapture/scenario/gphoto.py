@@ -78,7 +78,7 @@ if __name__ == '__main__':
                     photo.inspect_image()
                     for _ in range(quantity):
                         photo.next_inspect_image()
-                        time.sleep(1.1)
+                        time.sleep(1.4)
                 
                 capture.terminate()
                 photo.close_driver()
