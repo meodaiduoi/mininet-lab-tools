@@ -51,16 +51,16 @@ if __name__ == '__main__':
             for mode in ['normal', 'inspect']:
                 
                 filename = f'{desc}_{mode}'
-                file_path = os.path.join(pcapstore_path, filename)
+                filepath = os.path.join(pcapstore_path, filename)
                 # Save ssl key to file
                 os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-                if os.path.exists(f'{file_path}.pcap'):
-                    logging.info(f'File {file_path} already exists, skiping')
+                if os.path.exists(f'{filepath}.pcap'):
+                    logging.info(f'File {filepath} already exists, skiping')
                     continue
 
                 # Load photo
-                logging.info(f'Starting capture {url} to {file_path}')
+                logging.info(f'Starting capture {url} to {filepath}')
                 photo = GPhoto(url, 
                                profile_path=profile_path,
                                disable_cache=True)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
                 # Start capture
                 capture = AsyncQUICTrafficCapture()
-                capture.capture(interface, f'{file_path}.pcap')
+                capture.capture(interface, f'{filepath}.pcap')
 
                 if mode == 'normal':
                     photo.scroll_slowly_to_bottom(
@@ -83,12 +83,12 @@ if __name__ == '__main__':
         photo.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.error(f'Keyboard Interrupt at: {url} and {file_path}')
+        logging.error(f'Keyboard Interrupt at: {url} and {filepath}')
         sys.exit(0)
 
     except Exception as e:
         photo.close_driver()
         capture.terminate()
         capture.clean_up()
-        logging.critical(f'Error at: {url} and {file_path}')
+        logging.critical(f'Error at: {url} and {filepath}')
         raise e
