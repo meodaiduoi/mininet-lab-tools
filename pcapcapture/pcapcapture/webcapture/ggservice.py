@@ -174,6 +174,10 @@ class GMeet(PageLoader):
             )
         self.start_driver()
 
+    @property
+    def meet_url(self):
+        return self._driver.current_url
+    
     def leave_meeting(self):
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
 
@@ -229,21 +233,6 @@ class GMeetHost(GMeet):
                 By.CSS_SELECTOR,
                 ".JS1Zae" # Start an instant meeting button
             ).click()
-        # for _ in range(5):
-        #     time.sleep(5)
-        #     try:
-        #         if self._driver.find_element(
-        #                 By.XPATH,
-        #                 '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
-        #         ):
-        #             self._driver.find_element(
-        #                 By.XPATH,
-        #                 '/html/body/div[3]/span/div[2]/div/div/div[2]/div/button'
-        #             ).click()
-        #         logging.info('Meeting created')
-        #         return self._driver.current_url
-        #     except ElementNotInteractableException or NoSuchElementException:
-        #         pass
         except ElementNotInteractableException or NoSuchElementException:
             logging.error('Unable to create meetting')
             return ''
@@ -290,28 +279,25 @@ class GMeetGuest(GMeet):
         super().__init__(camera_id, microphone_id, timeout, profile_path,
                          preferences, extensions, **kwargs)
 
+        
     def join_meeting(self, url_invite, retry=5) -> bool:
         # find the element for joining the meeting
         self.is_host = False
-        self.load(url_invite, locator=(By.CLASS_NAME, "Y8gQSd BUooTd"))
+        self.load(url_invite)
+        # click the join button
         for _ in range(retry):
-            time.sleep(5)
+            time.sleep(6)
             try:
-                if self._driver.find_element(
-                        By.XPATH,
-                        "/html/body/div[1]/c-wiz/div/div/div[13]/div[3]/div/div[1]/div[4]/div/div/div[2]/div/div[2]/div[1]/div[1]/button"
-                ):
-                    self._driver.find_element(
-                        By.XPATH,
-                        "/html/body/div[1]/c-wiz/div/div/div[13]/div[3]/div/div[1]/div[4]/div/div/div[2]/div/div[2]/div[1]/div[1]/button"
-                    ).click()
-                    logging.info("Joined the meeting")
-                    return True
-            except ElementNotInteractableException or NoSuchElementException:
+                self._driver.find_element(
+                    By.XPATH, 
+                    "//Button[contains(., 'Tham gia ngay')]").click()
+                logging.info(f'Joined meeting url: {url_invite}')
+                return True
+            except NoSuchElementException:
                 pass
-        logging.error("Unable to join the meeting")
+        logging.error(f'Unable to join meeting url: {url_invite}')
         return False
-
+            
 
 class GDriveDownloader(PageLoader):
     '''

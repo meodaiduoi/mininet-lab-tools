@@ -4,8 +4,7 @@ import sys, os
 import logging
 import sched, time
 
-from typing import Union
-from fastapi import FastAPI
+from fastapi import BackgroundTasks, FastAPI
 from pydantic import BaseModel
 import uvicorn
 app = FastAPI()
@@ -36,9 +35,9 @@ def read_root():
 class MeetTask(BaseModel):
     url: str
     durtation: int | None = 600 # 10 minutes
+    start_time_epoch: float | None = None
 
-@app.post('/join_room')
-def join_room(meet_task: MeetTask):
+def task_meeting(meet_task: MeetTask):
     # Create folder to store output
     pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest') 
     sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest', 'SSLKEYLOG')
@@ -66,6 +65,12 @@ def join_room(meet_task: MeetTask):
     media_device = FFMPEGVideoStream(media_path, 30)
     
     capture = AsyncQUICTrafficCapture()
+    
+    # TODO: make timeout config
+    for _ in range(60):
+        
+        
+        
     capture.capture(interface, f'{file_path}.pcap')
     
     time.time(meet_task.durtation)
@@ -73,6 +78,12 @@ def join_room(meet_task: MeetTask):
     capture.terminate()
     media_device.terminate()
     gmeet.close_driver()
+
+@app.post('/join_room')
+async def join_room(background_tasks: BackgroundTasks, meet_task: MeetTask):
+    background_tasks.add_task(task_meeting, meet_task)
+    return {'status': 'ok'}
+
     
 if __name__ == '__main__':
     '''
