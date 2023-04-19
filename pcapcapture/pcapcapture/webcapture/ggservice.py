@@ -309,6 +309,26 @@ class GMeetGuest(GMeet):
         logging.error(f'Unable to join meeting url: {url_invite}')
         return False
             
+    @property        
+    def joined(self, retry=5) -> bool:
+        for _ in range(retry):
+            time.sleep(3)
+            try:
+                if self._driver.find_element(
+                        By.CSS_SELECTOR,
+                        ".pKgFkf"
+                ):
+                    logging.info(f'You joined the meeting room')
+                    return True
+                elif self._driver.find_element(
+                    By.CSS_SELECTOR, 
+                    ".oZ3U3b"):   
+                    logging.info(f'You are in the waiting room')
+                    return False
+            except NoSuchElementException:
+                pass
+        logging.error(f'Unable to join meeting url')
+        return False
 
 class GDriveDownloader(PageLoader):
     '''
