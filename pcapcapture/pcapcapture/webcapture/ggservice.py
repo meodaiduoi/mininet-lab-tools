@@ -288,9 +288,20 @@ class GMeetGuest(GMeet):
         for _ in range(retry):
             time.sleep(6)
             try:
-                self._driver.find_element(
+                if self._driver.find_element(
+                        By.XPATH,
+                        "/html/body/div[1]/c-wiz/div/div/div[13]/div[3]/div/div[1]/div[4]/div/div/div[2]/div/div[2]/div[1]/div[1]/button"
+                ):
+                    self._driver.find_element(
+                        By.XPATH,
+                        "/html/body/div[1]/c-wiz/div/div/div[13]/div[3]/div/div[1]/div[4]/div/div/div[2]/div/div[2]/div[1]/div[1]/button"
+                    ).click()
+                elif self._driver.find_element(
                     By.XPATH, 
-                    "//Button[contains(., 'Tham gia ngay')]").click()
+                    "//Button[contains(., 'Tham gia ngay')]"):
+                    self._driver.find_element(
+                        By.XPATH, 
+                        "//Button[contains(., 'Tham gia ngay')]").click()
                 logging.info(f'Joined meeting url: {url_invite}')
                 return True
             except NoSuchElementException:
