@@ -61,18 +61,25 @@ def task_meeting(meet_task: MeetTask):
     os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
     
     gmeet = GMeetGuest(camera_id=0, mic_id=0)
-    gmeet.load(meet_task.url)
+    
+    # start media before load url
     media_device = FFMPEGVideoStream(media_path, 30)
     
-    capture = AsyncQUICTrafficCapture()
+    gmeet.load(meet_task.url)
+    for _ in range(10):
+        time.sleep(5)
+        if gmeet.join_meeting():
+            break
     
-    # TODO: make timeout config
-    for _ in range(60):
-        
-        
+    while True:
+        if gmeet.joined:
+            break
+    
+    capture = AsyncQUICTrafficCapture()        
         
     capture.capture(interface, f'{file_path}.pcap')
     
+    # TODO: Implenent start time with variant
     time.time(meet_task.durtation)
 
     capture.terminate()

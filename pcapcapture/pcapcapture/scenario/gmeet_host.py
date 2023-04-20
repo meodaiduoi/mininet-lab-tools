@@ -69,7 +69,6 @@ if __name__ == '__main__':
                     f'http://{guest_ip}:{remote_port}/start', 
                     json={'url': mhost.meet_url, 'duration': (meeting_duration-60)})
 
-                
             for _ in range(60):                
                 if mhost.accept_guest() == True:
                     mhost.accept_guest()
