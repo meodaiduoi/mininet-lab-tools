@@ -4,7 +4,7 @@ interface = '' # Default to main
 store_path = '~/Desktop/rawpcap'
 profile_path = '/home/onos/Desktop/selenium-user' 
 nohttp3_profile_path = '/home/onos/Desktop/selenium-user-nohttp3'
-media_path = ''
+media_path = '/home/onos/Desktop/media'
 
 # CRITICAL = 50
 # FATAL = CRITICAL
@@ -93,6 +93,8 @@ remote_port = 8000
 number_of_meeting = 20
 min_duration = 300
 max_duration = 1500
+# ! TODO: change this to your profile path
+profile_path = '/home/onos/Desktop/profile/user3'
 
 [gmeet_guest]
 cam_id = 0
@@ -102,6 +104,8 @@ ffmpeg_mic_name = 'virtual_speaker'
 media_path = ''
 ip = '0.0.0.0'
 port = '8000'
+# ! TODO: change this to your profile path
+profile_path = '/home/onos/Desktop/profile/user2' 
 
 [helloworld-capture]
 url_list = './common-res/youtube.csv'

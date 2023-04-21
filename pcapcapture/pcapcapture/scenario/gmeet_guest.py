@@ -2,7 +2,7 @@
 import tomli
 import sys, os
 import logging
-import sched, time
+import time, random
 
 from fastapi import BackgroundTasks, FastAPI
 from pydantic import BaseModel
@@ -17,6 +17,13 @@ try:
         log_level = config['enviroment']['log_level']
         media_path = config['enviroment']['media_path']
         profile_path = config['gmeet_guest']['profile_path']
+        
+        
+        cam_id = config['gmeet_guest']['cam_id']
+        mic_id = config['gmeet_guest']['mic_id']
+        ffmpeg_cam_id = config['gmeet_guest']['ffmpeg_cam_id']
+        ffmpeg_mic_name = config['gmeet_guest']['ffmpeg_mic_name']
+                
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -63,27 +70,26 @@ def task_meeting(meet_task: MeetTask):
     gmeet = GMeetGuest(camera_id=0, mic_id=0)
     
     # start media before load url
-    media_device = FFMPEGVideoStream(media_path, 30)
+    virutal_media = FFMPEGVideoStream()
+    virutal_media.play(
+        random.choice(ls_subfolders(media_path))
+        )
     
+    # Load invite url amd wait for join room
     gmeet.load(meet_task.url)
     for _ in range(10):
         time.sleep(5)
-        if gmeet.join_meeting():
-            break
-    
-    while True:
         if gmeet.joined:
             break
     
     capture = AsyncQUICTrafficCapture()        
-        
     capture.capture(interface, f'{file_path}.pcap')
     
     # TODO: Implenent start time with variant
-    time.time(meet_task.durtation)
+    time.sleep(meet_task.durtation)
 
     capture.terminate()
-    media_device.terminate()
+    virutal_media.terminate()
     gmeet.close_driver()
 
 @app.post('/join_room')

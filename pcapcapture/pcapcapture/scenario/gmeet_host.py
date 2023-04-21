@@ -6,7 +6,7 @@ import numpy as np
 import time
 import random
 import requests as rq
-
+from urllib3.exceptions import MaxRetryError
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
@@ -15,6 +15,8 @@ try:
         profile_path = config['enviroment']['profile_path']
         log_level = config['enviroment']['log_level']
         media_path = config['enviroment']['media_path']
+        profile_path = config['gmeet_host']['profile_path']
+        
         
         cam_id = config['gmeet_host']['cam_id']
         mic_id = config['gmeet_host']['mic_id']
@@ -58,22 +60,30 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load meethost
-            mhost = GMeetHost()
+            mhost = GMeetHost(cam_id, mic_id)
+            mhost.create_meeting()
             virutal_media = FFMPEGVideoStream()
             meeting_duration = random.randint(min_duration, max_duration)
             
-            media_files = ls_subfolders(media_path)
-            virutal_media.start_video_stream(media_files[random.randint(0, len(media_files)-1)])
+            virutal_media.play(random.choice(ls_subfolders(media_path)))
             for guest_ip in remote_ip:
-                rq.post(
-                    f'http://{guest_ip}:{remote_port}/start', 
-                    json={'url': mhost.meet_url, 'duration': (meeting_duration-60)})
-
-            for _ in range(60):                
-                if mhost.accept_guest() == True:
-                    mhost.accept_guest()
-                else:
-                    logging.error('no member join')
+                try:
+                    rq.post(
+                        f'http://{guest_ip}:{remote_port}/join_room', 
+                        json={'url': mhost.meet_url, 'duration': (meeting_duration-40)})
+                except (rq.exceptions.HTTPError,
+                        rq.exceptions.ConnectionError,
+                        rq.exceptions.Timeout,
+                        rq.exceptions.RequestException):
+                    logging.error(f'Cannot connect to {guest_ip}')
+                    continue
+                
+            # wait for webdrive from guest to connect
+            time.sleep(20)
+            
+            for _ in range(10):                
+                while mhost.accept_guest():
+                    pass
                 time.sleep(1)
                 
             capture.capture(interface, f'{file_path}.pcap')

@@ -229,7 +229,7 @@ class GMeetHost(GMeet):
             self._driver.find_element(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ").click()
             self._driver.find_element(By.CSS_SELECTOR, ".JS1Zae").click()  # Start an instant meeting button
             WebDriverWait(self._driver, self.timeout).until(EC.element_to_be_clickable((By.XPATH, "//Button[contains(., 'OK')]")))
-            self._driver.find_element(By.XPATH, "//Button[contains(., 'OK')]").click()
+            self._driver.find_element(By.XPATH, "//Button[contains(., 'OK')]").click() # Safety notfications close button
         except (ElementNotInteractableException, NoSuchElementException, TimeoutException):
             logging.error('Unable to create meeting')
             return ''

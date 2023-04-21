@@ -35,16 +35,16 @@ class FFMPEGVideoStream:
     def __init__(self, cam_id: int=10, mic_loopback_name: str='virtual_speaker'):
         self.cam_id = cam_id
         self.mic_loopback_name = mic_loopback_name
-        self.video_process_pid = None
-        self.audio_process_pid = None
+        self.video_process = None
+        self.audio_process = None
 
-    def start_video_stream(self, video_path: str):
-        if not self.video_process and self.audio_process:
-            self.video_process = subprocess.Popen(f'ffmpeg -nostdin -re -i {video_path} -f v4l2 /dev/video{self.cam_id}',
+    def play(self, video_path: str):
+        if not self.video_process and not self.audio_process:
+            self.video_process = subprocess.Popen(f'ffmpeg -nostdin -stream_loop -1  -re -i "{video_path}" -f v4l2 /dev/video{self.cam_id}',
                                                   shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
             logging.info(f'Starting ffmpeg process to stream video to /dev/video{self.cam_id}')
 
-            self.audio_process = subprocess.Popen(f'PULSE_SINK="{self.mic_loopback_name}" ffmpeg -i {video_path} -f pulse "stream name"',
+            self.audio_process = subprocess.Popen(f'PULSE_SINK="{self.mic_loopback_name}"  -stream_loop -1 ffmpeg -i "{video_path}" -f pulse "stream name"',
                                                   shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
             logging.info(f'Starting ffmpeg process to stream audio to {self.mic_loopback_name}')
 
