@@ -6,7 +6,7 @@ import numpy as np
 import time
 import random
 import requests as rq
-from urllib3.exceptions import MaxRetryError
+
 try:
     with open('config.toml', 'rb') as f:
         config = tomli.load(f)
@@ -60,7 +60,9 @@ if __name__ == '__main__':
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
             # Load meethost
-            mhost = GMeetHost(cam_id, mic_id)
+            # TODO: FIX CAM
+            mhost = GMeetHost(cam_id, mic_id,
+                              profile_path=profile_path)
             mhost.create_meeting()
             virutal_media = FFMPEGVideoStream()
             meeting_duration = random.randint(min_duration, max_duration)
