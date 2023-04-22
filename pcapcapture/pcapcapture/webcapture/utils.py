@@ -49,38 +49,68 @@ class FFMPEGVideoStream:
             logging.info(f'Starting ffmpeg process to stream audio to {self.mic_loopback_name}')
 
     # TODO: COULD Be improved
+    # def terminate(self) -> bool:
+    #     if self.video_process and self.audio_process:
+    #         # Stop ffmpeg
+    #         result = subprocess.Popen(f'pgrep -P {self.video_process.pid}',
+    #                                   shell=True,
+    #                                   stdout=subprocess.PIPE,
+    #                                   stderr=subprocess.PIPE).communicate()
+    #         if result[0] != b'':
+    #             video_parent_pid = int(result[0].decode('latin-1').split('\n')[0])
+    #             os.kill(video_parent_pid, signal.SIGTERM)
+    #             video_returncode = self.video_process.wait()
+    #             if video_returncode != 0:
+    #                 logging.error('Error: ffmpeg Video process terminated with non-zero return code')
+    #             else:
+    #                 logging.info('ffmpeg Video process terminated')
+    #             self.video_process = None
+
+    #         result = subprocess.Popen(f'pgrep -P {self.audio_process.pid}',
+    #                                   shell=True,
+    #                                   stdout=subprocess.PIPE,
+    #                                   stderr=subprocess.PIPE).communicate()
+    #         if result[0] != b'':
+    #             audio_parent_pid = int(result[0].decode('latin-1').split('\n')[0])
+    #             os.kill(audio_parent_pid, signal.SIGTERM)
+    #             audio_returncode = self.audio_process.wait()
+    #             if audio_returncode != 0:
+    #                 logging.error('Error: ffmpeg Audio process terminated with non-zero return code')
+    #             else:
+    #                 logging.info('ffmpeg Audio process terminated')
+    #             self.audio_process = None
+        
+    #     if audio_returncode != 0 or video_returncode != 0:
+    #         return False
+
     def terminate(self) -> bool:
+        def terminate_process(process: subprocess.Popen):
+            result = subprocess.Popen(f'pgrep -P {process.pid}', shell=True,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            if result[0] != b'':
+                parent_pid = int(result[0].decode('latin-1').split('\n')[0])
+                os.kill(parent_pid, signal.SIGTERM)
+                return process.wait()
+            return 0
+
         if self.video_process and self.audio_process:
-            # Stop ffmpeg
-            result = subprocess.Popen(f'pgrep -P {self.video_process.pid}',
-                                      shell=True,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE).communicate()
-            video_parent_pid = int(result[0].decode('latin-1').split('\n')[0])
-            os.kill(video_parent_pid, signal.SIGTERM)
-
-            result = subprocess.Popen(f'pgrep -P {self.audio_process.pid}',
-                                      shell=True,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE).communicate()
-            print(result)
-            audio_parent_pid = int(result[0].decode('latin-1').split('\n')[0])
-            os.kill(audio_parent_pid, signal.SIGTERM)
-
-            if self.video_process.returncode != 0:
-                logging.error('Error: ffmpeg process terminated with non-zero return code')
-                del self.video_process
-                self.video_process = None
-            if self.audio_process.returncode != 0:
-                logging.error('Error: ffmpeg process terminated with non-zero return code')
-                del self.audio_process
-                self.audio_process = None
+            video_returncode = terminate_process(self.video_process)
+            if video_returncode != 0:
+                logging.error('Error: ffmpeg Video process terminated with non-zero return code')
             else:
-                logging.info('ffmpeg process terminated')
-                return True
-            return False
+                logging.info('ffmpeg Video process terminated')
+            self.video_process = None
 
-    def __del__(self) -> None:
-        self.terminate()
+            audio_returncode = terminate_process(self.audio_process)
+            if audio_returncode != 0:
+                logging.error('Error: ffmpeg Audio process terminated with non-zero return code')
+            else:
+                logging.info('ffmpeg Audio process terminated')
+            self.audio_process = None
+
+            if audio_returncode != 0 or video_returncode != 0:
+                return False
+        return True
+
 
 

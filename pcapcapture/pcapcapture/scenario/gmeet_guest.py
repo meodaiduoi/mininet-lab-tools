@@ -18,7 +18,6 @@ try:
         media_path = config['enviroment']['media_path']
         profile_path = config['gmeet_guest']['profile_path']
         
-        
         cam_id = config['gmeet_guest']['cam_id']
         mic_id = config['gmeet_guest']['mic_id']
         ffmpeg_cam_id = config['gmeet_guest']['ffmpeg_cam_id']
@@ -45,52 +44,65 @@ class MeetTask(BaseModel):
     start_time_epoch: float | None = None
 
 def task_meeting(meet_task: MeetTask):
-    # Create folder to store output
-    pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest') 
-    sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest', 'SSLKEYLOG')
-    mkdir_by_path(pcapstore_path)
-    mkdir_by_path(sslkeylog_path)
+    try:
+    
+        # Create folder to store output
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest') 
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest', 'SSLKEYLOG')
+        mkdir_by_path(pcapstore_path)
+        mkdir_by_path(sslkeylog_path)
 
-    # Create logger
-    file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetGuest_{time.time_ns()}.log'))
-    stdout_handler = logging.StreamHandler(stream=sys.stdout)
-    handlers = [file_handler, stdout_handler]
-    
-    logging.basicConfig(
-        level=log_level, 
-        format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
-        handlers=handlers
-    )
-
-    filename = f'GMeetGuest_{time.time_ns()}'
-    file_path = os.path.join(pcapstore_path, filename)
-    # Save ssl key to file
-    os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-    
-    gmeet = GMeetGuest(camera_id=0, mic_id=0)
-    
-    # start media before load url
-    virutal_media = FFMPEGVideoStream()
-    virutal_media.play(
-        random.choice(ls_subfolders(media_path))
+        # Create logger
+        # !TODO: Change name to gmeet_host url
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetGuest_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+        
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
         )
-    
-    # Load invite url amd wait for join room
-    gmeet.load(meet_task.url)
-    for _ in range(10):
-        time.sleep(5)
-        if gmeet.joined:
-            break
-    
-    capture = AsyncQUICTrafficCapture()        
-    capture.capture(interface, f'{file_path}.pcap')
-    
-    # TODO: Implenent start time with variant
-    time.sleep(meet_task.durtation)
 
-    capture.terminate()
-    virutal_media.terminate()
-    gmeet.close_driver()
+        filename = f'GMeetGuest_{time.time_ns()}'
+        file_path = os.path.join(pcapstore_path, filename)
+        # Save ssl key to file
+        os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+        
+        gmeet = GMeetGuest(0, 0,
+                           profile_path=profile_path)
+        
+        # start media before load url
+        # virutal_media = FFMPEGVideoStream()
+        # virutal_media.play(
+        #     random.choice(ls_subfolders(media_path))
+        #     )
+        
+        # Load invite url amd wait for join room
+        gmeet.load(meet_task.url)
+        for attemp in range(10):
+            time.sleep(5)
+            if gmeet.joined:
+                break
+            if attemp >= 9:
+                raise Exception('Join room timeout')
+        
+        capture = AsyncQUICTrafficCapture()        
+        capture.capture(interface, f'{file_path}.pcap')
+        
+        # TODO: Implenent start time with variant
+        time.sleep(meet_task.durtation)
+
+        capture.terminate()
+        # virutal_media.terminate()
+        gmeet.close_driver()
+    
+    except Exception:
+        capture.terminate()
+        capture.clean_up()
+        # virutal_media.terminate()
+        gmeet.close_driver()
+        
 
 @app.post('/join_room')
 async def join_room(background_tasks: BackgroundTasks, meet_task: MeetTask):

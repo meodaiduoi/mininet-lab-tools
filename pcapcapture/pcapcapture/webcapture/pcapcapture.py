@@ -89,30 +89,6 @@ class PcapCapture:
         logging.info(f'Saved pcap file to: {self.pcap_filename}')
         return True
 
-    # TODO:used on Interrupt or Exception orcurred
-    # def __terminate_filter(self):
-    #     if self.process:
-    #         result = subprocess.Popen(f'pgrep -P {self.process.pid}',
-    #                                   shell=True,
-    #                                   stdout=subprocess.PIPE,
-    #                                   stderr=subprocess.PIPE).communicate()
-    #         parent_pid = int(result[0].decode('latin-1').split('\n')[0])
-    #         os.kill(parent_pid, signal.SIGTERM)
-    #         return_code = self.process.wait()
-    #         self.process = None
-
-    #         if return_code != 0:
-    #             logging.error('Error in terminating process')
-    #             self.clean_up()
-    #             return
-
-    #         super()._apply_filter()
-    #         return return_code
-    #     else:
-    #         logging.error('No process to terminate')
-        
-
-    # TODO:used on Interrupt or Exception orcurred
     def clean_up(self):
         if os.path.exists(f'{self.pcap_filename}_temp'):
             os.remove(f'{self.pcap_filename}_temp')
@@ -154,27 +130,33 @@ class AsyncPcapCapture(PcapCapture):
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
 
-    def terminate(self):
+    def terminate(self) -> bool:
+        '''
+        Terminate the capture process
+        :Usage: capture.terminate()
+        ::return: True if successful, False otherwise
+        '''
         if self.process:
             result = subprocess.Popen(f'pgrep -P {self.process.pid}',
                                       shell=True,
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE).communicate()
-            parent_pid = int(result[0].decode('latin-1').split('\n')[0])
-            os.kill(parent_pid, signal.SIGTERM)
-            return_code = self.process.wait()
-            self.process = None
+            if result[0] != b'':
+                parent_pid = int(result[0].decode('latin-1').split('\n')[0])
+                os.kill(parent_pid, signal.SIGTERM)
+                return_code = self.process.wait()
+                self.process = None
 
-            if return_code != 0:
-                logging.error('Error in terminating process')
-                self.clean_up()
-                return
+                if return_code != 0:
+                    logging.error('Error in terminating process')
+                    self.clean_up()
+                    return False
 
-            super()._apply_filter()
-            return return_code
-        else:
-            logging.error('No process to terminate')
-
+                super()._apply_filter()
+                return True
+        
+        logging.error('No process to terminate')
+        return False
 
 class QUICTrafficCapture(PcapCapture):
     '''

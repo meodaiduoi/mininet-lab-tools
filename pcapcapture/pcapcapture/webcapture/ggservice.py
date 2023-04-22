@@ -228,7 +228,7 @@ class GMeetHost(GMeet):
         try:
             self._driver.find_element(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ").click()
             self._driver.find_element(By.CSS_SELECTOR, ".JS1Zae").click()  # Start an instant meeting button
-            WebDriverWait(self._driver, self.timeout).until(EC.element_to_be_clickable((By.XPATH, "//Button[contains(., 'OK')]")))
+            WebDriverWait(self._driver, self.timeout).until(EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'OK')]"))))
             self._driver.find_element(By.XPATH, "//Button[contains(., 'OK')]").click() # Safety notfications close button
         except (ElementNotInteractableException, NoSuchElementException, TimeoutException):
             logging.error('Unable to create meeting')
@@ -241,7 +241,8 @@ class GMeetHost(GMeet):
         try:
             self._driver.find_element(By.XPATH, "//Button[contains(., 'Chấp nhận')]").click()
             logging.info("Accepted guest")
-        except ElementNotInteractableException or NoSuchElementException:
+            return True
+        except (ElementNotInteractableException, NoSuchElementException):
             logging.error("Unable to accept guest or no guest")
         return False
 
@@ -269,7 +270,8 @@ class GMeetGuest(GMeet):
     def _join_meeting(self):
         try:
             WebDriverWait(self._driver, self.timeout).until(
-                (By.XPATH, "//Div[text() = 'Sẵn sàng tham gia?']"))
+                EC.visibility_of_element_located((
+                    By.XPATH, "//Button[contains(., 'Yêu cầu tham gia') or contains(., 'Tham gia ngay')]")))
         except TimeoutException:
             logging.error('Unable to join meeting, page not loaded')
             return False
@@ -296,7 +298,7 @@ class GMeetGuest(GMeet):
                 ".pKgFkf")) > 0:
             logging.info(f'You joined the meeting room')
             return True
-        elif len(self._driver.find_element(
+        elif len(self._driver.find_elements(
             By.CSS_SELECTOR, 
             ".oZ3U3b")) > 0:   
             logging.info(f'You are in the waiting room')

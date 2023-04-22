@@ -49,6 +49,7 @@ if __name__ == '__main__':
 
         for meet_no in range(number_of_meeting):
             # Create logger
+            # !TODO: Change name to gmeet_host url
             logging.basicConfig(filename=os.path.join(pcapstore_path, f'GMeetHost_{time.time_ns()}.log'), 
                                 level=log_level, format="%(asctime)s %(message)s")
 
@@ -92,13 +93,15 @@ if __name__ == '__main__':
             time.sleep(meeting_duration)
             
             # Turn off capture and driver
-            capture.terminate()
             mhost.close_driver()
+            capture.terminate()
+            # virutal_media.terminate()
 
     except KeyboardInterrupt:
         mhost.close_driver()
         capture.terminate()
         capture.clean_up()
+        virutal_media.terminate()
         logging.error(f'Keyboard Interrupt at: and {file_path}')
         sys.exit(0)
 
@@ -106,5 +109,6 @@ if __name__ == '__main__':
         mhost.close_driver()
         capture.terminate()
         capture.clean_up()
+        # virutal_media.terminate()
         # logging.critical(f'Error at: {url} and {file_path}')
         raise e
