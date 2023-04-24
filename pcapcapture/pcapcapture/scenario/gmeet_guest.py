@@ -45,41 +45,27 @@ class MeetTask(BaseModel):
 
 def task_meeting(meet_task: MeetTask):
     try:
-    
-        # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest') 
-        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetGuest', 'SSLKEYLOG')
-        mkdir_by_path(pcapstore_path)
-        mkdir_by_path(sslkeylog_path)
-
         # Create logger
         # !TODO: Change name to gmeet_host url
-        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetGuest_{time.time_ns()}.log'))
-        stdout_handler = logging.StreamHandler(stream=sys.stdout)
-        handlers = [file_handler, stdout_handler]
-        
-        logging.basicConfig(
-            level=log_level, 
-            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
-            handlers=handlers
-        )
 
-        filename = f'GMeetGuest_{time.time_ns()}'
-        file_path = os.path.join(pcapstore_path, filename)
-        # Save ssl key to file
-        os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-        
-        gmeet = GMeetGuest(0, 0,
-                           profile_path=profile_path)
-        
+
         # start media before load url
         # virutal_media = FFMPEGVideoStream()
         # virutal_media.play(
         #     random.choice(ls_subfolders(media_path))
         #     )
+
         
         # Load invite url amd wait for join room
+        gmeet = GMeetGuest(0, 0,
+                           profile_path=profile_path)
         gmeet.load(meet_task.url)
+        
+        filename = f'GMeetGuest_{gmeet.meet_code}'
+        file_path = os.path.join(pcapstore_path, filename)
+        # Save ssl key to file
+        os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+        
         for attemp in range(10):
             time.sleep(5)
             if gmeet.joined:
@@ -94,8 +80,8 @@ def task_meeting(meet_task: MeetTask):
         time.sleep(meet_task.durtation)
 
         capture.terminate()
-        # virutal_media.terminate()
         gmeet.close_driver()
+        # virutal_media.terminate()
     
     except Exception:
         capture.terminate()
@@ -117,6 +103,22 @@ if __name__ == '__main__':
                                                     .../SSLKEYLOG/GmeetGuest_{timestamp}.log
     '''
     try:
+        # Create folder to store output
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet') 
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet', 'SSLKEYLOG')
+        mkdir_by_path(pcapstore_path)
+        mkdir_by_path(sslkeylog_path)
+        
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetGuest_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+        
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
+        
         uvicorn.run(app, host="0.0.0.0", port=8000)
     except KeyboardInterrupt:
         logging.error('Keyboard Interrupt')

@@ -42,40 +42,47 @@ from webcapture.utils import *
 if __name__ == '__main__':
     try:
         # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetHost') 
-        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeetHost', 'SSLKEYLOG')
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet') 
+        sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
-
-        for meet_no in range(number_of_meeting):
-            # Create logger
-            # !TODO: Change name to gmeet_host url
-            logging.basicConfig(filename=os.path.join(pcapstore_path, f'GMeetHost_{time.time_ns()}.log'), 
-                                level=log_level, format="%(asctime)s %(message)s")
         
+        # Create logger
+        file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetHost_{time.time_ns()}.log'))
+        stdout_handler = logging.StreamHandler(stream=sys.stdout)
+        handlers = [file_handler, stdout_handler]
+        logging.basicConfig(
+            level=log_level, 
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+            handlers=handlers
+        )
+
+        for meet_no in range(number_of_meeting):        
             # Create meeting with virtual media
             virutal_media = FFMPEGVideoStream()
-            virutal_media.play(random.choice(ls_subfolders(media_path)))
-            # Initialize capture
-            capture = AsyncQUICTrafficCapture()
+            virutal_media.play(
+                random.choice(
+                    ls_subfolders(
+                        mkpath_abs(media_path))
+                    )
+                )
 
-            mhost = GMeetHost(cam_id, mic_id,
+            gmeet = GMeetHost(cam_id, mic_id,
                               profile_path=profile_path)
-            mhost.create_meeting()
+            gmeet.create_meeting()
 
-            filename = f'GMeetHost_{time.time_ns()}'
+            filename = f'GMeetHost_{gmeet.meet_code}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-
             meeting_duration = random.randint(min_duration, max_duration)
-            
             for guest_ip in remote_ip:
                 try:
                     rq.post(
                         f'http://{guest_ip}:{remote_port}/join_room', 
-                        json={'url': mhost.meet_url, 'duration': (meeting_duration-40)})
+                        # make sure to client close before server
+                        json={'url': gmeet.meet_url, 'duration': (meeting_duration-30)})
                 except (rq.exceptions.HTTPError,
                         rq.exceptions.ConnectionError,
                         rq.exceptions.Timeout,
@@ -87,20 +94,22 @@ if __name__ == '__main__':
             time.sleep(20)
             
             for _ in range(10):                
-                while mhost.accept_guest():
+                while gmeet.accept_guest():
                     pass
                 time.sleep(1)
-                
+            
+            # Initialize capture            
+            capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
             time.sleep(meeting_duration)
             
             # Turn off capture and driver
-            mhost.close_driver()
             capture.terminate()
+            gmeet.close_driver()
             virutal_media.terminate()
 
     except KeyboardInterrupt:
-        mhost.close_driver()
+        gmeet.close_driver()
         capture.terminate()
         capture.clean_up()
         virutal_media.terminate()
@@ -108,7 +117,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     except Exception as e:
-        mhost.close_driver()
+        gmeet.close_driver()
         capture.terminate()
         capture.clean_up()
         # virutal_media.terminate()
