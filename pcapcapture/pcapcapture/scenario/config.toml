@@ -90,9 +90,9 @@ ffmpeg_cam_id = 10
 ffmpeg_mic_name = 'virtual_speaker'
 remote_ip = ['0.0.0.0']
 remote_port = 8000
-number_of_meeting = 20
-min_duration = 300
-max_duration = 1500
+number_of_meeting = 5
+min_duration = 150
+max_duration = 300
 # ! TODO: change this to your profile path
 profile_path = '/home/onos/Desktop/profile/user3'
 
