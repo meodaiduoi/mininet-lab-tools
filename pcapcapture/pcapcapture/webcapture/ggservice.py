@@ -212,6 +212,29 @@ class GMeet(PageLoader):
         except AttributeError:
             logging.error('No find mic button element')
 
+    @property
+    def get_mic_state(self) -> int:
+        state_dict = { -1: 'error', 0: 'off', 1: 'on'}
+
+        try:
+            mic = self._driver.find_element(By.CSS_SELECTOR, '.VfPpkd-P5QLlc')
+            if mic:
+                logging.info('mic blocked')
+                return state_dict[-1]
+        except NoSuchElementException:
+            logging.error('Permission for meet block')
+
+    @property
+    def get_cam_state(self) -> int:
+        state_dict = { -1: 'error', 0: 'off', 1: 'on'}
+
+        try:
+            cam = self._driver.find_element(By.CSS_SELECTOR, '.Brnbv')
+            if cam:
+                logging.info('cam blocked')
+                return state_dict[-1]
+        except NoSuchElementException:
+            logging.error('Permission for meet block')    
 
 class GMeetHost(GMeet):
 
