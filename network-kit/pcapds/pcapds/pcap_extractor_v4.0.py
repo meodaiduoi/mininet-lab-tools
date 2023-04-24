@@ -84,7 +84,14 @@ def main():
                        -T fields -e frame.time_epoch -e frame.number \
                        -e udp.stream -e ip.src -e udp.srcport -e ip.dst -e udp.dstport -e ip.proto \
                        -e "_ws.col.Protocol" -e "_ws.col.Length" -e "_ws.col.Info" -e quic.remaining_payload \
-                       -E header=n -E separator=, -E quote=d -E occurrence=f""")
+                       -E header=n -E separator=, -E quote=d -E occurrence=f"""),
+            
+            # ('udp', """ -d udp.port==443,gquic \
+            # -Y "(udp.stream>={start_stream_id} and udp.stream<={end_stream_id}) and gquic.payload" \
+            # -T fields -e frame.time_epoch -e frame.number \
+            # -e udp.stream -e ip.src -e udp.srcport -e ip.dst -e udp.dstport -e ip.proto \
+            # -e "_ws.col.Protocol" -e "_ws.col.Length" -e "_ws.col.Info" -e "gquic.payload"\
+            # -E header=n -E separator=, -E quote=d -E occurrence=f"""),
         ]
 
         for protocol, cmd_filter in filters:

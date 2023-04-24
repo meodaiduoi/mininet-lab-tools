@@ -178,6 +178,13 @@ class GMeet(PageLoader):
     def meet_url(self):
         return self._driver.current_url
     
+    @property
+    def meet_code(self):
+        match = re.search(r"/([a-z0-9-]+)\?", self.meet_url)
+        if match:
+            meeting_id = match.group(1)
+            return meeting_id
+    
     def leave_meeting(self):
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
 
@@ -289,7 +296,6 @@ class GMeetGuest(GMeet):
 
         logging.info(f'Joined meeting url: {self.meet_url}')
         return True
-
 
     @property        
     def joined(self) -> bool:

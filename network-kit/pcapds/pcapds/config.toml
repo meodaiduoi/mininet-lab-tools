@@ -6,7 +6,7 @@ CONC_THREAD = 6
 # HTTP_FILTER = '"(http or http2 or (tls.app_data and not tls.handshake)) and tcp.payload and (tcp.port==443 or tcp.port==80)"'
 
 HEX_TO_DEC = true
-PCAP_PATH = '/home/onos/Desktop/rawpcap'
-SAVED_PATH = '/home/onos/Desktop/rawds'
+PCAP_PATH = '/home/onos/Desktop/gquicpcap'
+SAVED_PATH = '/home/onos/Desktop/gquicds'
 TEMP_PATH = './temp_part/'
 SUMMARY_PATH = './summary/'

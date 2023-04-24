@@ -52,23 +52,25 @@ if __name__ == '__main__':
             # !TODO: Change name to gmeet_host url
             logging.basicConfig(filename=os.path.join(pcapstore_path, f'GMeetHost_{time.time_ns()}.log'), 
                                 level=log_level, format="%(asctime)s %(message)s")
-
         
+            # Create meeting with virtual media
+            virutal_media = FFMPEGVideoStream()
+            virutal_media.play(random.choice(ls_subfolders(media_path)))
+            # Initialize capture
             capture = AsyncQUICTrafficCapture()
+
+            mhost = GMeetHost(cam_id, mic_id,
+                              profile_path=profile_path)
+            mhost.create_meeting()
+
             filename = f'GMeetHost_{time.time_ns()}'
             file_path = os.path.join(pcapstore_path, filename)
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            # Load meethost
-            # TODO: FIX CAM
-            mhost = GMeetHost(cam_id, mic_id,
-                              profile_path=profile_path)
-            mhost.create_meeting()
-            virutal_media = FFMPEGVideoStream()
+
             meeting_duration = random.randint(min_duration, max_duration)
             
-            virutal_media.play(random.choice(ls_subfolders(media_path)))
             for guest_ip in remote_ip:
                 try:
                     rq.post(
@@ -95,7 +97,7 @@ if __name__ == '__main__':
             # Turn off capture and driver
             mhost.close_driver()
             capture.terminate()
-            # virutal_media.terminate()
+            virutal_media.terminate()
 
     except KeyboardInterrupt:
         mhost.close_driver()
