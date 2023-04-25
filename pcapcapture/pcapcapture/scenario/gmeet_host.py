@@ -70,6 +70,12 @@ if __name__ == '__main__':
             gmeet = GMeetHost(cam_id, mic_id,
                               profile_path=profile_path)
             gmeet.create_meeting()
+            
+            # Check if camera and microphone is working
+            if gmeet.cam_status != 1:
+                raise Exception('Camera not found')
+            if gmeet.mic_status != 1:
+                raise Exception('Microphone not found')
 
             filename = f'GMeetHost_{gmeet.meet_code}'
             file_path = os.path.join(pcapstore_path, filename)

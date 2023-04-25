@@ -213,7 +213,7 @@ class GMeet(PageLoader):
             logging.error('No find mic button element')
 
     @property
-    def get_mic_state(self) -> int:
+    def mic_status(self) -> int:
         state_dict = { 0: 'off', 1: 'on' }
 
         try:
@@ -228,7 +228,7 @@ class GMeet(PageLoader):
             return -1
             
     @property
-    def get_cam_state(self) -> int:
+    def cam_status(self) -> int:
         state_dict = {  -1: 'error', 0: 'off', 1: 'on' }
         try:
             status = self._driver.find_element(By.CSS_SELECTOR, ".eaeqqf")

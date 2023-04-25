@@ -61,6 +61,12 @@ def task_meeting(meet_task: MeetTask):
                            profile_path=profile_path)
         gmeet.load(meet_task.url)
         
+        # Check if camera and microphone is working
+        if gmeet.cam_status != 1:
+            raise Exception('Camera not found')
+        if gmeet.mic_status != 1:
+            raise Exception('Microphone not found')
+        
         filename = f'GMeetGuest_{gmeet.meet_code}'
         file_path = os.path.join(pcapstore_path, filename)
         # Save ssl key to file
