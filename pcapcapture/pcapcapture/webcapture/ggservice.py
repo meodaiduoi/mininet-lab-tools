@@ -214,28 +214,35 @@ class GMeet(PageLoader):
 
     @property
     def get_mic_state(self) -> int:
-        state_dict = { -1: 'error', 0: 'off', 1: 'on'}
+        state_dict = { 0: 'off', 1: 'on' }
 
         try:
-            mic = self._driver.find_element(By.CSS_SELECTOR, '.VfPpkd-P5QLlc')
-            if mic:
-                logging.info('mic blocked')
-                return state_dict[-1]
+            status = self._driver.find_element(By.CSS_SELECTOR, '.VfPpkd-P5QLlc')
+            if bool(status.get_attribute('data-is-muted')):
+                logging.info(f'Mic device {state_dict[0]}')
+                return 0
+            logging.info(f'Mic device {state_dict[1]}')
+            return 1
         except NoSuchElementException:
-            logging.error('Permission for meet block')
-
+            logging.error('Unable to find mic element')
+            return -1
+            
     @property
     def get_cam_state(self) -> int:
-        state_dict = { -1: 'error', 0: 'off', 1: 'on'}
-
+        state_dict = {  -1: 'error', 0: 'off', 1: 'on' }
         try:
-            cam = self._driver.find_element(By.CSS_SELECTOR, '.Brnbv')
-            if cam:
-                logging.info('cam blocked')
-                return state_dict[-1]
+            status = self._driver.find_element(By.CSS_SELECTOR, ".eaeqqf")
+            if bool(status.get_attribute('data-is-muted')):
+                if status.get_attribute('aria-label') == 'Sự cố với máy ảnh. Hiện thêm thông tin':
+                    logging.error(f'Camera device {state_dict[-1]}')
+                    return -1
+                logging.info(f'Camera device {state_dict[0]}')
+                return 0
+            logging.info(f'Camera device {state_dict[1]}')
+            return 1
         except NoSuchElementException:
-            logging.error('Permission for meet block')    
-
+            logging.error('Unable to find camera element')    
+            return -1
 class GMeetHost(GMeet):
 
     def __init__(self,
@@ -263,7 +270,6 @@ class GMeetHost(GMeet):
         except (ElementNotInteractableException, NoSuchElementException, TimeoutException):
             logging.error('Unable to create meeting')
             return ''
-
         return self._driver.current_url
 
 
