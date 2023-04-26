@@ -82,13 +82,23 @@ if __name__ == '__main__':
             # Save ssl key to file
             os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
 
-            meeting_duration = random.randint(min_duration, max_duration)
-            for guest_ip in remote_ip:
+            # Min-max duration must be at least greater than 60s window for guest to exit Recomended > 300s
+            safe_exit_threshold = 60
+            meeting_duration = random.randint(min_duration, max_duration - safe_exit_threshold)
+            for idx, guest_ip in enumerate(remote_ip):
                 try:
+                    # make sure these are at least 2 guests from start to the end of the meeting
+                    if idx < 1:
+                        rq.post(
+                        f'http://{guest_ip}:{remote_port}/join_room', 
+                        # make sure to client close before server
+                        json={'url': gmeet.meet_url, 'duration': (max_duration - safe_exit_threshold)})
+                    
+                    # rest of the guest can quit at anytime
                     rq.post(
                         f'http://{guest_ip}:{remote_port}/join_room', 
                         # make sure to client close before server
-                        json={'url': gmeet.meet_url, 'duration': (meeting_duration-30)})
+                        json={'url': gmeet.meet_url, 'duration': (meeting_duration)})
                 except (rq.exceptions.HTTPError,
                         rq.exceptions.ConnectionError,
                         rq.exceptions.Timeout,

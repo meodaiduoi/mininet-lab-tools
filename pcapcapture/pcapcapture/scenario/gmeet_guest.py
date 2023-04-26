@@ -45,16 +45,11 @@ class MeetTask(BaseModel):
 
 def task_meeting(meet_task: MeetTask):
     try:
-        # Create logger
-        # !TODO: Change name to gmeet_host url
-
-
         # start media before load url
-        # virutal_media = FFMPEGVideoStream()
-        # virutal_media.play(
-        #     random.choice(ls_subfolders(media_path))
-        #     )
-
+        virutal_media = FFMPEGVideoStream()
+        virutal_media.play(
+            random.choice(ls_subfolders(media_path))
+            )
         
         # Load invite url amd wait for join room
         gmeet = GMeetGuest(0, 0,
@@ -72,6 +67,7 @@ def task_meeting(meet_task: MeetTask):
         # Save ssl key to file
         os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
         
+        # Wait for join room
         for attemp in range(10):
             time.sleep(5)
             if gmeet.joined:
@@ -82,17 +78,18 @@ def task_meeting(meet_task: MeetTask):
         capture = AsyncQUICTrafficCapture()        
         capture.capture(interface, f'{file_path}.pcap')
         
-        # TODO: Implenent start time with variant
+        # Present in meeting
         time.sleep(meet_task.durtation)
-
+        
+        # Exit meeting
         capture.terminate()
         gmeet.close_driver()
-        # virutal_media.terminate()
+        virutal_media.terminate()
     
     except Exception:
         capture.terminate()
         capture.clean_up()
-        # virutal_media.terminate()
+        virutal_media.terminate()
         gmeet.close_driver()
         
 
@@ -119,6 +116,7 @@ if __name__ == '__main__':
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         handlers = [file_handler, stdout_handler]
         
+        # Create logger
         logging.basicConfig(
             level=log_level, 
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
