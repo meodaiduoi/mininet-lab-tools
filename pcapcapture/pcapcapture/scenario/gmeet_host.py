@@ -84,7 +84,9 @@ if __name__ == '__main__':
 
             # Min-max duration must be at least greater than 60s window for guest to exit Recomended > 300s
             safe_exit_threshold = 60
-            meeting_duration = random.randint(min_duration, max_duration - safe_exit_threshold)
+            host_duration = random.randint(min_duration, max_duration)
+            guest_duration = random.randint(round(host_duration*0.4), host_duration - safe_exit_threshold)
+            # meeting_duration = random.randint(min_duration, max_duration - safe_exit_threshold)
             for idx, guest_ip in enumerate(remote_ip):
                 try:
                     # make sure these are at least 2 guests from start to the end of the meeting
@@ -92,13 +94,13 @@ if __name__ == '__main__':
                         rq.post(
                         f'http://{guest_ip}:{remote_port}/join_room', 
                         # make sure to client close before server
-                        json={'url': gmeet.meet_url, 'duration': (max_duration - safe_exit_threshold)})
+                        json={'url': gmeet.meet_url, 'duration': (host_duration - safe_exit_threshold)})
                     
                     # rest of the guest can quit at anytime
                     rq.post(
                         f'http://{guest_ip}:{remote_port}/join_room', 
                         # make sure to client close before server
-                        json={'url': gmeet.meet_url, 'duration': (meeting_duration)})
+                        json={'url': gmeet.meet_url, 'duration': (guest_duration)})
                 except (rq.exceptions.HTTPError,
                         rq.exceptions.ConnectionError,
                         rq.exceptions.Timeout,
@@ -117,7 +119,7 @@ if __name__ == '__main__':
             # Initialize capture            
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
-            time.sleep(meeting_duration)
+            time.sleep(host_duration)
             
             # Turn off capture and driver
             capture.terminate()
