@@ -86,7 +86,6 @@ if __name__ == '__main__':
             safe_exit_threshold = 60
             host_duration = random.randint(min_duration, max_duration)
             guest_duration = random.randint(round(host_duration*0.4), host_duration - safe_exit_threshold)
-            # meeting_duration = random.randint(min_duration, max_duration - safe_exit_threshold)
             for idx, guest_ip in enumerate(remote_ip):
                 try:
                     # make sure these are at least 2 guests from start to the end of the meeting
@@ -95,7 +94,6 @@ if __name__ == '__main__':
                         f'http://{guest_ip}:{remote_port}/join_room', 
                         # make sure to client close before server
                         json={'url': gmeet.meet_url, 'duration': (host_duration - safe_exit_threshold)})
-                    
                     # rest of the guest can quit at anytime
                     rq.post(
                         f'http://{guest_ip}:{remote_port}/join_room', 
