@@ -94,6 +94,8 @@ if __name__ == '__main__':
                         f'http://{guest_ip}:{remote_port}/join_room', 
                         # make sure to client close before server
                         json={'url': gmeet.meet_url, 'duration': (host_duration - safe_exit_threshold)})
+                        continue
+                    
                     # rest of the guest can quit at anytime
                     rq.post(
                         f'http://{guest_ip}:{remote_port}/join_room', 

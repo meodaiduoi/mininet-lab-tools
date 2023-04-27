@@ -112,5 +112,9 @@ class FFMPEGVideoStream:
                 return False
         return True
 
+    def __del__(self):
+        self.terminate()
+        
+
 
 
