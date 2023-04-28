@@ -250,8 +250,9 @@ class GMeet(PageLoader):
                     return -1
                 logging.info(f'Camera device {state_dict[0]}')
                 return 0
-            logging.info(f'Camera device {state_dict[1]}')
-            return 1
+            else:
+                logging.info(f'Camera device {state_dict[1]}')
+                return 1
         except NoSuchElementException:
             logging.error('Unable to find camera element')
             return -1
@@ -376,7 +377,7 @@ class GMeetGuest(GMeet):
         '''
         if len(self._driver.find_elements(
                 By.CSS_SELECTOR,
-                ".pKgFkf")) > 0:
+                ".R5ccN")) > 0:
             logging.info(f'You joined the meeting room')
             return True
         elif len(self._driver.find_elements(

@@ -56,6 +56,8 @@ def task_meeting(meet_task: MeetTask):
                            profile_path=profile_path)
         gmeet.load(meet_task.url)
         
+        time.sleep(10)
+        
         # Check if camera and microphone is working
         if gmeet.cam_status != 1:
             raise Exception('Camera not found')
