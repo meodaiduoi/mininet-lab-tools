@@ -216,19 +216,21 @@ class GMeet(PageLoader):
     def mic_status(self) -> int:
         '''
         Return the status of mic device
-        return 
+        return
             0 if mic is off
             1 if mic is on
         '''
         state_dict = { 0: 'off', 1: 'on' }
         try:
-            status = self._driver.find_element(By.CSS_SELECTOR, '.Uulb3c')
+            status = WebDriverWait(self._driver, self.timeout).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.Uulb3c'))
+            )
             if status.get_attribute('data-is-muted') == 'true':
                 logging.info(f'Mic device {state_dict[0]}')
                 return 0
             logging.info(f'Mic device {state_dict[1]}')
             return 1
-        except NoSuchElementException:
+        except (NoSuchElementException, TimeoutException):
             logging.error('Unable to find mic element')
             return -1
 
@@ -243,17 +245,18 @@ class GMeet(PageLoader):
         '''
         state_dict = {  -1: 'error', 0: 'off', 1: 'on' }
         try:
-            status = self._driver.find_element(By.CSS_SELECTOR, ".eaeqqf")
+            status = WebDriverWait(self._driver, self.timeout).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".eaeqqf"))
+            )
             if status.get_attribute('data-is-muted') == 'true':
                 if status.get_attribute('aria-label') == 'Sự cố với máy ảnh. Hiện thêm thông tin':
                     logging.error(f'Camera device {state_dict[-1]}')
                     return -1
                 logging.info(f'Camera device {state_dict[0]}')
                 return 0
-            else:
-                logging.info(f'Camera device {state_dict[1]}')
-                return 1
-        except NoSuchElementException:
+            logging.info(f'Camera device {state_dict[1]}')
+            return 1
+        except (NoSuchElementException, TimeoutException):
             logging.error('Unable to find camera element')
             return -1
 
@@ -291,7 +294,9 @@ class GMeetHost(GMeet):
             self._driver.find_element(By.CSS_SELECTOR, ".JS1Zae").click()  # Start an instant meeting button
             WebDriverWait(self._driver, self.timeout).until(EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'OK')]"))))
             self._driver.find_element(By.XPATH, "//Button[contains(., 'OK')]").click() # Safety notfications close button
-        except (ElementNotInteractableException, NoSuchElementException, TimeoutException):
+        except (ElementNotInteractableException,
+                NoSuchElementException,
+                TimeoutException):
             logging.error('Unable to create meeting')
             return ''
         return self._driver.current_url
@@ -309,11 +314,13 @@ class GMeetHost(GMeet):
         except (ElementNotInteractableException, NoSuchElementException):
             try:
                 self._driver.find_element(By.XPATH, "//Button[contains(., 'Xem tất cả')]").click()
-                WebDriverWait(self._driver, self.timeout).until(
+                WebDriverWait(self._driver, 2).until(
                     EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'Cho phép tất cả')]"))))
                 self._driver.find_element(By.XPATH, "//Button[contains(., 'Cho phép tất cả')]").click()
                 logging.info("Accepted guest")
-            except (ElementNotInteractableException, NoSuchElementException):
+            except (ElementNotInteractableException,
+                    NoSuchElementException,
+                    TimeoutException):
                 logging.error('Unable to accept guest')
                 return False
 

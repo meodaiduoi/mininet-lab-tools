@@ -16,8 +16,8 @@ try:
         log_level = config['enviroment']['log_level']
         media_path = config['enviroment']['media_path']
         profile_path = config['gmeet_host']['profile_path']
-        
-        
+
+
         cam_id = config['gmeet_host']['cam_id']
         mic_id = config['gmeet_host']['mic_id']
         ffmpeg_cam_id = config['gmeet_host']['ffmpeg_cam_id']
@@ -27,7 +27,7 @@ try:
         number_of_meeting = config['gmeet_host']['number_of_meeting']
         min_duration = config['gmeet_host']['min_duration']
         max_duration = config['gmeet_host']['max_duration']
-        
+
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -37,27 +37,27 @@ except FileNotFoundError:
 # Code start from here
 from webcapture.pcapcapture import *
 from webcapture.ggservice import GMeetHost
-from webcapture.utils import *    
+from webcapture.utils import *
 
 if __name__ == '__main__':
     try:
         # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet') 
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet')
         sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
-        
+
         # Create logger
         file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetHost_{time.time_ns()}.log'))
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         handlers = [file_handler, stdout_handler]
         logging.basicConfig(
-            level=log_level, 
+            level=log_level,
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
 
-        for meet_no in range(number_of_meeting):        
+        for meet_no in range(number_of_meeting):
             # Create meeting with virtual media
             virutal_media = FFMPEGVideoStream()
             virutal_media.play(
@@ -70,7 +70,7 @@ if __name__ == '__main__':
             gmeet = GMeetHost(cam_id, mic_id,
                               profile_path=profile_path)
             gmeet.create_meeting()
-            
+
             # Check if camera and microphone is working
             if gmeet.cam_status != 1:
                 raise Exception('Camera not found')
@@ -91,14 +91,14 @@ if __name__ == '__main__':
                     # make sure these are at least 2 guests from start to the end of the meeting
                     if idx < 1:
                         rq.post(
-                        f'http://{guest_ip}:{remote_port}/join_room', 
+                        f'http://{guest_ip}:{remote_port}/join_room',
                         # make sure to client close before server
                         json={'url': gmeet.meet_url, 'duration': (host_duration - safe_exit_threshold)})
                         continue
-                    
+
                     # rest of the guest can quit at anytime
                     rq.post(
-                        f'http://{guest_ip}:{remote_port}/join_room', 
+                        f'http://{guest_ip}:{remote_port}/join_room',
                         # make sure to client close before server
                         json={'url': gmeet.meet_url, 'duration': (guest_duration)})
                 except (rq.exceptions.HTTPError,
@@ -107,20 +107,20 @@ if __name__ == '__main__':
                         rq.exceptions.RequestException):
                     logging.error(f'Cannot connect to {guest_ip}')
                     continue
-                
+
             # wait for webdrive from guest to connect
             time.sleep(20)
-            
-            for _ in range(10):                
+
+            for _ in range(10):
                 while gmeet.accept_guest():
                     pass
                 time.sleep(1)
-            
-            # Initialize capture            
+
+            # Initialize capture
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
             time.sleep(host_duration)
-            
+
             # Turn off capture and driver
             capture.terminate()
             gmeet.close_driver()
@@ -138,6 +138,6 @@ if __name__ == '__main__':
         gmeet.close_driver()
         capture.terminate()
         capture.clean_up()
-        # virutal_media.terminate()
-        # logging.critical(f'Error at: {url} and {file_path}')
+        virutal_media.terminate()
+        logging.critical(f'Error at: {gmeet.meet_url} and {file_path}')
         raise e

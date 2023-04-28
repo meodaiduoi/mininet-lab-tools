@@ -17,12 +17,12 @@ try:
         log_level = config['enviroment']['log_level']
         media_path = config['enviroment']['media_path']
         profile_path = config['gmeet_guest']['profile_path']
-        
+
         cam_id = config['gmeet_guest']['cam_id']
         mic_id = config['gmeet_guest']['mic_id']
         ffmpeg_cam_id = config['gmeet_guest']['ffmpeg_cam_id']
         ffmpeg_mic_name = config['gmeet_guest']['ffmpeg_mic_name']
-                
+
         # To load module from parent folder
         sys.path.insert(1, '../' )
 except FileNotFoundError:
@@ -50,25 +50,23 @@ def task_meeting(meet_task: MeetTask):
         virutal_media.play(
             random.choice(ls_subfolders(media_path))
             )
-        
+
         # Load invite url amd wait for join room
         gmeet = GMeetGuest(0, 0,
                            profile_path=profile_path)
         gmeet.load(meet_task.url)
-        
-        time.sleep(10)
-        
+
         # Check if camera and microphone is working
         if gmeet.cam_status != 1:
             raise Exception('Camera not found')
         if gmeet.mic_status != 1:
             raise Exception('Microphone not found')
-        
+
         filename = f'GMeetGuest_{gmeet.meet_code}'
         file_path = os.path.join(pcapstore_path, filename)
         # Save ssl key to file
         os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-        
+
         # Wait for join room
         for attemp in range(10):
             time.sleep(5)
@@ -76,31 +74,31 @@ def task_meeting(meet_task: MeetTask):
                 break
             if attemp >= 9:
                 raise Exception('Join room timeout')
-        
-        capture = AsyncQUICTrafficCapture()        
+
+        capture = AsyncQUICTrafficCapture()
         capture.capture(interface, f'{file_path}.pcap')
-        
+
         # Present in meeting
         time.sleep(meet_task.durtation)
-        
+
         # Exit meeting
         capture.terminate()
         gmeet.close_driver()
         virutal_media.terminate()
-    
+
     except Exception:
         capture.terminate()
         capture.clean_up()
         virutal_media.terminate()
         gmeet.close_driver()
-        
+
 
 @app.post('/join_room')
 async def join_room(background_tasks: BackgroundTasks, meet_task: MeetTask):
     background_tasks.add_task(task_meeting, meet_task)
     return {'status': 'ok'}
 
-    
+
 if __name__ == '__main__':
     '''
     Folder structure:
@@ -109,22 +107,22 @@ if __name__ == '__main__':
     '''
     try:
         # Create folder to store output
-        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet') 
+        pcapstore_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet')
         sslkeylog_path = os.path.join(mkpath_abs(store_path), 'QUIC', 'GMeet', 'SSLKEYLOG')
         mkdir_by_path(pcapstore_path)
         mkdir_by_path(sslkeylog_path)
-        
+
         file_handler = logging.FileHandler(filename=os.path.join(pcapstore_path, f'GMeetGuest_{time.time_ns()}.log'))
         stdout_handler = logging.StreamHandler(stream=sys.stdout)
         handlers = [file_handler, stdout_handler]
-        
+
         # Create logger
         logging.basicConfig(
-            level=log_level, 
+            level=log_level,
             format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
             handlers=handlers
         )
-        
+
         uvicorn.run(app, host="0.0.0.0", port=8000)
     except KeyboardInterrupt:
         logging.error('Keyboard Interrupt')
