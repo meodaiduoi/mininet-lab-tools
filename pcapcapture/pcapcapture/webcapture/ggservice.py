@@ -177,20 +177,20 @@ class GMeet(PageLoader):
     @property
     def meet_url(self):
         return self._driver.current_url
-    
+
     @property
     def meet_code(self):
         match = re.search(r"/([a-z0-9-]+)\?", self.meet_url)
         if match:
             meeting_id = match.group(1)
             return meeting_id
-    
+
     def leave_meeting(self):
         self._driver.find_element(By.CSS_SELECTOR, "[jsname='CQylAd']").click()
 
     def btn_camera(self):
         try:
-            if self._driver.find_element(By.XPATH, 
+            if self._driver.find_element(By.XPATH,
                                         '//div[@role="button"][@aria-label="Tắt máy ảnh (Ctrl + E)"]'):
                 logging.info('Camera is on')
             else:
@@ -199,10 +199,10 @@ class GMeet(PageLoader):
                 logging.info('Turn on camera')
         except AttributeError:
             logging.error('No find camera button element')
-            
+
     def btn_mic(self):
         try:
-            if self._driver.find_element(By.XPATH, 
+            if self._driver.find_element(By.XPATH,
                                         '//div[@role="button"][@aria-label="Tắt micrô (Ctrl + D)"]'):
                 logging.info('Mic is on')
             else:
@@ -214,11 +214,16 @@ class GMeet(PageLoader):
 
     @property
     def mic_status(self) -> int:
+        '''
+        Return the status of mic device
+        return 
+            0 if mic is off
+            1 if mic is on
+        '''
         state_dict = { 0: 'off', 1: 'on' }
-
         try:
-            status = self._driver.find_element(By.CSS_SELECTOR, '.VfPpkd-P5QLlc')
-            if bool(status.get_attribute('data-is-muted')):
+            status = self._driver.find_element(By.CSS_SELECTOR, '.Uulb3c')
+            if status.get_attribute('data-is-muted') == 'true':
                 logging.info(f'Mic device {state_dict[0]}')
                 return 0
             logging.info(f'Mic device {state_dict[1]}')
@@ -226,13 +231,20 @@ class GMeet(PageLoader):
         except NoSuchElementException:
             logging.error('Unable to find mic element')
             return -1
-            
+
     @property
     def cam_status(self) -> int:
+        '''
+        Return the status of camera device
+        return
+           -1  if error
+            0  if camera is off
+            1  if camera is on
+        '''
         state_dict = {  -1: 'error', 0: 'off', 1: 'on' }
         try:
             status = self._driver.find_element(By.CSS_SELECTOR, ".eaeqqf")
-            if bool(status.get_attribute('data-is-muted')):
+            if status.get_attribute('data-is-muted') == 'true':
                 if status.get_attribute('aria-label') == 'Sự cố với máy ảnh. Hiện thêm thông tin':
                     logging.error(f'Camera device {state_dict[-1]}')
                     return -1
@@ -241,10 +253,17 @@ class GMeet(PageLoader):
             logging.info(f'Camera device {state_dict[1]}')
             return 1
         except NoSuchElementException:
-            logging.error('Unable to find camera element')    
+            logging.error('Unable to find camera element')
             return -1
-class GMeetHost(GMeet):
 
+
+class GMeetHost(GMeet):
+    '''
+    This class will be used for host of the meeting
+    Usage:
+        host = GMeetHost(camera_id, microphone_id)
+        host.create_meeting()
+    '''
     def __init__(self,
                  camera_id: int,
                  microphone_id: int,
@@ -256,9 +275,13 @@ class GMeetHost(GMeet):
         super(GMeetHost, self).__init__(camera_id, microphone_id, timeout, profile_path,
                          preferences, extensions, **kwargs)
 
-    
+
     # !TODO: refactor this function when have time for now it's working don't touch it
     def create_meeting(self) -> str:
+        '''
+        Create a new meeting and return the url
+        return: str -> url of the meeting
+        '''
         self.load('https://meet.google.com/',
                 locator=(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ"))  # Create a new meeting button
 
@@ -274,17 +297,33 @@ class GMeetHost(GMeet):
 
 
     def accept_guest(self) -> bool:
+        '''
+        Accept guest to meeting
+        return True if success else False
+        '''
         try:
             self._driver.find_element(By.XPATH, "//Button[contains(., 'Chấp nhận')]").click()
             logging.info("Accepted guest")
             return True
         except (ElementNotInteractableException, NoSuchElementException):
-            logging.error("Unable to accept guest or no guest")
-        return False
+            try:
+                self._driver.find_element(By.XPATH, "//Button[contains(., 'Xem tất cả')]").click()
+                WebDriverWait(self._driver, self.timeout).until(
+                    EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'Cho phép tất cả')]"))))
+                self._driver.find_element(By.XPATH, "//Button[contains(., 'Cho phép tất cả')]").click()
+                logging.info("Accepted guest")
+            except (ElementNotInteractableException, NoSuchElementException):
+                logging.error('Unable to accept guest')
+                return False
 
 
 class GMeetGuest(GMeet):
-
+    '''
+    This class will be used for guest of the meeting
+    Usage:
+        guest = GMeetGuest(camera_id, microphone_id)
+        guest.load(url_invite)
+    '''
     def __init__(self,
                  camera_id: int,
                  microphone_id: int,
@@ -296,13 +335,17 @@ class GMeetGuest(GMeet):
         super().__init__(camera_id, microphone_id, timeout, profile_path,
                          preferences, extensions, **kwargs)
 
-        
+
     def load(self, url_invite) -> bool:
+        '''
+        Load the meeting url and join the meeting
+        return True if success else False
+        '''
         # find the element for joining the meeting
         self.is_host = False
         super().load(url_invite, (By.CLASS_NAME, 'mFzCLe'))
         self._join_meeting()
-    
+
     def _join_meeting(self):
         try:
             WebDriverWait(self._driver, self.timeout).until(
@@ -326,16 +369,19 @@ class GMeetGuest(GMeet):
         logging.info(f'Joined meeting url: {self.meet_url}')
         return True
 
-    @property        
+    @property
     def joined(self) -> bool:
+        '''
+        Check if you joined the meeting or not
+        '''
         if len(self._driver.find_elements(
                 By.CSS_SELECTOR,
                 ".pKgFkf")) > 0:
             logging.info(f'You joined the meeting room')
             return True
         elif len(self._driver.find_elements(
-            By.CSS_SELECTOR, 
-            ".oZ3U3b")) > 0:   
+            By.CSS_SELECTOR,
+            ".oZ3U3b")) > 0:
             logging.info(f'You are in the waiting room')
             return False
         else:
@@ -569,7 +615,7 @@ class GPhoto(PageLoader):
 
         # for i in range(len(next_img_btn)):
         #     self._driver.execute_script("arguments[0].click()", next_img_btn[i])
-        
+
         logging.info('Changing next image in inspect mode')
         self._arrow_click('RIGHT')
         return True
