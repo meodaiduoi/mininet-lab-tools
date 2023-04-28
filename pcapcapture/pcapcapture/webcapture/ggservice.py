@@ -314,7 +314,7 @@ class GMeetHost(GMeet):
         except (ElementNotInteractableException, NoSuchElementException):
             try:
                 self._driver.find_element(By.XPATH, "//Button[contains(., 'Xem tất cả')]").click()
-                WebDriverWait(self._driver, 2).until(
+                WebDriverWait(self._driver, 3).until(
                     EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'Cho phép tất cả')]"))))
                 self._driver.find_element(By.XPATH, "//Button[contains(., 'Cho phép tất cả')]").click()
                 logging.info("Accepted guest")
