@@ -55,7 +55,8 @@ def task_meeting(meet_task: MeetTask):
         gmeet = GMeetGuest(0, 0,
                            profile_path=profile_path)
         gmeet.load(meet_task.url)
-
+        logging.info(f'Joining room {gmeet.meet_code}')
+        
         # Check if camera and microphone is working
         if gmeet.cam_status != 1:
             raise Exception('Camera not found')
@@ -77,10 +78,12 @@ def task_meeting(meet_task: MeetTask):
 
         capture = AsyncQUICTrafficCapture()
         capture.capture(interface, f'{file_path}.pcap')
-
+        logging.info(f'Start capture meeting: {gmeet.meet_url} - Duration: {meet_task.durtation}, Saved at {file_path}')
+        
         # Present in meeting
         time.sleep(meet_task.durtation)
 
+        logging.info(f'End meeting at {gmeet.meet_url}, Saved at {file_path}')
         # Exit meeting
         capture.terminate()
         gmeet.close_driver()
@@ -91,6 +94,7 @@ def task_meeting(meet_task: MeetTask):
         capture.clean_up()
         virutal_media.terminate()
         gmeet.close_driver()
+        logging.error(f'Error at: {gmeet.meet_url} and {file_path}')
 
 
 @app.post('/join_room')

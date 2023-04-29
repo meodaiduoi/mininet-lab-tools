@@ -70,6 +70,7 @@ if __name__ == '__main__':
             gmeet = GMeetHost(cam_id, mic_id,
                               profile_path=profile_path)
             gmeet.create_meeting()
+            logging.info(f'Created meeting: {gmeet.meet_url}')
 
             # Check if camera and microphone is working
             if gmeet.cam_status != 1:
@@ -97,20 +98,25 @@ if __name__ == '__main__':
                         continue
 
                     # rest of the guest can quit at anytime
-                    rq.post(
-                        f'http://{guest_ip}:{remote_port}/join_room',
-                        # make sure to client close before server
-                        json={'url': gmeet.meet_url, 'duration': (guest_duration)})
+                    else:
+                        rq.post(
+                            f'http://{guest_ip}:{remote_port}/join_room',
+                            # make sure to client close before server
+                            json={'url': gmeet.meet_url, 'duration': (guest_duration)})
+                    logging.info(f'Guest {idx}, {guest_ip}:{remote_port} joined')
+                
                 except (rq.exceptions.HTTPError,
                         rq.exceptions.ConnectionError,
                         rq.exceptions.Timeout,
                         rq.exceptions.RequestException):
-                    logging.error(f'Cannot connect to {guest_ip}')
+                    logging.error(f'Cannot connect to Guest: {idx}, {guest_ip}:{remote_port}')
                     continue
 
             # wait for webdrive from guest to connect
+            logging.info('Waiting for guest to connect')
             time.sleep(20)
 
+            logging.info('Waiting to accepting guest')
             for _ in range(25): # loop = 15: 1 guest, 25: 2 guest (First meeting)
                 while gmeet.accept_guest():
                     pass
@@ -119,19 +125,21 @@ if __name__ == '__main__':
             # Initialize capture
             capture = AsyncQUICTrafficCapture()
             capture.capture(interface, f'{file_path}.pcap')
+            logging.info(f'Capture started: Meetting {gmeet.meet_url} to {file_path}.pcap')
             time.sleep(host_duration)
 
             # Turn off capture and driver
             capture.terminate()
             gmeet.close_driver()
             virutal_media.terminate()
+            logging.info(f'Capture ended: Meetting {gmeet.meet_url} to {file_path}.pcap')
 
     except KeyboardInterrupt:
         gmeet.close_driver()
         capture.terminate()
         capture.clean_up()
         virutal_media.terminate()
-        logging.error(f'Keyboard Interrupt at: and {file_path}')
+        logging.error(f'Error at: {gmeet.meet_url} and {file_path}')
         sys.exit(0)
 
     except Exception as e:
