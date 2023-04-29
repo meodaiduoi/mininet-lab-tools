@@ -223,7 +223,7 @@ class GMeet(PageLoader):
         state_dict = { 0: 'off', 1: 'on' }
         try:
             status = WebDriverWait(self._driver, self.timeout).until(
-                EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.Uulb3c'))
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.Uulb3c'))
             )
             if status.get_attribute('data-is-muted') == 'true':
                 logging.info(f'Mic device {state_dict[0]}')
@@ -292,8 +292,12 @@ class GMeetHost(GMeet):
         try:
             self._driver.find_element(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ").click()
             self._driver.find_element(By.CSS_SELECTOR, ".JS1Zae").click()  # Start an instant meeting button
-            WebDriverWait(self._driver, self.timeout).until(EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'OK')]"))))
-            self._driver.find_element(By.XPATH, "//Button[contains(., 'OK')]").click() # Safety notfications close button
+            if WebDriverWait(self._driver, self.timeout).until(EC.visibility_of_element_located(((By.XPATH, "//Button[contains(., 'OK')]")))):
+                self._driver.find_element(By.XPATH, "//Button[contains(., 'OK')]").click() # Safety notfications close button
+            elif WebDriverWait(self._driver, self.timeout).until(
+                EC.visibility_of_element_located(((By.CSS_SELECTOR, "button.VfPpkd-Bz112c-LgbsSe:nth-child(2)")))):
+                self._driver.find_element(By.CSS_SELECTOR, "button.VfPpkd-Bz112c-LgbsSe:nth-child(2)").click()
+            logging.info("Meeting created")
         except (ElementNotInteractableException,
                 NoSuchElementException,
                 TimeoutException):

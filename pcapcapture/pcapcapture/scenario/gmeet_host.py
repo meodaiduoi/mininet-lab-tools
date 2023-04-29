@@ -111,7 +111,7 @@ if __name__ == '__main__':
             # wait for webdrive from guest to connect
             time.sleep(20)
 
-            for _ in range(10):
+            for _ in range(25): # loop = 15: 1 guest, 25: 2 guest (First meeting)
                 while gmeet.accept_guest():
                     pass
                 time.sleep(1)
