@@ -46,9 +46,9 @@ class MeetTask(BaseModel):
 def task_meeting(meet_task: MeetTask):
     try:
         # start media before load url
-        virutal_media = FFMPEGVideoStream()
+        virutal_media = FFMPEGVideoStream(logs_path=os.path.join(pcapstore_path, 'ffmpeg_logs'))
         virutal_media.play(
-            random.choice(ls_subfolders(media_path))
+            random.choice(ls_subfolders(mkpath_abs(media_path)))
             )
 
         # Load invite url amd wait for join room

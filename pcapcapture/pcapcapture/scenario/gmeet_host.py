@@ -59,12 +59,10 @@ if __name__ == '__main__':
 
         for meet_no in range(number_of_meeting):
             # Create meeting with virtual media
-            virutal_media = FFMPEGVideoStream()
+            virutal_media = FFMPEGVideoStream(logs_path=os.path.join(pcapstore_path, 'ffmpeg_logs'))
             virutal_media.play(
                 random.choice(
-                    ls_subfolders(
-                        mkpath_abs(media_path))
-                    )
+                    ls_subfolders(mkpath_abs(media_path)))
                 )
 
             gmeet = GMeetHost(cam_id, mic_id,
