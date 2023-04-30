@@ -1,6 +1,6 @@
 import os
 import subprocess, signal
-import logging
+import logging, time
 
 # Directory utils
 def ls_subfolders(rootdir):
@@ -40,11 +40,11 @@ class FFMPEGVideoStream:
 
     def play(self, video_path: str):
         if (self.video_process and self.audio_process) is None:
-            self.video_process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i "{video_path}" -f v4l2 /dev/video{self.cam_id} > log_video.log 2>&1',
+            self.video_process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i "{video_path}" -f v4l2 /dev/video{self.cam_id} > log_video_{time.time_ns()}.log 2>&1',
                                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             logging.info(f'Starting ffmpeg process to stream video to /dev/video{self.cam_id}')
 
-            self.audio_process = subprocess.Popen(f'PULSE_SINK="{self.mic_loopback_name}" ffmpeg -stream_loop -1  -i "{video_path}" -f pulse "stream name" > log_audio.log 2>&1',
+            self.audio_process = subprocess.Popen(f'PULSE_SINK="{self.mic_loopback_name}" ffmpeg -stream_loop -1  -i "{video_path}" -f pulse "stream name" > log_audio_{time.time_ns()}.log 2>&1',
                                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             logging.info(f'Starting ffmpeg process to stream audio to {self.mic_loopback_name}')
         
