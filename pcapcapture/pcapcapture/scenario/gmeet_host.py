@@ -59,8 +59,9 @@ if __name__ == '__main__':
 
         for meet_no in range(number_of_meeting):
             # Create meeting with virtual media
-            virutal_media = FFMPEGVideoStream(logs_path=os.path.join(pcapstore_path, 'ffmpeg_logs'))
-            virutal_media.play(
+            # virtual_media = FFMPEGVideoStream(logs_path=os.path.join(pcapstore_path, 'ffmpeg_logs'))
+            virtual_media = FFMPEGVideoStream()
+            virtual_media.play(
                 random.choice(
                     ls_subfolders(mkpath_abs(media_path)))
                 )
@@ -129,14 +130,14 @@ if __name__ == '__main__':
             # Turn off capture and driver
             capture.terminate()
             gmeet.close_driver()
-            virutal_media.terminate()
+            virtual_media.terminate()
             logging.info(f'Capture ended: Meetting {gmeet.meet_url} to {file_path}.pcap')
 
     except KeyboardInterrupt:
         gmeet.close_driver()
         capture.terminate()
         capture.clean_up()
-        virutal_media.terminate()
+        virtual_media.terminate()
         logging.error(f'Error at: {gmeet.meet_url} and {file_path}')
         sys.exit(0)
 
@@ -144,6 +145,6 @@ if __name__ == '__main__':
         gmeet.close_driver()
         capture.terminate()
         capture.clean_up()
-        virutal_media.terminate()
+        virtual_media.terminate()
         logging.critical(f'Error at: {gmeet.meet_url} and {file_path}')
         raise e

@@ -42,12 +42,16 @@ class FFMPEGVideoStream:
 
     def play(self, video_path: str):
         if (self.video_process and self.audio_process) is None:
-            self.video_process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i "{video_path}" -f v4l2 /dev/video{self.cam_id} > "{self.logs_path}/log_video_{time.time_ns()}.log" 2>&1',
-                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            # self.video_process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i "{video_path}" -f v4l2 /dev/video{self.cam_id} > "{self.logs_path}/log_video_{time.time_ns()}.log" 2>&1',
+            #                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            self.video_process = subprocess.Popen(f'ffmpeg -stream_loop -1 -re -i "{video_path}" -f v4l2 /dev/video{self.cam_id}',
+                                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
             logging.info(f'Starting ffmpeg process to stream video to /dev/video{self.cam_id}')
 
-            self.audio_process = subprocess.Popen(f'PULSE_SINK="{self.mic_loopback_name}" ffmpeg -stream_loop -1  -i "{video_path}" -f pulse "stream name" > "{self.logs_path}/log_audio_{time.time_ns()}.log" 2>&1',
-                                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            # self.audio_process = subprocess.Popen(f'PULSE_SINK="{self.mic_loopback_name}" ffmpeg -stream_loop -1  -i "{video_path}" -f pulse "stream name" > "{self.logs_path}/log_audio_{time.time_ns()}.log" 2>&1',
+            #                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            self.audio_process = subprocess.Popen(f'ffmpeg -stream_loop -1  -i "{video_path}" -f pulse "stream name"',
+                                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
             logging.info(f'Starting ffmpeg process to stream audio to {self.mic_loopback_name}')
         
 
@@ -64,14 +68,14 @@ class FFMPEGVideoStream:
 
         if self.video_process and self.audio_process:
             video_returncode = terminate_process(self.video_process)
-            if video_returncode != 0:
+            if video_returncode != 0 or video_returncode != 255:
                 logging.error('Error: ffmpeg Video process terminated with non-zero return code')
             else:
                 logging.info('ffmpeg Video process terminated')
             self.video_process = None
 
             audio_returncode = terminate_process(self.audio_process)
-            if audio_returncode != 0:
+            if audio_returncode != 0 or audio_returncode != 255:
                 logging.error('Error: ffmpeg Audio process terminated with non-zero return code')
             else:
                 logging.info('ffmpeg Audio process terminated')

@@ -46,8 +46,9 @@ class MeetTask(BaseModel):
 def task_meeting(meet_task: MeetTask):
     try:
         # start media before load url
-        virutal_media = FFMPEGVideoStream(logs_path=os.path.join(pcapstore_path, 'ffmpeg_logs'))
-        virutal_media.play(
+        # virtual_media = FFMPEGVideoStream(logs_path=os.path.join(pcapstore_path, 'ffmpeg_logs'))
+        virtual_media = FFMPEGVideoStream()
+        virtual_media.play(
             random.choice(ls_subfolders(mkpath_abs(media_path)))
             )
 
@@ -87,12 +88,12 @@ def task_meeting(meet_task: MeetTask):
         # Exit meeting
         capture.terminate()
         gmeet.close_driver()
-        virutal_media.terminate()
+        virtual_media.terminate()
 
     except Exception:
         capture.terminate()
         capture.clean_up()
-        virutal_media.terminate()
+        virtual_media.terminate()
         gmeet.close_driver()
         logging.error(f'Error at: {gmeet.meet_url} and {file_path}')
 
