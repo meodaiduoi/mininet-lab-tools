@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 random.choice(
                     ls_subfolders(mkpath_abs(media_path)))
                 )
-            time.sleep(10)
+           
             gmeet = GMeetHost(cam_id, mic_id,
                               profile_path=profile_path)
             gmeet.create_meeting()
