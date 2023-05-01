@@ -77,16 +77,18 @@ if __name__ == '__main__':
             if gmeet.mic_status != 1:
                 raise Exception('Microphone not found')
 
-            filename = f'GMeetHost_{gmeet.meet_code}'
-            file_path = os.path.join(pcapstore_path, filename)
-            # Save ssl key to file
-            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
-
             # Min-max duration must be at least greater than 60s window for guest to exit Recomended > 300s
             safe_exit_threshold = 60
             host_duration = random.randint(min_duration, max_duration)
             # Make sure guest duration is at least >= 55% of host duration
             guest_duration = random.randint(round(host_duration*0.55), host_duration - safe_exit_threshold)
+
+            # Create file name
+            filename = f'GMeetHost_{gmeet.meet_code}_{host_duration}'
+            file_path = os.path.join(pcapstore_path, filename)
+            # Save ssl key to file
+            os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
+
             for idx, guest_ip in enumerate(remote_ip):
                 try:
                     # make sure these are at least 2 guests from start to the end of the meeting

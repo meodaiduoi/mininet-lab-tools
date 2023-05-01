@@ -64,7 +64,7 @@ def task_meeting(meet_task: MeetTask):
         if gmeet.mic_status != 1:
             raise Exception('Microphone not found')
 
-        filename = f'GMeetGuest_{gmeet.meet_code}'
+        filename = f'GMeetGuest_{gmeet.meet_code}_{meet_task.durtation}'
         file_path = os.path.join(pcapstore_path, filename)
         # Save ssl key to file
         os.environ['SSLKEYLOGFILE'] = os.path.join(sslkeylog_path, f'{filename}.log')
