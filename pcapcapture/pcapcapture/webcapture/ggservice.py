@@ -286,7 +286,7 @@ class GMeetHost(GMeet):
         Create a new meeting and return the url
         return: str -> url of the meeting
         '''
-        self.load('https://meet.google.com/',
+        self.load('https://meet.google.com/?pli=1',
                 locator=(By.CSS_SELECTOR, ".VfPpkd-LgbsSe-OWXEXe-k8QpJ"))  # Create a new meeting button
 
         try:

@@ -72,8 +72,8 @@ if __name__ == '__main__':
             logging.info(f'Created meeting: {gmeet.meet_url}')
 
             # Check if camera and microphone is working
-            # if gmeet.cam_status != 1:
-            #     raise Exception('Camera not found')
+            if gmeet.cam_status != 1:
+                raise Exception('Camera not found')
             if gmeet.mic_status != 1:
                 raise Exception('Microphone not found')
 
@@ -135,7 +135,6 @@ if __name__ == '__main__':
             logging.info(f'Capture ended: Meetting {gmeet.meet_url} to {file_path}.pcap')
             gmeet.close_driver()
             virtual_media.terminate()
-            logging.info(f'Capture ended: Meetting {gmeet.meet_url} to {file_path}.pcap')
 
     except KeyboardInterrupt:
         gmeet.close_driver()
