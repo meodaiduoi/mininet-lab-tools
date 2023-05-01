@@ -64,15 +64,15 @@ if __name__ == '__main__':
                 random.choice(
                     ls_subfolders(mkpath_abs(media_path)))
                 )
-
+            time.sleep(10)
             gmeet = GMeetHost(cam_id, mic_id,
                               profile_path=profile_path)
             gmeet.create_meeting()
             logging.info(f'Created meeting: {gmeet.meet_url}')
 
             # Check if camera and microphone is working
-            if gmeet.cam_status != 1:
-                raise Exception('Camera not found')
+            # if gmeet.cam_status != 1:
+            #     raise Exception('Camera not found')
             if gmeet.mic_status != 1:
                 raise Exception('Microphone not found')
 
@@ -128,9 +128,9 @@ if __name__ == '__main__':
 
             # Turn off capture and driver
             capture.terminate()
+            logging.info(f'Capture ended: Meetting {gmeet.meet_url} to {file_path}.pcap')
             gmeet.close_driver()
             virutal_media.terminate()
-            logging.info(f'Capture ended: Meetting {gmeet.meet_url} to {file_path}.pcap')
 
     except KeyboardInterrupt:
         gmeet.close_driver()
